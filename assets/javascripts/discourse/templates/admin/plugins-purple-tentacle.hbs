@@ -1,0 +1,55 @@
+<h1>精选帖子管理</h1>
+
+<div class="search-controls">
+  <label>标题</label>
+  <input type="text" placeholder="标题" value={{this.titleSearch}} oninput={{action (mut this.titleSearch) value="target.value"}} />
+
+  <label>精选</label>
+  <select value={{this.isCurated}}  onchange={{action (mut this.isCurated) value="target.value"}}>
+    <option value="">请选择</option>
+    <option value="1">是</option>
+    <option value="0">否</option>
+  </select>
+
+  <button {{action "search"}}>搜索</button>
+  <button {{action "reset"}}>重置</button>
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>标题</th>
+      <th>作者</th>
+      <th>创建时间</th>
+      <th>操作</th>
+      <th>操作人</th>
+      <th>操作时间</th>
+    </tr>
+  </thead>
+  <tbody>
+    {{#each this.filteredItems as |item|}}
+      <tr>
+        <td>{{item.id}}</td>
+        <td>{{item.title}}</td>
+        <td>{{item.author}}</td>
+        <td>{{item.created_at}}</td>
+        <td>
+          {{#if (eq item.is_curated 1)}}
+            <button {{action "curated" item 0}}>取消精选</button>
+          {{else}}
+            <button {{action "curated" item 1}}>加精选</button>
+          {{/if}}
+        </td>
+        <td>{{item.operator}}</td>
+        <td>{{item.updated_at}}</td>
+      </tr>
+    {{/each}}
+  </tbody>
+</table>
+
+<div class="pagination">
+  <button {{action "goPerPage" this.current}}>上一页</button>
+  <span>第 {{this.current}} 页 / 共 {{this.totalPage}} 页</span>
+  <button {{action "goNextPage" this.current}}>下一页</button>
+</div>

@@ -1,0 +1,14 @@
+.search-controls {
+  display: flex;
+  align-items: center; /* 垂直居中对齐 */
+}
+
+.search-controls label {
+  margin-right: 8px; /* 给标签添加右边距 */
+}
+
+.search-controls input,
+.search-controls select,
+.search-controls button {
+  margin-right: 8px; /* 给输入框、下拉框和按钮添加右边距 */
+}

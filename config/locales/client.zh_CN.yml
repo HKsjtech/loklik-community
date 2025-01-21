@@ -1,0 +1,12 @@
+zh_CN:
+  admin_js:
+    admin:
+      site_settings:
+        categories:
+          TODO_plugin_name: "Plugin Name"
+  js:
+    discourse_plugin_name:
+      placeholder: placeholder
+    purple_tentacle:
+      title: "帖子管理"
+      show: "Show Purple Tentacle"
