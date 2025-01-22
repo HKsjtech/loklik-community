@@ -17,7 +17,13 @@ end
 require_relative "lib/my_plugin_module/engine"
 
 after_initialize do
-  # Code which should run after Rails has finished booting
+  print("===auto migrate===\n")
+  # 自动迁移
+  require_dependency 'active_record'
+
+  migration_context = ActiveRecord::MigrationContext.new(Rails.root.join("plugins/loklik-community/db/migrate"))
+  migration_context.migrate
+  print("===auto migrate success===\n")
 end
 
 
