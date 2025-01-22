@@ -17,13 +17,6 @@ end
 require_relative "lib/my_plugin_module/engine"
 
 after_initialize do
-  print("===auto migrate cancel===\n")
-  # # 自动迁移
-  # require_dependency 'active_record'
-  #
-  # migration_context = ActiveRecord::MigrationContext.new(Rails.root.join("plugins/loklik-community/db/migrate"))
-  # migration_context.migrate
-  # print("===auto migrate success===\n")
 end
 
 
