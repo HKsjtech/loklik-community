@@ -1,8 +1,8 @@
 # frozen_string_literal: true
-require_relative '../base_module/response'
+
 module ::HelloModule
   class PostController < ::ApplicationController
-    include BaseModule
+    include MyHelper
     requires_plugin PLUGIN_NAME
     skip_before_action :verify_authenticity_token # 跳过认证
 

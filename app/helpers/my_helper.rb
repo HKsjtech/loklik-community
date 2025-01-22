@@ -1,11 +1,4 @@
-# frozen_string_literal: true
-module BaseModule
-  class Response
-    def aa
-
-    end
-  end
-
+module MyHelper
   def render_response(data: nil, code: 200, success: true, msg: "操作成功")
     render json: {
       code: code,

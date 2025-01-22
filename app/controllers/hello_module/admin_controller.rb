@@ -1,9 +1,8 @@
 # frozen_string_literal: true
-require_relative '../base_module/response'
 
 module ::HelloModule
   class AdminController < ::ApplicationController
-    include BaseModule
+    include MyHelper
     requires_plugin PLUGIN_NAME
     before_action :set_current_user
 
