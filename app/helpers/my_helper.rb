@@ -16,4 +16,10 @@ module MyHelper
       current: current
     }
   end
+
+  def get_request_host
+    # 获取当前请求的完整 URL
+    # request_url = "#{request.protocol}#{request.host_with_port}#{request.fullpath}"
+    "#{request.protocol}#{request.host_with_port}"
+  end
 end
