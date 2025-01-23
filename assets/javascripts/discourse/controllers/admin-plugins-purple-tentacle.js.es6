@@ -15,6 +15,9 @@ export default class AdminPluginsPurpleTentacleController extends Controller {
     super();
     this.filteredItems = [];
     this.loadPosts();
+
+    this.loadCategoryList()
+    this.loadSelectedCategoryList()
   }
 
   loadPosts() {
@@ -91,5 +94,91 @@ export default class AdminPluginsPurpleTentacleController extends Controller {
   goNextPage(page) {
     this.current = Math.min(this.current + 1, Math.ceil(this.total/this.size));
     this.loadPosts();
+  }
+
+
+  // 金刚区配置相关内容
+  @tracked categoryList = 0;
+  @tracked selectedCategoryList = 0;
+  @tracked selectedIdList = [];
+
+  loadCategoryList() {
+    fetch(`/loklik/admin/categories.json`) // 调用后端 API
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then(res => {
+        this.categoryList = res.data;
+      })
+      .catch(error => {
+        console.error('Error loading items:', error);
+      });
+  }
+
+  loadSelectedCategoryList() {
+    fetch(`/loklik/admin/select_categories.json`) // 调用后端 API
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then(res => {
+        this.selectedCategoryList = res.data;
+        this.selectedIdList = this.selectedCategoryList.map(item => item.categories_id);
+      })
+      .catch(error => {
+        console.error('Error loading items:', error);
+      });
+  }
+
+  @action
+  updateSelectedCategory0(value){
+    this.selectedIdList[0] = +value;
+  }
+
+  @action
+  updateSelectedCategory1(value){
+    this.selectedIdList[1] = +value;
+  }
+
+  @action
+  updateSelectedCategory2(value){
+    this.selectedIdList[2] = +value;
+  }
+
+  @action
+  setSelectedCategories() {
+    let len = [...new Set(this.selectedIdList)].length
+    if (len !== 3) {
+      alert("请确保三个分类不同");
+      return;
+    }
+
+    this.selectedCategoryList[0].categories_id = this.selectedIdList[0];
+    this.selectedCategoryList[1].categories_id = this.selectedIdList[1];
+    this.selectedCategoryList[2].categories_id = this.selectedIdList[2];
+
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    fetch(`/loklik/admin/set_select_categories.json`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': csrfToken // 添加 CSRF Token
+      },
+      body: JSON.stringify(this.selectedCategoryList)
+    })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        this.loadSelectedCategoryList();
+      })
+      .catch(error => {
+        console.error('Error curating item:', error);
+      })
   }
 }

@@ -31,6 +31,10 @@ HelloModule::Engine.routes.draw do
   # admin routes
   get "/admin/index" => "admin#index"
   put "/admin/curated/:topic_id" => "admin#curated"
+  get "/admin/categories" => "admin#categories"
+  get "/admin/select_categories" => "admin#select_categories"
+  post "/admin/set_select_categories" => "admin#set_select_categories"
+
 end
 
 Discourse::Application.routes.draw { mount ::HelloModule::Engine, at: "loklik" }

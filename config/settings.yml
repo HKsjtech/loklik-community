@@ -1,4 +1,8 @@
 TODO_plugin_name:
-  plugin_name_enabled:
-    default: false
-    client: true
+  s3_app_key:
+    default: ""
+    client: false
+
+  s3_app_secret:
+    default: ""
+    client: false

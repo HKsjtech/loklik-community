@@ -42,5 +42,41 @@ module ::HelloModule
       @current_user = current_user
     end
 
+
+    def categories
+      categories = Category.all
+      data = categories.as_json(only: [:id, :name])
+      render_response(data: data)
+    end
+
+    def select_categories
+      # limit 3
+      acs = AppCategoriesSelected.limit(3).order(sort: :asc)
+      data = acs.as_json(only: [:id, :categories_id, :sort])
+      render_response(data: data)
+    end
+
+    def set_select_categories
+      # 从请求中解析 JSON 数据
+      data = JSON.parse(request.body.read)
+
+      if data == nil || data.length != 3
+        render_response(data: { success: false, message: '数据不合法' }, code: 400)
+        return
+      end
+
+      data.each do |item|
+        id = item['id']
+        categories_id = item['categories_id']
+        sort = item['sort']
+
+        # 更新 AppCategoriesSelected 模型
+        category = AppCategoriesSelected.find_by(id: id)
+        if category
+          category.update(categories_id: categories_id, sort: sort)
+        end
+      end
+
+    end
   end
 end

@@ -5,7 +5,8 @@ module ::HelloModule
     requires_plugin PLUGIN_NAME
 
     def index
-      render json: { hello: "world" }
+
+      render json: { hello: "world", setting:  SiteSetting.awesomeness_max_volume }
     end
 
   end

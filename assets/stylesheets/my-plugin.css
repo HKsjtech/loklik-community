@@ -12,3 +12,19 @@
 .search-controls button {
   margin-right: 8px; /* 给输入框、下拉框和按钮添加右边距 */
 }
+
+
+.form-group {
+  display: flex;
+  align-items: center;  /* 垂直居中对齐 */
+  margin-bottom: 10px;  /* 每组之间的间距 */
+}
+
+label {
+  margin-right: 10px;  /* 标签与下拉框之间的间距 */
+  width: 160px;         /* 设置标签的宽度以保持一致 */
+}
+
+.fixed-width-select {
+  width: 150px;        /* 设置下拉框的固定宽度 */
+}

@@ -7,6 +7,11 @@ en:
   js:
     discourse_plugin_name:
       placeholder: placeholder
+
     purple_tentacle:
       title: "Purple Tentacle"
       show: "Show Purple Tentacle"
+
+  site_settings:
+    s3_app_key: "s3_app_key"
+    s3_app_secret: "s3_app_secret"

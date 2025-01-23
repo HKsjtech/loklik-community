@@ -3,10 +3,15 @@ zh_CN:
     admin:
       site_settings:
         categories:
-          TODO_plugin_name: "Plugin Name"
+          TODO_plugin_name: "插件名称"
   js:
     discourse_plugin_name:
       placeholder: placeholder
+
     purple_tentacle:
       title: "帖子管理"
       show: "Show Purple Tentacle"
+
+  site_settings:
+    s3_app_key: "s3_app_key"
+    s3_app_secret: "s3_app_secret"

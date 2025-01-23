@@ -53,3 +53,40 @@
   <span>第 {{this.current}} 页 / 共 {{this.totalPage}} 页</span>
   <button {{action "goNextPage" this.current}}>下一页</button>
 </div>
+
+<h1></h1>
+<h1>金刚区配置</h1>
+
+<form id="your-plugin-settings-form">
+  <div class="form-group">
+    <label for="label1">首页金刚区1配置:</label>
+    <select value={{this.selectedCategoryList.[0].categories_id}}  onchange={{action "updateSelectedCategory0" value="target.value"}}>
+      <option value="0">未配置</option>
+      {{#each categoryList as |category|}}
+        <option value="{{category.id}}">{{category.name}}</option>
+      {{/each}}
+    </select>
+  </div>
+
+  <div class="form-group">
+    <label for="label2">首页金刚区2配置:</label>
+    <select value={{this.selectedCategoryList.[1].categories_id}}  onchange={{action "updateSelectedCategory1" value="target.value"}}>
+      <option value="0">未配置</option>
+        {{#each categoryList as |category|}}
+      <option value="{{category.id}}">{{category.name}}</option>
+    {{/each}}
+    </select>
+  </div>
+
+  <div class="form-group">
+    <label for="label3">首页金刚区3配置:</label>
+    <select value={{this.selectedCategoryList.[2].categories_id}}  onchange={{action "updateSelectedCategory2" value="target.value"}}>
+      <option value="0">未配置</option>
+        {{#each categoryList as |category|}}
+          <option value="{{category.id}}">{{category.name}}</option>
+        {{/each}}
+    </select>
+  </div>
+
+  <button type="button" {{action "setSelectedCategories"}} >保存</button>
+</form>
