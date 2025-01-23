@@ -15,9 +15,8 @@ export default class AdminPluginsPurpleTentacleController extends Controller {
     super();
     this.filteredItems = [];
     this.loadPosts();
-
     this.loadCategoryList()
-    this.loadSelectedCategoryList()
+    // this.loadSelectedCategoryList()
   }
 
   loadPosts() {
@@ -112,6 +111,7 @@ export default class AdminPluginsPurpleTentacleController extends Controller {
       })
       .then(res => {
         this.categoryList = res.data;
+        this.loadSelectedCategoryList(); // 先加载分类列表，再加载已选分类列表
       })
       .catch(error => {
         console.error('Error loading items:', error);
