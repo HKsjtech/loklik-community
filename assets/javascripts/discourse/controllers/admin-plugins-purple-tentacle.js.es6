@@ -20,7 +20,6 @@ export default class AdminPluginsPurpleTentacleController extends Controller {
   loadPosts() {
     const params= {
       search: this.titleSearch,
-      is_featured: this.isFeatured,
       is_curated: this.isCurated,
       page: this.current
     };
@@ -46,14 +45,14 @@ export default class AdminPluginsPurpleTentacleController extends Controller {
 
   @action
   search() {
-    console.log("searching...", this.titleSearch, this.isFeatured);
+    console.log("searching...", this.titleSearch);
     this.loadPosts();
   }
 
   @action
   reset() {
     this.titleSearch = "";
-    this.isFeatured =  "";
+    this.isCurated =  "";
     this.loadPosts();
   }
 
