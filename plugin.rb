@@ -3,7 +3,7 @@
 # name: loklik-community
 # about: loklik community plugin
 # meta_topic_id: TODO
-# version: 0.0.1
+# version: 0.0.2
 # authors: Sijiu tech
 # url: TODO
 # required_version: 2.7.0
