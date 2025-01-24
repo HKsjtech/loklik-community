@@ -35,7 +35,11 @@ class OpenApiHelper
   end
 
   def handle_response(response)
-    if response.is_a?(Net::HTTPSuccess)
+    case response
+    when Net::HTTPSuccess
+      JSON.parse(response.body)
+    when Net::HTTPNotFound
+      puts "Error: #{response.code} - #{response.message}"
       JSON.parse(response.body)
     else
       raise "Error: #{response.code} - #{response.message}"

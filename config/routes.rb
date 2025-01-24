@@ -14,7 +14,7 @@ HelloModule::Engine.routes.draw do
   get "/category/region-list" => "category#region_list"
   get "/category/all" => "category#all"
   get "/category/list" => "category#list"
-  get "/category/:id" => "category#show"
+  get "/category/:category_id" => "category#show"
 
   # post routes
   get "/post/curated-list" => "post#curated_list"
@@ -27,6 +27,10 @@ HelloModule::Engine.routes.draw do
   get "/post/:topic_id/like" => "post#topic_like"
   put "/post/:topic_id/cancel-collect" => "post#topic_collect_cancel"
   put "/post/:topic_id/cancel-like" => "post#topic_like_cancel"
+
+  # user routers
+  post "/user/category" => "user#join_category"
+  put "/user/category/:categoriesId" => "user#leave_category"
 
   # admin routes
   get "/admin/index" => "admin#index"
