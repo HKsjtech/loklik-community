@@ -8,6 +8,12 @@
 # url: TODO
 # required_version: 2.7.0
 
+gem "rbtree3", '0.7.1', { require: false }
+gem "set", '1.0.3', { require: false }
+gem "sorted_set", '1.0.2', { require: false }
+gem "amq-protocol", '2.3.2', { require: false }
+gem "bunny" , '2.23.0', { require: false }
+
 module ::HelloModule
   PLUGIN_NAME = "loklik-community"
 end

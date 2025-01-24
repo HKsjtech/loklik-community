@@ -26,6 +26,17 @@ class OpenApiHelper
     handle_response(response)
   end
 
+  def form(endpoint, post_fields, headers = {})
+    uri = URI.join(@base_url, endpoint)
+    request = Net::HTTP::Post.new(uri)
+    headers.each { |key, value| request[key] = value }
+    request['Content-Type'] = 'multipart/form-data'
+    request.set_form_data(post_fields)
+
+    response = send_request(uri, request)
+    handle_response(response)
+  end
+
   private
 
   def send_request(uri, request)
