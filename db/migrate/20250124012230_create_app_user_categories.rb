@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-class CreateAppUserCategories < ActiveRecord::Migration[7.2]
+class CreateAppUserCategories < ActiveRecord::Migration[7.1]
   def change
     create_table :app_user_categories do |t|
       t.integer :user_id, comment: '用户id'
