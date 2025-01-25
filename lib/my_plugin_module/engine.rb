@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 require_relative 'consumer'
+require_relative 'middleware'
+
 module ::HelloModule
   class Engine < ::Rails::Engine
     engine_name PLUGIN_NAME
@@ -12,6 +14,11 @@ module ::HelloModule
         consumer = HelloModule::Consumer.new
         consumer.start_consuming
       end
+    end
+
+    # 在这里添加中间件
+    initializer 'discourse_jwt_middleware.middleware' do |app|
+      app.middleware.use HelloModule::Middleware
     end
   end
 end
