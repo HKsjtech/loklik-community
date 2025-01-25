@@ -3,6 +3,7 @@ require "bunny"
 module ::HelloModule
   class Consumer
     def initialize
+      # todo: 连接信息处理
       @connection = Bunny.new(
         host: '172.16.130.5',
         port: 5672,

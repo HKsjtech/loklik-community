@@ -22,6 +22,8 @@ class ConsumerService
     app_user_external_info.name = user_info["name"]
     app_user_external_info.surname = user_info["surname"]
     app_user_external_info.avatar_url = user_info["avatarUrl"]
+    app_user_external_info.is_deleted = 0
+    app_user_external_info.is_upgrade = user_info["isUpgrade"]
 
     app_user_external_info.save
 

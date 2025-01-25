@@ -31,6 +31,10 @@ HelloModule::Engine.routes.draw do
   # user routers
   post "/user/category" => "user#join_category"
   put "/user/category/:categoriesId" => "user#leave_category"
+  post "/user/follow" => "user#follow"
+  put "/user/follow/:userId" => "user#cancel_follow"
+  get "/user/fans-list" => "user#fans_list"
+  get "/user/care-list" => "user#care_list"
 
   # admin routes
   get "/admin/index" => "admin#index"

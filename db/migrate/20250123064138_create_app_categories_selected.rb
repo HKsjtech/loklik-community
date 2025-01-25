@@ -5,7 +5,7 @@ class CreateAppCategoriesSelected < ActiveRecord::Migration[7.1]
 
       t.integer :categories_id, comment: '分类id'
       t.integer :sort, comment: '排序'
-      t.integer :is_deleted, comment: '是否删除 0-正常 1-删除'
+      t.integer :is_deleted,  default: 0, comment: '是否删除 0-正常 1-删除'
 
       t.timestamps default: -> { 'CURRENT_TIMESTAMP' }
 
