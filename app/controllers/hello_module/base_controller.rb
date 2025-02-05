@@ -24,11 +24,6 @@ module ::HelloModule
       render_response(data: JSON.parse(theme_setting.value))
     end
 
-    def is_sync
-      # todo: need to implement
-      render_response(data: { is_sync: true })
-    end
-
     def search
       # todo: need to implement
       render_response(data: { search: 'search' })
@@ -40,10 +35,8 @@ module ::HelloModule
     end
 
     def discourse_host
-      # todo: need to implement
-      render_response(data: { discourse_host: "https://www.loklik.cc" })
+      render_response(data: { discourse_host: Discourse.base_url })
     end
-
 
   end
 end

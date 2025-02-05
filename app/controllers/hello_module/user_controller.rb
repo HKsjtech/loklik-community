@@ -6,14 +6,13 @@ module ::HelloModule
     requires_plugin PLUGIN_NAME
 
     def join_category
+      user_id = request.env['current_user_id']
+
       categories_id = params[:categoriesId]
       # 校验id是否存在
       unless Category.exists?(id: categories_id)
         return render_response(code: 400, success: false, msg: "论坛不存在")
       end
-
-      # todo: 获取登陆的用户id
-      user_id = 1
 
       unless AppUserCategories.upsert({ user_id: user_id, categories_id: categories_id, is_deleted: 0 }, unique_by: [:user_id, :categories_id])
         return render_response(code: 400, success: false, msg: "加入失败")
@@ -47,8 +46,7 @@ module ::HelloModule
     end
 
     def follow
-      # todo: 获取登陆的用户id
-      user_id = 6
+      user_id = request.env['current_user_id']
       follow_external_user_id = params[:userId]
 
       ex_user = AppUserExternalInfo.find_by_external_user_id(follow_external_user_id)
@@ -69,8 +67,8 @@ module ::HelloModule
     end
 
     def cancel_follow
-      # todo: 获取登陆的用户id
-      user_id = 1
+      user_id = request.env['current_user_id']
+
       follow_external_user_id = params[:userId]
 
       ex_user = AppUserExternalInfo.find_by_external_user_id(follow_external_user_id)
@@ -93,9 +91,8 @@ module ::HelloModule
     end
 
     def fans_list
-      # todo: 获取登陆的用户id
-      user_id = 1
-      puts "user_id: #{user_id}"
+      user_id = request.env['current_user_id']
+
       # 校验id是否存在
       user = User.find_by(id: user_id)
       unless user
@@ -123,8 +120,7 @@ module ::HelloModule
     end
 
     def care_list
-      # todo: 获取登陆的用户id
-      user_id = 1
+      user_id = request.env['current_user_id']
 
       # 校验id是否存在
       user = User.find_by(id: user_id)

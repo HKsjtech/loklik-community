@@ -38,8 +38,6 @@ class ConsumerService
       'name' => user_info["name"],
     }
 
-    puts "=========sso", sso_params
-
     # 将 SSO 参数转换为 SSO 负载并生成 SSO 签名
     sso_payload = Base64.strict_encode64(URI.encode_www_form(sso_params))
     sig = OpenSSL::HMAC.hexdigest('SHA256',  SiteSetting.discourse_connect_secret, sso_payload)
@@ -55,7 +53,7 @@ class ConsumerService
     }
 
     # 通过 openapi 获取分类列表
-    openapi_client = OpenApiHelper.new("http://127.0.0.1:4200") # todo: host
+    openapi_client = OpenApiHelper.new(Discourse.base_url)
     openapi_client.form("admin/users/sync_sso", post_fields, headers)
   end
 end

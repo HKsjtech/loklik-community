@@ -5,10 +5,12 @@ HelloModule::Engine.routes.draw do
 
   # base routes
   get "/base/banner-list" => "base#banner_list"
-  get "/base/is-sync" => "base#is_sync"
   get "/base/search" => "base#search"
   post "/base/upload" => "base#upload"
   get "/base/discourse-host" => "base#discourse_host"
+
+  # auth routes
+  get "/auth/is-sync" => "auth#is_sync"
 
   # category routes
   get "/category/region-list" => "category#region_list"

@@ -1,10 +1,10 @@
 # lib/discourse_jwt_middleware/middleware.rb
 
-# howto require_relative 'my_helper'
+require_relative '../../app/helpers/auth_helper'
 require_relative '../../app/helpers/my_helper'
-
 module ::HelloModule
   class Middleware
+    include AuthHelper
     include MyHelper
     def initialize(app)
       @app = app
@@ -27,14 +27,17 @@ module ::HelloModule
       token = request.get_header("HTTP_AUTHORIZATION")
 
       # 校验 JWT
-      if valid_jwt?(token)
-        @app.call(env)  # JWT 合法，继续处理请求
-      else
-        [401, { "Content-Type" => "application/json" },
-         [response_format(code: 401, success: false, msg: "Unauthorized").to_json]
+      ok, user_id = valid_jwt?(token)
+      unless ok
+        # JWT 无效，返回 401
+        return [401, { "Content-Type" => "application/json" },
+                [response_format(code: 401, success: false, msg: "Unauthorized").to_json]
         ]
       end
 
+      # 设置当前用户 ID
+      env['current_user_id'] = user_id
+      @app.call(env)  # JWT 合法，继续处理请求
     end
 
     private
@@ -42,49 +45,34 @@ module ::HelloModule
     def valid_jwt?(token)
       # 在这里实现您的 JWT 校验逻辑
       return false unless token && token.start_with?("Bearer ")
+      # 去掉 "Bearer " 前缀 得到 JWT
+      token = token.sub("Bearer ", "")
+      redis_key = "jwt_token:#{token}"
+
+      user_id = Redis.current.get(redis_key)
+      puts "redis get #{redis_key} #{user_id}"
+      if user_id
+        # JWT 有效，直接返回 true
+        return true, user_id
+      end
+
+      ok, user_external_id = get_user_external_id_by_token(token)
+      unless ok
+        return false, nil
+      end
+
+      external_info = AppUserExternalInfo.find_by_external_user_id(user_external_id)
+      unless external_info
+        return false, nil
+      end
 
       # JWT 有效，存入 Redis，3600 秒过期
-      Redis.current.set("jwt_token:#{token}", "11111", ex: 3600)
-      puts Redis.current.get("jwt_token:#{token}")
+      Redis.current.set(redis_key, external_info.user_id, ex: 3600)
+      puts "redis set #{redis_key} #{external_info.user_id}"
 
-      puts "===", generate_sso_redirect_url(token)
-
-      # 请求 token 接口
-      # {
-      #     "code": 200,//响应code
-      #     "msg": "ok",//提示消息
-      #     "data": "156131455541"//用户Id **注：若该字段返回为空，则token无效**
-      # }
-
-      # 将结果写入 Redis，3600 秒过期 key为token，value为 discourse 本地字符串
-      # Redis.current.set("jwt_token_result:#{token}", result.to_json, ex: 3600)
-      # puts Redis.current.get("jwt_token_result:#{token}")
-
-      true
+      [true, external_info.user_id]
     end
 
-    def generate_sso_redirect_url(token)
-      secret = SiteSetting.discourse_connect_secret
 
-      # 1. 生成 nonce
-      nonce = SecureRandom.random_number(10**10).to_s
-
-      # 2. 生成 payload
-      payload = "nonce=#{nonce}&token=#{token}"
-
-      # 3. payload base64 编码
-      base64_payload = Base64.urlsafe_encode64(payload)
-
-      # 4. payload URL 编码（可选，因为 base64_urlsafe_encode64 已经处理）
-      encoded_payload = URI.encode_www_form_component(base64_payload)
-
-      # 5. 对 base64 编码进行 HMAC-SHA256
-      sig = OpenSSL::HMAC.hexdigest('SHA256', secret, base64_payload)
-
-      # 6. 构造重定向地址
-      redirect_uri = "sso=#{encoded_payload}&sig=#{sig}"
-
-      redirect_uri
-    end
   end
 end

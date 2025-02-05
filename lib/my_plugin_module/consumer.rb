@@ -9,7 +9,7 @@ module ::HelloModule
         port: 5672,
         username: 'admin',
         password: 'P7jNgYfc',
-        vhost: '/'
+        vhost: 'dev'
       )
       @connection.start
       @channel = @connection.create_channel
@@ -17,16 +17,16 @@ module ::HelloModule
     end
 
     def start_consuming
-      puts "Waiting for messages in #{@queue.name}. To exit press CTRL+C"
+      puts "开始消费loklik:ideastudio:community:login.sync.queue队列"
       @queue.subscribe(block: true) do |delivery_info, properties, body|
         process_message(body)
+        @channel.ack(delivery_info.delivery_tag)
       end
     end
 
     def process_message(message)
       puts "收到消息: #{message}"
       # 在这里处理消息，例如保存到数据库或执行其他操作
-      # todo: ack
       ConsumerService.consumer_user_login(message)
     end
 
