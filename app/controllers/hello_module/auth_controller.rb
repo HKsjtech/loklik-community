@@ -14,6 +14,7 @@ module ::HelloModule
       ok, user_external_id = get_user_external_id_by_token(token)
       unless ok
         render_response(code: 401, success: false, msg: "用户认证失败")
+        return
       end
 
       external_info = AppUserExternalInfo.find_by_external_user_id(user_external_id)

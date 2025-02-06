@@ -37,6 +37,18 @@ class OpenApiHelper
     handle_response(response)
   end
 
+  def form_file(endpoint, post_fields, headers = {}, file_path)
+    uri = URI.join(@base_url, endpoint)
+    request = Net::HTTP::Post.new(uri)
+    headers.each { |key, value| request[key] = value }
+    request['Content-Type'] = 'multipart/form-data'
+    uploaded_file = Rack::Test::UploadedFile.new(file_path, 'application/octet-stream')
+    post_fields.merge!({'file' => uploaded_file})
+    request.set_form_data(post_fields)
+
+    response = send_request(uri, request)
+    handle_response(response)
+  end
   private
 
   def send_request(uri, request)
@@ -53,7 +65,7 @@ class OpenApiHelper
       puts "Error: #{response.code} - #{response.message}"
       JSON.parse(response.body)
     else
-      raise "Error: #{response.code} - #{response.message}"
+      raise "Error: #{response.code} - #{response.message} body: #{response.body}"
     end
   end
 end

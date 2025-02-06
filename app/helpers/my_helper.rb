@@ -1,6 +1,17 @@
 module MyHelper
   def render_response(data: nil, code: 200, success: true, msg: "操作成功")
-    render json: response_format(data: data, code: code, success: success, msg: msg), status: code
+    if data.is_a?(String)
+      begin
+        parsed_data = JSON.parse(data)
+      rescue JSON::ParserError
+        # 如果解析失败，使用原始字符串
+        parsed_data = data
+      end
+    else
+      parsed_data = data
+    end
+
+    render json: response_format(data: parsed_data, code: code, success: success, msg: msg), status: code
   end
 
   def response_format(data: nil, code: 200, success: true, msg: "操作成功")

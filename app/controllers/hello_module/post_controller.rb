@@ -7,8 +7,10 @@ module ::HelloModule
     skip_before_action :verify_authenticity_token # 跳过认证
 
     def curated_list
-      # todo: need to implement
-      render_response(data: { curated_list: 'curated_list' })
+      app_curated_topics = AppCuratedTopic.where(is_curated: 1, is_deleted: 0).order(created_at: :desc)
+      topicids = app_curated_topics.map(&:topic_id)
+      posts = Post.where(topic_id: topicids).includes(:topic, :user).order(created_at: :desc)
+      render_response(data: posts.as_json(include: [:topic, :user]))
     end
 
     def latest_list
