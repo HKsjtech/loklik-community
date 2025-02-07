@@ -21,9 +21,9 @@ HelloModule::Engine.routes.draw do
   # post routes
   get "/post/curated-list" => "post#curated_list"
   get "/post/latest-list" => "post#latest_list"
-  get "/post/list/:id" => "post#list_show"
-  get "/post/:id" => "post#show"
-  get "/post/:id/comment-list" => "post#comment_list"
+  get "/post/list/:category_id" => "post#list_show"
+  get "/post/:topic_id" => "post#show"
+  get "/post/:topic_id/comment-list" => "post#comment_list"
   get "/post/:topic_id/comment-list/:post_number" => "post#topic_comment_list"
   get "/post/:topic_id/collect" => "post#topic_collect"
   get "/post/:topic_id/like" => "post#topic_like"

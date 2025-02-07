@@ -44,7 +44,7 @@ module ::HelloModule
 
 
     def categories
-      categories = Category.all
+      categories = Category.where(read_restricted: false).all
       data = categories.as_json(only: [:id, :name])
       render_response(data: data)
     end

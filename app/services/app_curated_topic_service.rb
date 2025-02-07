@@ -24,7 +24,8 @@ class AppCuratedTopicService
     offset = (page - 1) * size
 
     # 构建查询
-    topics_query = Topic.order(created_at: :desc)
+    topics_query = Topic.where(deleted_by_id: nil, archetype: 'regular',visible: true, closed: false).order(created_at: :desc)
+    # todo: 筛选 category.read_restricted = false
 
     # 如果有搜索关键字，添加模糊搜索条件
     if search_term

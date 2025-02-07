@@ -12,6 +12,7 @@ module ::HelloModule
         "/loklik/user",
         "/loklik/base",
         "/loklik/category",
+        "/loklik/post",
       ]
     end
 
@@ -26,17 +27,17 @@ module ::HelloModule
       # 从请求头中获取 JWT
       token = request.get_header("HTTP_AUTHORIZATION")
 
-      # 校验 JWT
-      ok, user_id = valid_jwt?(token)
-      unless ok
-        # JWT 无效，返回 401
-        return [401, { "Content-Type" => "application/json" },
-                [response_format(code: 401, success: false, msg: "Unauthorized").to_json]
-        ]
-      end
-
-      # 设置当前用户 ID
-      env['current_user_id'] = user_id
+      # # 校验 JWT
+      # ok, user_id = valid_jwt?(token)
+      # unless ok
+      #   # JWT 无效，返回 401
+      #   return [401, { "Content-Type" => "application/json" },
+      #           [response_format(code: 401, success: false, msg: "Unauthorized").to_json]
+      #   ]
+      # end
+      #
+      # # 设置当前用户 ID
+      # env['current_user_id'] = user_id
       @app.call(env)  # JWT 合法，继续处理请求
     end
 
