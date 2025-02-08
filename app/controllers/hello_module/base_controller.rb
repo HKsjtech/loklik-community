@@ -131,7 +131,7 @@ module ::HelloModule
         "thumbnailWidth": result["thumbnail_width"],
         "thumbnailHeight": result["thumbnail_height"],
         "extension": result["extension"],
-        "shortUrl": result["short_path"],
+        "shortUrl": result["short_url"],
       })
     end
 

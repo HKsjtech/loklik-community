@@ -351,7 +351,7 @@ module ::HelloModule
     end
 
     def get_operator_msg(result)
-      result.errors.full_messages[0]
+      result.errors.full_messages.join(", ")
     end
 
   end

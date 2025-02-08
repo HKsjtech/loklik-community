@@ -5,6 +5,9 @@ module ::HelloModule
     include MyHelper
     requires_plugin PLUGIN_NAME
 
+    skip_before_action :verify_authenticity_token # 跳过认证
+    before_action :fetch_current_user
+
     def join_category
       user_id = request.env['current_user_id']
 
@@ -165,10 +168,56 @@ module ::HelloModule
     #     }]
     # }
     def post
+      min_topic_title_length = SiteSetting.min_topic_title_length || 8
+      min_post_length = SiteSetting.min_post_length || 8
 
-      # 校验id是否存在
 
+
+      puts "min_topic_title_length: #{min_topic_title_length}"
+      puts "min_post_length: #{min_post_length}"
+      title = params[:title]
+      raw = params[:raw]
+
+      if title.length < min_topic_title_length
+        return render_response(code: 400, success: false, msg: "标题长度不能少于#{min_topic_title_length}个字符")
+      end
+
+      if raw.length < min_post_length
+        return render_response(code: 400, success: false, msg: "内容长度不能少于#{min_post_length}个字符")
+      end
+      puts params[:image]
+
+      params[:image].each do |image|
+        # ![image|690x316](upload://ttjM3OvnCo3NRd3mx8jSq4edWw1.png)
+        raw += "\n![image|#{image[:thumbnailWidth]}x#{image[:thumbnailHeight]}](#{image[:shortUrl]})"
+      end
+
+      raw += "\n\n#{params[:video]}" if params[:video]
+
+      manager_params = {}
+      manager_params[:raw] = raw
+      manager_params[:title] = params[:title]
+      manager_params[:category] = params[:categoryId]
+      manager_params[:first_post_checks] = false
+      manager_params[:advance_draft] = false
+      manager_params[:ip_address] = request.remote_ip
+      manager_params[:user_agent] = request.user_agent
+
+      begin
+        manager = NewPostManager.new(@current_user, manager_params)
+        res = serialize_data(manager.perform, NewPostResultSerializer, root: false)
+
+        puts res
+        if res && res[:errors] && res[:errors].any?
+          render_response(code: 400, success: false, msg: res[:errors].join(", "))
+        else
+          render_response(data: res[:post][:topic_id], success: true, msg: "发帖成功")
+        end
+      rescue => e
+        render_response(code: 400, success: false, msg: e.message)
+      end
     end
+
 
     def serialize(user_follow, user_external, fans_ids)
       {
@@ -179,6 +228,13 @@ module ::HelloModule
         "careDateTime": user_follow.updated_at, #关注时间
         "isFans": fans_ids.include?(user_external.user_id) #是否粉丝
       }
+    end
+
+    private
+
+    def fetch_current_user
+      user_id = request.env['current_user_id']
+      @current_user = User.find_by_id(user_id)
     end
 
   end
