@@ -147,6 +147,29 @@ module ::HelloModule
       render_response(data: res)
     end
 
+    # {
+    #     "categoryId": 4,//分类id
+    #     "title": "1243",//标题
+    #     "raw": "最后的测试ger3",//内容
+    #     "video": "http://s3.amazonaws.com/loklik-ide478d5a19.mp4",//视频链接
+    #     "image": [{//图片
+    #         "originalName": "1.jpg",//图片原名字
+    #         "thumbnailWidth": 690,//缩略图宽度
+    #         "thumbnailHeight": 388,//缩略图高度
+    #         "shortUrl": "upload://uw9mpzIzNWsbV9j2Tad9AEWpZ8C.jpeg"//图片短链接
+    #     },{
+    #         "originalName": "code.jpg",
+    #         "thumbnailWidth": 100,
+    #         "thumbnailHeight": 40,
+    #         "shortUrl": "upload://a8obYu9AYDfuiUWq5e9kBNR8V3g.png"
+    #     }]
+    # }
+    def post
+
+      # 校验id是否存在
+
+    end
+
     def serialize(user_follow, user_external, fans_ids)
       {
         "id": user_external.user_id, #用户id

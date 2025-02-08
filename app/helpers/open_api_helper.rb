@@ -8,21 +8,21 @@ class OpenApiHelper
   end
 
   def get(endpoint, headers = {})
-    uri = URI.join(@base_url, endpoint)
-    request = Net::HTTP::Get.new(uri)
+    url = URI.join(@base_url, endpoint)
+    request = Net::HTTP::Get.new(url)
     headers.each { |key, value| request[key] = value }
 
-    response = send_request(uri, request)
+    response = send_request(url, request)
     handle_response(response)
   end
 
   def post(endpoint, body, headers = {})
-    uri = URI.join(@base_url, endpoint)
-    request = Net::HTTP::Post.new(uri)
+    url = URI.join(@base_url, endpoint)
+    request = Net::HTTP::Post.new(url)
     headers.each { |key, value| request[key] = value }
     request.body = body.to_json
 
-    response = send_request(uri, request)
+    response = send_request(url, request)
     handle_response(response)
   end
 

@@ -25,10 +25,10 @@ HelloModule::Engine.routes.draw do
   get "/post/:topic_id" => "post#show"
   get "/post/:topic_id/comment-list" => "post#comment_list"
   get "/post/:topic_id/comment-list/:post_number" => "post#topic_comment_list"
-  get "/post/:topic_id/collect" => "post#topic_collect"
-  get "/post/:topic_id/like" => "post#topic_like"
+  post "/post/:topic_id/collect" => "post#topic_collect"
   put "/post/:topic_id/cancel-collect" => "post#topic_collect_cancel"
-  put "/post/:topic_id/cancel-like" => "post#topic_like_cancel"
+  post "/post/:post_id/like" => "post#post_like"
+  put "/post/:post_id/cancel-like" => "post#post_like_cancel"
 
   # user routers
   post "/user/category" => "user#join_category"

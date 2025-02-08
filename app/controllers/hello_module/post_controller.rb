@@ -7,6 +7,8 @@ module ::HelloModule
     requires_plugin PLUGIN_NAME
     skip_before_action :verify_authenticity_token # 跳过认证
 
+    before_action :fetch_current_user, only: [:post_like, :post_like_cancel, :topic_collect, :topic_collect_cancel]
+
     def curated_list
       current_page = (params[:currentPage] || 1).to_i
       page_size = (params[:pageSize] || 10).to_i
@@ -115,23 +117,94 @@ module ::HelloModule
     end
 
     def topic_collect
-      # todo: need to implement
-      render_response(data: { latest_list: 'topic_collect' })
-    end
+      topic = Topic.find(params[:topic_id].to_i)
 
-    def topic_like
-      # todo: need to implement
-      render_response(data: { latest_list: 'topic_like' })
+      bookmark_manager = BookmarkManager.new(@current_user)
+      bookmark_manager.create_for(bookmarkable_id: topic.id, bookmarkable_type: "Topic")
+
+      return render_response(code: 400, data: nil, msg: get_operator_msg(bookmark_manager), success: false)  if bookmark_manager.errors.any?
+
+      render_response
     end
 
     def topic_collect_cancel
-      # todo: need to implement
-      render_response(data: { latest_list: 'topic_collect_cancel' })
+      params.require(:topic_id)
+
+      topic = Topic.find(params[:topic_id].to_i)
+      BookmarkManager.new(@current_user).destroy_for_topic(topic)
+
+      render_response
+
     end
 
-    def topic_like_cancel
-      # todo: need to implement
-      render_response(data: { latest_list: 'topic_like_cancel' })
+    def post_like
+      # current_user
+      user_id = request.env['current_user_id']
+      post_id = (params.require(:post_id)).to_i
+
+      post = Post.find_by_id(post_id)
+      if post.nil?
+        render_response(code: 404, msg: "帖子不存在", success: false)
+        return
+      end
+
+      if post.user_id == user_id
+        render_response(code: 200, data: 1, success: true) # 0-不是本人 1-是本人
+        return
+      end
+
+      post_action_type = PostActionType.find_by_name_key("like")
+      unless post_action_type
+        render_response(code: 404, msg: "点赞类型不存在", success: false)
+        return
+      end
+      post_action_type_id = post_action_type.id
+
+      creator =
+        PostActionCreator.new(
+          @current_user,
+          post,
+          post_action_type_id,
+          )
+      result = creator.perform
+
+      return render_response(code: 400, msg: get_operator_msg(result), success: false) if result.errors.any?
+
+      render_response(code: 200, data: 0, success: true) # 0-不是本人 1-是本人
+    end
+
+    def post_like_cancel
+      user_id = request.env['current_user_id']
+      post_id = (params.require(:post_id)).to_i
+
+      post = Post.find_by_id(post_id)
+      if post.nil?
+        render_response(code: 404, msg: "帖子不存在", success: false)
+        return
+      end
+
+      if post.user_id == user_id
+        render_response(code: 200, data: 1, success: true) # 0-不是本人 1-是本人
+        return
+      end
+
+      post_action_type = PostActionType.find_by_name_key("like")
+      unless post_action_type
+        render_response(code: 404, msg: "点赞类型不存在", success: false)
+        return
+      end
+      post_action_type_id = post_action_type.id
+
+      result =
+        PostActionDestroyer.new(
+          @current_user,
+          post,
+          post_action_type_id,
+          ).perform
+
+      return render_response(code: 400, msg: get_operator_msg(result), success: false) if result.errors.any?
+
+      render_response(code: 200, data: 0, success: true) # 0-不是本人 1-是本人
     end
 
     private
@@ -271,6 +344,16 @@ module ::HelloModule
         images: []
       }
     end
+
+    def fetch_current_user
+      user_id = request.env['current_user_id']
+      @current_user = User.find_by_id(user_id)
+    end
+
+    def get_operator_msg(result)
+      result.errors.full_messages[0]
+    end
+
   end
 end
 
