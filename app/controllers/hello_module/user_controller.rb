@@ -187,12 +187,7 @@ module ::HelloModule
       end
       puts params[:image]
 
-      params[:image].each do |image|
-        # ![image|690x316](upload://ttjM3OvnCo3NRd3mx8jSq4edWw1.png)
-        raw += "\n![image|#{image[:thumbnailWidth]}x#{image[:thumbnailHeight]}](#{image[:shortUrl]})"
-      end
-
-      raw += "\n\n#{params[:video]}" if params[:video]
+      raw += cal_new_post_raw(params[:image], params[:video]) if params[:image] || params[:video]
 
       manager_params = {}
       manager_params[:raw] = raw
@@ -218,6 +213,42 @@ module ::HelloModule
       end
     end
 
+    def edit_post
+      changes = {}
+      changes[:title] = params[:title] if params[:title]
+      if params[:raw]
+        changes[:raw] = params[:raw] + cal_new_post_raw(params[:image], params[:video]) if params[:image] || params[:video]
+      end
+
+      if changes.none?
+        return render_response(code: 400, success: false, msg: "没有任何修改")
+      end
+
+      # post = Post.where(id: params[:id])
+      # post = post.with_deleted if guardian.is_staff?
+      # post = post.first
+      topic = Topic.find_by(id: params[:topicId].to_i)
+
+      unless topic
+        return render_response(code: 400, success: false, msg: "帖子不存在")
+      end
+
+      puts "topic: #{topic.inspect}"
+      first_post = topic.ordered_posts.first
+
+      success =
+        PostRevisor.new(first_post, topic).revise!(
+          @current_user,
+          changes,
+          validate_post: false,
+          bypass_bump: false,
+          keep_existing_draft: false,
+          )
+
+      return render_response(code: 400, success: false, msg: topic.errors.full_messages.join(", ")) if !success && topic.errors.any?
+
+      render_response
+    end
 
     def serialize(user_follow, user_external, fans_ids)
       {
@@ -235,6 +266,23 @@ module ::HelloModule
     def fetch_current_user
       user_id = request.env['current_user_id']
       @current_user = User.find_by_id(user_id)
+    end
+
+    def cal_new_post_raw(images, video)
+      res = ""
+
+      # 图片
+      if images.present?
+        images.each do |image|
+          # ![image|690x316](upload://ttjM3OvnCo3NRd3mx8jSq4edWw1.png)
+          res += "\n![image|#{image[:thumbnailWidth]}x#{image[:thumbnailHeight]}](#{image[:shortUrl]})"
+        end
+      end
+
+      # 视频
+      res += "\n\n#{video}" if video
+
+      res
     end
 
   end
