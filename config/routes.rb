@@ -37,8 +37,9 @@ HelloModule::Engine.routes.draw do
   put "/user/follow/:userId" => "user#cancel_follow"
   get "/user/fans-list" => "user#fans_list"
   get "/user/care-list" => "user#care_list"
-  post "/user/post" => "user#post"
-  put "/user/post" => "user#edit_post"
+  post "/user/post" => "user#create_topic"
+  put "/user/post" => "user#edit_topict"
+  delete "/user/post/:topic_id" => "user#destroy_topic"
 
   # admin routes
   get "/admin/index" => "admin#index"

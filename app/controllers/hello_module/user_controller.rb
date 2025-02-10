@@ -150,28 +150,9 @@ module ::HelloModule
       render_response(data: res)
     end
 
-    # {
-    #     "categoryId": 4,//分类id
-    #     "title": "1243",//标题
-    #     "raw": "最后的测试ger3",//内容
-    #     "video": "http://s3.amazonaws.com/loklik-ide478d5a19.mp4",//视频链接
-    #     "image": [{//图片
-    #         "originalName": "1.jpg",//图片原名字
-    #         "thumbnailWidth": 690,//缩略图宽度
-    #         "thumbnailHeight": 388,//缩略图高度
-    #         "shortUrl": "upload://uw9mpzIzNWsbV9j2Tad9AEWpZ8C.jpeg"//图片短链接
-    #     },{
-    #         "originalName": "code.jpg",
-    #         "thumbnailWidth": 100,
-    #         "thumbnailHeight": 40,
-    #         "shortUrl": "upload://a8obYu9AYDfuiUWq5e9kBNR8V3g.png"
-    #     }]
-    # }
-    def post
+    def create_topic
       min_topic_title_length = SiteSetting.min_topic_title_length || 8
       min_post_length = SiteSetting.min_post_length || 8
-
-
 
       puts "min_topic_title_length: #{min_topic_title_length}"
       puts "min_post_length: #{min_post_length}"
@@ -213,7 +194,7 @@ module ::HelloModule
       end
     end
 
-    def edit_post
+    def edit_topic
       changes = {}
       changes[:title] = params[:title] if params[:title]
       if params[:raw]
@@ -250,6 +231,44 @@ module ::HelloModule
       render_response
     end
 
+    def destroy_topic
+      topic = Topic.with_deleted.find_by(id: params[:topic_id])
+      # force_destroy = ActiveModel::Type::Boolean.new.cast(params[:force_destroy])
+
+      unless topic
+        return render_response(code: 400, success: false, msg: "帖子不存在")
+      end
+
+      if topic.user_id != @current_user.id
+        return render_response(code: 400, success: false, msg: "只能删除自己的帖子")
+      end
+
+      # 删除 Topic 会有权限问题，先用系统用户删除
+      system_user = User.find_by(id: -1)
+
+      guardian = Guardian.new(system_user, request)
+      guardian.ensure_can_delete!(topic)
+
+      PostDestroyer.new(
+        system_user,
+        topic.ordered_posts.with_deleted.first,
+        context: params[:context],
+        force_destroy: false,
+        ).destroy
+
+      return render_response(code: 400, success: false, msg: topic.errors.full_messages.join(", ")) if topic.errors.any?
+
+      render_response
+    rescue Discourse::InvalidAccess
+      render_response(code: 400, success: false, msg: I18n.t("delete_topic_failed"))
+    end
+
+    def comment
+
+    end
+
+    private
+
     def serialize(user_follow, user_external, fans_ids)
       {
         "id": user_external.user_id, #用户id
@@ -260,8 +279,6 @@ module ::HelloModule
         "isFans": fans_ids.include?(user_external.user_id) #是否粉丝
       }
     end
-
-    private
 
     def fetch_current_user
       user_id = request.env['current_user_id']
