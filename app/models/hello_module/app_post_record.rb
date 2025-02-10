@@ -1,5 +1,5 @@
 module HelloModule
-  class AppVideoUpload < ActiveRecord::Base
+  class AppPostRecord < ActiveRecord::Base
     self.table_name = 'app_post_record'
   end
 end
