@@ -154,8 +154,6 @@ module ::HelloModule
       min_topic_title_length = SiteSetting.min_topic_title_length || 8
       min_post_length = SiteSetting.min_post_length || 8
 
-      puts "min_topic_title_length: #{min_topic_title_length}"
-      puts "min_post_length: #{min_post_length}"
       title = params[:title]
       raw = params[:raw]
 
@@ -166,7 +164,6 @@ module ::HelloModule
       if raw.length < min_post_length
         return render_response(code: 400, success: false, msg: "内容长度不能少于#{min_post_length}个字符")
       end
-      puts params[:image]
 
       raw += cal_new_post_raw(params[:image], params[:video]) if params[:image] || params[:video]
 
@@ -183,7 +180,6 @@ module ::HelloModule
         manager = NewPostManager.new(@current_user, manager_params)
         res = serialize_data(manager.perform, NewPostResultSerializer, root: false)
 
-        puts res
         if res && res[:errors] && res[:errors].any?
           render_response(code: 400, success: false, msg: res[:errors].join(", "))
         else
@@ -214,7 +210,6 @@ module ::HelloModule
         return render_response(code: 400, success: false, msg: "帖子不存在")
       end
 
-      puts "topic: #{topic.inspect}"
       first_post = topic.ordered_posts.first
 
       success =
@@ -292,7 +287,6 @@ module ::HelloModule
       if raw.length < min_post_length
         return render_response(code: 400, success: false, msg: "内容长度不能少于#{min_post_length}个字符")
       end
-      puts params[:image]
 
       raw += cal_new_post_raw(params[:image], params[:video]) if params[:image] || params[:video]
 
@@ -317,7 +311,6 @@ module ::HelloModule
         manager = NewPostManager.new(@current_user, manager_params)
         res = serialize_data(manager.perform, NewPostResultSerializer, root: false)
 
-        puts res
         if res && res[:errors] && res[:errors].any?
           render_response(code: 400, success: false, msg: res[:errors].join(", "))
         else

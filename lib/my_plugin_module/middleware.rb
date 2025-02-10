@@ -58,7 +58,6 @@ module ::HelloModule
       redis_key = "jwt_token:#{token}"
 
       user_id = Redis.current.get(redis_key)
-      puts "redis get #{redis_key} #{user_id}"
       if user_id
         # JWT 有效，直接返回 true
         return true, user_id
@@ -76,7 +75,7 @@ module ::HelloModule
 
       # JWT 有效，存入 Redis，3600 秒过期 1h
       Redis.current.set(redis_key, external_info.user_id, ex: 3600)
-      puts "redis set #{redis_key} #{external_info.user_id}"
+      LoggerHelper.info("redis set #{redis_key} #{external_info.user_id}")
 
       [true, external_info.user_id]
     end

@@ -12,7 +12,6 @@ class ConsumerService
 
     user = request_sso(user_info)
 
-    puts "====sso res:", user
     app_user_external_info = HelloModule::AppUserExternalInfo.find_or_initialize_by(
       user_id: user["id"],
       external_user_id: user_info["userId"]

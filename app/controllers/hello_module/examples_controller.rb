@@ -6,9 +6,9 @@ module ::HelloModule
     include MyHelper
 
     def index
-      Rails.logger.info("这是一个信息日志")
-      Rails.logger.warn("这是一个警告日志")
-      Rails.logger.error("这是一个错误日志")
+      LoggerHelper.info("这是一个信息日志")
+      LoggerHelper.warn("这是一个警告日志")
+      LoggerHelper.error("这是一个错误日志")
       render_response(data: "Hello, world!")
     end
 

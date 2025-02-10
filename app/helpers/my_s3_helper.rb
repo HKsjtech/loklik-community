@@ -2,7 +2,6 @@ require 'aws-sdk-s3'
 
 module MyS3Helper
   def upload_file(file)
-    puts "Uploading file to S3... #{file.original_filename}"
     # 处理上传的文件
     enable_s3_uploads = SiteSetting.enable_s3_uploads
     unless enable_s3_uploads
@@ -22,7 +21,6 @@ module MyS3Helper
       secret_access_key: s3_secret_key
     )
 
-    puts "Uploading file to S3... #{file.original_filename}"
     # 获取当前日期，并格式化为 YYYY/MM/DD
     date_path = Time.now.strftime("%Y%m%d")
     # 生成随机文件名

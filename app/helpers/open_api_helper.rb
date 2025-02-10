@@ -62,9 +62,10 @@ class OpenApiHelper
     when Net::HTTPSuccess
       JSON.parse(response.body)
     when Net::HTTPNotFound
-      puts "Error: #{response.code} - #{response.message}"
+      LoggerHelper.warn("Error: #{response.code} - #{response.message}")
       JSON.parse(response.body)
     else
+      LoggerHelper.warn("Error: #{response.code} - #{response.message} body: #{response.body}")
       raise "Error: #{response.code} - #{response.message} body: #{response.body}"
     end
   end

@@ -32,7 +32,7 @@ module AuthHelper
 
     openapi_client = OpenApiHelper.new(Discourse.base_url)
     result = openapi_client.get(url)
-    puts result
+
     unless result["code"] == 200 && result["data"]
       return false, nil
     end

@@ -40,7 +40,6 @@ module ::HelloModule
       thumbnail_height = params[:thumbnailHeight] # 缩略图高度 当上传视频时，必传
       # 处理上传的文件
       file = params[:file]
-      puts "type: #{type}"
 
       case type
       when "0", "2"
