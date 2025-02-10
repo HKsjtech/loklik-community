@@ -24,7 +24,8 @@ module AuthHelper
   def get_user_external_id_by_token(token)
     params = generate_sso_redirect_url(token)
     # 发起请求，获取用户信息
-    url = "http://172.16.116.218:7777/sso/checkToken?#{params}"
+    url = "http://172.16.130.5:7777/sso/checkToken?#{params}" # dev 环境
+    # url = "http://172.16.116.218:7777/sso/checkToken?#{params}" # 测试环境
 
     openapi_client = OpenApiHelper.new(Discourse.base_url)
     result = openapi_client.get(url)
