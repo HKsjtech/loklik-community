@@ -3,7 +3,7 @@ en:
     admin:
       site_settings:
         categories:
-          TODO_plugin_name: "Plugin Name"
+          TODO_plugin_name: "Loklik Community"
   js:
     discourse_plugin_name:
       placeholder: placeholder
@@ -13,5 +13,5 @@ en:
       show: "Show Purple Tentacle"
 
   site_settings:
-    s3_app_key: "s3_app_key"
-    s3_app_secret: "s3_app_secret"
+    app_auth_host: "app auth host. eg: https://app.example.com"
+    amqp_connect_string: "amqp connect string. eg:amqp://guest:guest@localhost:5672/dev"

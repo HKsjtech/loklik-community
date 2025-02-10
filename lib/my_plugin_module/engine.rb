@@ -12,7 +12,7 @@ module ::HelloModule
       Rails.autoloaders.main.eager_load_dir(scheduled_job_dir) if Dir.exist?(scheduled_job_dir)
       Thread.new do
         consumer = HelloModule::Consumer.new
-        consumer.start_consuming
+        consumer.connect # 第一次启动尝试连接到 RabbitMQ
       end
     end
 

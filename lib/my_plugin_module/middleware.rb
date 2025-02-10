@@ -27,6 +27,13 @@ module ::HelloModule
       # 从请求头中获取 JWT
       token = request.get_header("HTTP_AUTHORIZATION")
 
+      if SiteSetting.app_auth_host.blank?
+        # JWT 无效，返回 401
+        return [400, { "Content-Type" => "application/json" },
+                [response_format(code: 401, success: false, msg: "app_auth_host not set on server").to_json]
+        ]
+      end
+
       # 校验 JWT
       ok, user_id = valid_jwt?(token)
       unless ok

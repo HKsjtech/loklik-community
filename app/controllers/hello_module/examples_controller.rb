@@ -6,6 +6,13 @@ module ::HelloModule
     include MyHelper
 
     def index
+      Rails.logger.info("这是一个信息日志")
+      Rails.logger.warn("这是一个警告日志")
+      Rails.logger.error("这是一个错误日志")
+      render_response(data: "Hello, world!")
+    end
+
+    def test_sync_user
       msg = '{
     "avatarUrl": "http://s3.amazonaws.com/loklik-idea-studio-public-dev/avatar/1831162626387005440.png",
     "email": "335072884@qq.com",

@@ -1,8 +1,7 @@
 TODO_plugin_name:
-  s3_app_key:
+  app_auth_host:
     default: ""
     client: false
-
-  s3_app_secret:
+  amqp_connect_string:
     default: ""
     client: false
