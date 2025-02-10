@@ -263,8 +263,69 @@ module ::HelloModule
       render_response(code: 400, success: false, msg: I18n.t("delete_topic_failed"))
     end
 
-    def comment
+    def destroy_post
+      post = Post.with_deleted.find_by(id: params[:post_id])
+      unless post
+        return render_response(code: 400, success: false, msg: "帖子不存在")
+      end
+      if post.user_id != @current_user.id
+        return render_response(code: 400, success: false, msg: "只能删除自己的帖子")
+      end
+      # 删除 Topic 会有权限问题，先用系统用户删除
+      system_user = User.find_by(id: -1)
+      guardian = Guardian.new(system_user, request)
+      guardian.ensure_can_delete!(post)
+      PostDestroyer.new(
+        system_user,
+        post,
+        context: params[:context],
+        force_destroy: false,
+        ).destroy
+      return render_response(code: 400, success: false, msg: post.errors.full_messages.join(", ")) if post.errors.any?
+      render_response
+    end
 
+    def comment
+      min_post_length = SiteSetting.min_post_length || 8
+      raw = params[:raw]
+
+      if raw.length < min_post_length
+        return render_response(code: 400, success: false, msg: "内容长度不能少于#{min_post_length}个字符")
+      end
+      puts params[:image]
+
+      raw += cal_new_post_raw(params[:image], params[:video]) if params[:image] || params[:video]
+
+      manager_params = {}
+      manager_params[:raw] = raw
+      manager_params[:topic_id] = params[:topicId]
+      manager_params[:archetype] = "regular"
+      # manager_params[:category] = params[:categoryId]
+      manager_params[:reply_to_post_number] = params[:replyToPostNumber]
+      manager_params[:visible] = true
+      manager_params[:image_sizes] = nil
+      manager_params[:is_warning] = false
+      manager_params[:featured_link] = ""
+      manager_params[:ip_address] = request.remote_ip
+      manager_params[:user_agent] = request.user_agent
+      manager_params[:referrer] = request.referrer
+      manager_params[:first_post_checks] = true
+      manager_params[:advance_draft] = true
+
+
+      begin
+        manager = NewPostManager.new(@current_user, manager_params)
+        res = serialize_data(manager.perform, NewPostResultSerializer, root: false)
+
+        puts res
+        if res && res[:errors] && res[:errors].any?
+          render_response(code: 400, success: false, msg: res[:errors].join(", "))
+        else
+          render_response(data: res[:post][:topic_id], success: true, msg: "发帖成功")
+        end
+      rescue => e
+        render_response(code: 400, success: false, msg: e.message)
+      end
     end
 
     private

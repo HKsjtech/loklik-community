@@ -40,6 +40,8 @@ HelloModule::Engine.routes.draw do
   post "/user/post" => "user#create_topic"
   put "/user/post" => "user#edit_topict"
   delete "/user/post/:topic_id" => "user#destroy_topic"
+  post "/user/comment" => "user#comment"
+  delete "/user/post/comment/:post_id" => "user#destroy_post"
 
   # admin routes
   get "/admin/index" => "admin#index"
