@@ -201,9 +201,6 @@ module ::HelloModule
         return render_response(code: 400, success: false, msg: "没有任何修改")
       end
 
-      # post = Post.where(id: params[:id])
-      # post = post.with_deleted if guardian.is_staff?
-      # post = post.first
       topic = Topic.find_by(id: params[:topicId].to_i)
 
       unless topic
