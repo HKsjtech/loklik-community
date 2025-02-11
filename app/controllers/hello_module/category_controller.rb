@@ -23,8 +23,7 @@ module ::HelloModule
     end
 
     def list
-      # todo: need to implement
-      user_id = 1
+      user_id = request.env['current_user_id']
       user_categories_list = AppUserCategories.where(is_deleted: 0, user_id: user_id)
       user_categories_ids = user_categories_list.map { |uc| uc.categories_id }
 

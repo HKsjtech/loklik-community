@@ -38,7 +38,7 @@ HelloModule::Engine.routes.draw do
   get "/user/fans-list" => "user#fans_list"
   get "/user/care-list" => "user#care_list"
   post "/user/post" => "user#create_topic"
-  put "/user/post" => "user#edit_topict"
+  put "/user/post" => "user#edit_topic"
   delete "/user/post/:topic_id" => "user#destroy_topic"
   post "/user/comment" => "user#comment"
   delete "/user/post/comment/:post_id" => "user#destroy_post"

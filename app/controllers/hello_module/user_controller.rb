@@ -25,15 +25,13 @@ module ::HelloModule
     end
 
     def leave_category
+      user_id = request.env['current_user_id']
       categories_id = params[:categoriesId]
 
       # 校验id是否存在
       unless Category.exists?(id: categories_id)
         return render_response(code: 400, success: false, msg: "论坛不存在")
       end
-
-      # todo: 获取登陆的用户id
-      user_id = 1
 
       user_categories = AppUserCategories.find_by(user_id: user_id, categories_id: categories_id)
       unless  user_categories
@@ -181,10 +179,18 @@ module ::HelloModule
         res = serialize_data(manager.perform, NewPostResultSerializer, root: false)
 
         if res && res[:errors] && res[:errors].any?
-          render_response(code: 400, success: false, msg: res[:errors].join(", "))
-        else
-          render_response(data: res[:post][:topic_id], success: true, msg: "发帖成功")
+          return render_response(code: 400, success: false, msg: res[:errors].join(", "))
         end
+
+        new_post_id = res[:post][:id]
+        app_post_record = AppPostRecord.create(post_id: new_post_id, is_deleted: 0)
+
+        unless app_post_record.save
+          return render_response(code: 500, success: false, msg: "创建帖子失败")
+        end
+
+        render_response(data: res[:post][:topic_id], success: true, msg: "发帖成功")
+
       rescue => e
         render_response(code: 400, success: false, msg: e.message)
       end

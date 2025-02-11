@@ -12,6 +12,7 @@ module ::HelloModule
 
     def connect
       amqp_connect_string = SiteSetting.amqp_connect_string
+
       if amqp_connect_string.nil? || amqp_connect_string.empty?
         LoggerHelper.warn("AMQP连接字符串未配置，无法连接到RabbitMQ")
         return

@@ -266,11 +266,13 @@ module ::HelloModule
 
     def cal_post_videos_and_images(post_id, post_row)
       new_raw, video_links = process_text(post_row)
-
       # 计算 video
       app_video_uploads = AppVideoUpload.where(url: video_links)
       ordered_videos = video_links.map { |link| app_video_uploads.find { |video| video.url == link } }
-      videos = ordered_videos.map do |video|
+      #
+      videos = ordered_videos
+                 .filter { |video| video.present? } # http连接可能找不到上传记录  需要过滤掉
+                 .map do |video|
         {
           "url": video["url"],
           "coverImg": video["cover_img"],
