@@ -2,6 +2,7 @@
 
 HelloModule::Engine.routes.draw do
   get "/hello" => "examples#index"
+  get "/examples/test_amqp" => "examples#test_amqp"
 
   # base routes
   get "/base/banner-list" => "base#banner_list"

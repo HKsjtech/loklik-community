@@ -12,7 +12,6 @@ module ::HelloModule
 
     def connect
       amqp_connect_string = SiteSetting.amqp_connect_string
-
       if amqp_connect_string.nil? || amqp_connect_string.empty?
         LoggerHelper.warn("AMQP连接字符串未配置，无法连接到RabbitMQ")
         return
@@ -22,6 +21,7 @@ module ::HelloModule
         stop # 关闭之前的连接
       end
 
+      LoggerHelper.info("准备连接到mq：#{amqp_connect_string}")
       @connection = Bunny.new(amqp_connect_string)
       @connection.start
       @channel = @connection.create_channel
@@ -35,7 +35,7 @@ module ::HelloModule
 
     def start_consuming
       if @queue.nil?
-      LoggerHelper.info("请先连接RabbitMQ")
+        LoggerHelper.info("请先连接RabbitMQ")
         return
       end
 
