@@ -36,6 +36,10 @@ module ::HelloModule
       @queue = @channel.queue('loklik:ideastudio:community:login.sync.queue', durable: true)
       LoggerHelper.info("AMQP queue created")
       @connection.close
+      render_response
+    rescue Exception => e
+      LoggerHelper.error("AMQP connection error: #{e.message}")
+      render_response(msg: e.message)
     end
   end
 end
