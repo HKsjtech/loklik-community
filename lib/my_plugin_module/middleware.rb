@@ -24,8 +24,9 @@ module ::HelloModule
         return @app.call(env)
       end
 
-      # 从请求头中获取 JWT
+      # 获取 JWT
       token = request.get_header("HTTP_AUTHORIZATION")
+      LoggerHelper.info("===token: #{token}")
 
       if SiteSetting.app_auth_host.blank?
         # JWT 无效，返回 401
@@ -51,11 +52,15 @@ module ::HelloModule
     private
 
     def valid_jwt?(token)
-      LoggerHelper.info("handling jwt token: #{token}")
       # 在这里实现您的 JWT 校验逻辑
-      return false unless token && token.start_with?("Bearer ")
+      unless token
+        LoggerHelper.error("invalid token: #{token}")
+        return false, nil
+      end
+
       # 去掉 "Bearer " 前缀 得到 JWT
-      token = token.sub("Bearer ", "")
+      token = token.sub("Bearer ", "") if token.start_with?("Bearer ")
+
       redis_key = "jwt_token:#{token}"
 
       user_id = Redis.current.get(redis_key)
