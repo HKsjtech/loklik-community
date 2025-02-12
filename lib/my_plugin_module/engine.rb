@@ -13,6 +13,7 @@ module ::HelloModule
       Thread.new do
         consumer = HelloModule::Consumer.new
         consumer.connect # 第一次启动尝试连接到 RabbitMQ
+        consumer.start_consuming # 启动消费者
       end
     end
 

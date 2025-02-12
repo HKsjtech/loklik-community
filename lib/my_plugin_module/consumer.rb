@@ -23,8 +23,6 @@ module ::HelloModule
       @channel = @connection.create_channel
       @queue = @channel.queue('loklik:ideastudio:community:login.sync.queue', durable: true)
       LoggerHelper.info("连接到RabbitMQ成功")
-
-      start_consuming
     rescue => e
       LoggerHelper.warn("连接到RabbitMQ失败: #{e.message}")
     end
@@ -36,14 +34,19 @@ module ::HelloModule
       end
 
       LoggerHelper.info("开始消费loklik:ideastudio:community:login.sync.queue队列")
-      @queue.subscribe(block: true) do |delivery_info, properties, body|
+      @queue.subscribe(:manual_ack => true, :block => false) do |delivery_info, properties, body|
+        LoggerHelper.info("收到消息：")
+        LoggerHelper.info(body)
+
         process_message(body)
+
+        LoggerHelper.info("处理完成")
         @channel.ack(delivery_info.delivery_tag)
+        LoggerHelper.info("ack完成")
       end
     end
 
     def process_message(message)
-      LoggerHelper.info("收到消息：#{message}")
       ConsumerService.consumer_user_login(message)
     end
 
