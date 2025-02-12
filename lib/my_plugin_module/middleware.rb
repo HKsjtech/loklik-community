@@ -51,6 +51,7 @@ module ::HelloModule
     private
 
     def valid_jwt?(token)
+      LoggerHelper.info("handling jwt token: #{token}")
       # 在这里实现您的 JWT 校验逻辑
       return false unless token && token.start_with?("Bearer ")
       # 去掉 "Bearer " 前缀 得到 JWT
@@ -65,7 +66,7 @@ module ::HelloModule
 
       ok, user_external_id = get_user_external_id_by_token(token)
       unless ok
-        LoggerHelper.error("get_user_external_id_by_token failed: #{user_external_id}")
+        LoggerHelper.error("get_user_external_id_by_token failed.")
         return false, nil
       end
 
