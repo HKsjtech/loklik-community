@@ -43,6 +43,7 @@ module ::HelloModule
     end
 
     def process_message(message)
+      LoggerHelper.info("收到消息：#{message}")
       ConsumerService.consumer_user_login(message)
     end
 
