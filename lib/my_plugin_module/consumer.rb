@@ -17,10 +17,6 @@ module ::HelloModule
         return
       end
 
-      if @connection
-        stop # 关闭之前的连接
-      end
-
       LoggerHelper.info("准备连接到mq：#{amqp_connect_string}")
       @connection = Bunny.new(amqp_connect_string)
       @connection.start
@@ -52,6 +48,7 @@ module ::HelloModule
 
     def stop
       LoggerHelper.info("关闭RabbitMQ连接")
+      # note: 这里关闭会出现超时，先不关闭
       @connection.close
     end
 
