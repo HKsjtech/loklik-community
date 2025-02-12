@@ -15,3 +15,4 @@ en:
   site_settings:
     app_auth_host: "app auth host. eg: https://app.example.com"
     amqp_connect_string: "amqp connect string. eg:amqp://guest:guest@localhost:5672/dev"
+    plugin_discourse_api_secret_key: "plugin discourse api secret key. "

@@ -6,11 +6,25 @@ class ConsumerService
   extend MyHelper
 
   def self.consumer_user_login(body)
-    return nil unless SiteSetting.enable_discourse_connect
-    return nil unless SiteSetting.discourse_connect_secret
+    unless SiteSetting.enable_discourse_connect
+      LoggerHelper.warn("Discourse Connect is not enabled")
+      return nil
+    end
+    unless SiteSetting.discourse_connect_secret
+      LoggerHelper.warn("Discourse Connect Secret is not set")
+      return nil
+    end
+    unless SiteSetting.plugin_discourse_api_secret
+      LoggerHelper.warn("Discourse API Secret is not set")
+      return nil
+    end
     user_info = JSON.parse(body)
 
     user = request_sso(user_info)
+    if user.nil?
+      LoggerHelper.error("Failed to get user from Discourse")
+      return nil
+    end
 
     app_user_external_info = HelloModule::AppUserExternalInfo.find_or_initialize_by(
       user_id: user["id"],
@@ -46,12 +60,11 @@ class ConsumerService
       'sig' => sig
     }
 
-    headers = { # todo: api-key
-      'Api-Key' => "32a4add3ddd1963fa682be0c0b30ee9c3de28acf6da11a456809758887f342cd",
+    headers = {
+      'Api-Key' => SiteSetting.plugin_discourse_api_secret,
       'Api-Username' => "discobot"
     }
 
-    # 通过 openapi 获取分类列表
     openapi_client = OpenApiHelper.new(Discourse.base_url)
     openapi_client.form("admin/users/sync_sso", post_fields, headers)
   end

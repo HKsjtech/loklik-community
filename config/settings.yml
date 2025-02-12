@@ -5,3 +5,6 @@ TODO_plugin_name:
   amqp_connect_string:
     default: ""
     client: false
+  plugin_discourse_api_secret:
+    default: ""
+    client: false

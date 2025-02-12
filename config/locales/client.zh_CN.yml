@@ -15,3 +15,4 @@ zh_CN:
   site_settings:
     app_auth_host: "app认证地址. 例如: https://app.example.com"
     amqp_connect_string: "消息队列连接字符串. 例如: amqp://guest:guest@localhost:5672/dev"
+    plugin_discourse_api_secret_key: "Discourse API密钥，没有的话需要管理员创建。"
