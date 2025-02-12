@@ -8,10 +8,18 @@ module ::HelloModule
     include MyHelper
 
     def index
+      # 获取请求中的所有 headers
+      headers = request.headers.env.select { |k, _| k.start_with?('HTTP_') }
+
+      # 格式化 headers 为 JSON
+      formatted_headers = headers.transform_keys { |k| k.sub('HTTP_', '').split('_').map(&:capitalize).join('-') }
+
       token = request.get_header("HTTP_AUTHORIZATION")
+
       res = {
         hello: "world",
-        token: token
+        token: token,
+        headers: formatted_headers
       }
       render_response(data: res)
     end
