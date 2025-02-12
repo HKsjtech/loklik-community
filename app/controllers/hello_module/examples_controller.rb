@@ -14,7 +14,7 @@ module ::HelloModule
       # 格式化 headers 为 JSON
       formatted_headers = headers.transform_keys { |k| k.sub('HTTP_', '').split('_').map(&:capitalize).join('-') }
 
-      token = request.get_header("HTTP_AUTHORIZATION")
+      token = request.get_header("HTTP_SJTOKEN")
 
       res = {
         hello: "world",

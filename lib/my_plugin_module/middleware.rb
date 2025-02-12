@@ -24,8 +24,8 @@ module ::HelloModule
         return @app.call(env)
       end
 
-      # 获取 JWT
-      token = request.get_header("HTTP_AUTHORIZATION")
+      # 获取 HTTP_SJTOKEN
+      token = request.get_header("HTTP_SJTOKEN")
       LoggerHelper.info("===token: #{token}")
 
       if SiteSetting.app_auth_host.blank?
