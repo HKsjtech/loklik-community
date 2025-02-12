@@ -7,7 +7,7 @@ module ::HelloModule
       @channel = nil
       @queue = nil
 
-      create_config_watcher
+      connect
     end
 
     def connect

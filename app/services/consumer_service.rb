@@ -18,6 +18,8 @@ class ConsumerService
       LoggerHelper.warn("Discourse API Secret is not set")
       return nil
     end
+    LoggerHelper.info("begin handle consumer")
+
     user_info = JSON.parse(body)
 
     user = request_sso(user_info)
@@ -38,9 +40,14 @@ class ConsumerService
     app_user_external_info.is_deleted = 0
     app_user_external_info.is_upgrade = user_info["isUpgrade"]
 
-    app_user_external_info.save
+    unless app_user_external_info.save
+      LoggerHelper.error("Failed to save app user")
+    end
 
     user
+  rescue => e
+    LoggerHelper.error("Failed to login user from Discourse: #{e.message}")
+    nil
   end
 
   def self.request_sso(user_info)
