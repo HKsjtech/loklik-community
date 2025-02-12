@@ -8,7 +8,12 @@ module ::HelloModule
     include MyHelper
 
     def index
-      render_response(data: "Hello, world!")
+      token = request.get_header("HTTP_AUTHORIZATION")
+      res = {
+        hello: "world",
+        token: token
+      }
+      render_response(data: res)
     end
 
     def test_sync_user
