@@ -65,11 +65,13 @@ module ::HelloModule
 
       ok, user_external_id = get_user_external_id_by_token(token)
       unless ok
+        LoggerHelper.error("get_user_external_id_by_token failed: #{user_external_id}")
         return false, nil
       end
 
       external_info = AppUserExternalInfo.find_by_external_user_id(user_external_id)
       unless external_info
+        LoggerHelper.error("get_user_external_id_by_token failed: #{user_external_id}")
         return false, nil
       end
 

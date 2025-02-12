@@ -25,6 +25,7 @@ module AuthHelper
     params = generate_sso_redirect_url(token)
     app_auth_host = SiteSetting.app_auth_host
     if app_auth_host.blank?
+      LoggerHelper.error("app_auth_host is blank")
       return false, nil
     end
     # 发起请求，获取用户信息
@@ -34,6 +35,7 @@ module AuthHelper
     result = openapi_client.get(url)
 
     unless result["code"] == 200 && result["data"]
+      LoggerHelper.warn("sso checkToken failed: #{result}")
       return false, nil
     end
 

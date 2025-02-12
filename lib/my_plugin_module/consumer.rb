@@ -34,7 +34,7 @@ module ::HelloModule
       end
 
       LoggerHelper.info("开始消费loklik:ideastudio:community:login.sync.queue队列")
-      @queue.subscribe(:manual_ack => true, :block => false) do |delivery_info, properties, body|
+      @queue.subscribe(:manual_ack => true, :block => true) do |delivery_info, properties, body|
         LoggerHelper.info("收到消息：")
         LoggerHelper.info(body)
 
