@@ -259,7 +259,7 @@ module ::HelloModule
 
      topics.map do |topic|
         {
-          id: topic.id.to_s, # 主题id，转为字符串
+          id: topic.id, # 主题id
           userId: topic.user_id, # 用户id
           name: topic.name, # 用户名称
           avatarUrl: topic.avatar_url, # 用户头像

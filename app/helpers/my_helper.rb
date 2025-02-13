@@ -28,7 +28,13 @@ module MyHelper
       records: data,
       total: total,
       size: size,
-      current: current
+      current: current,
+      # orders: [],
+      # optimizeCountSql: true,
+      # searchCount: true,
+      # countId: "",
+      # maxLimit: -1,
+      # pages: 0,
     }
   end
 
