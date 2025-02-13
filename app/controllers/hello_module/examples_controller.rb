@@ -6,7 +6,7 @@ module ::HelloModule
   class ExamplesController < ::ApplicationController
     requires_plugin PLUGIN_NAME
     include MyHelper
-
+    skip_before_action :verify_authenticity_token # 跳过认证
     def index
       # 获取请求中的所有 headers
       headers = request.headers.env.select { |k, _| k.start_with?('HTTP_') }
@@ -36,6 +36,10 @@ module ::HelloModule
 }'
       res = ConsumerService.consumer_user_login(msg)
       render_response(data: res)
+    end
+
+    def test_post
+      render_response(data: "test_post")
     end
 
     def test_amqp

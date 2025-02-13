@@ -3,6 +3,7 @@
 HelloModule::Engine.routes.draw do
   get "/hello" => "examples#index"
   get "/examples/test_amqp" => "examples#test_amqp"
+  post "/examples/test_post" => "examples#test_post"
 
   # base routes
   get "/base/banner-list" => "base#banner_list"
@@ -50,6 +51,7 @@ HelloModule::Engine.routes.draw do
   get "/admin/categories" => "admin#categories"
   get "/admin/select_categories" => "admin#select_categories"
   post "/admin/set_select_categories" => "admin#set_select_categories"
+
 
 end
 
