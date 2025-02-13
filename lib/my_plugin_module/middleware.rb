@@ -21,7 +21,7 @@ module ::HelloModule
 
       # 排除受保护的路由
       unless @exclude_routes.any? { |route| request.path.start_with?(route) }
-        return @app.call(env)
+        return call_next(env)
       end
 
       # 获取 HTTP_SJTOKEN
@@ -30,7 +30,7 @@ module ::HelloModule
 
       if SiteSetting.app_auth_host.blank?
         # JWT 无效，返回 401
-        return [400, { "Content-Type" => "application/json" },
+        return [200, { "Content-Type" => "application/json" },
                 [response_format(code: 401, success: false, msg: "app_auth_host not set on server").to_json]
         ]
       end
@@ -39,17 +39,24 @@ module ::HelloModule
       ok, user_id = valid_jwt?(token)
       unless ok
         # JWT 无效，返回 401
-        return [401, { "Content-Type" => "application/json" },
+        return [200, { "Content-Type" => "application/json" },
                 [response_format(code: 401, success: false, msg: "Unauthorized").to_json]
         ]
       end
 
       # 设置当前用户 ID
       env['current_user_id'] = user_id
-      @app.call(env)  # JWT 合法，继续处理请求
+      call_next(env)
     end
 
     private
+
+    def call_next(env)
+      @app.call(env)
+    rescue StandardError => e
+      LoggerHelper.error(e)
+      [200, { "Content-Type" => "application/json" }, [response_format(code: 500, success: false, msg: e.message).to_json]]
+    end
 
     def valid_jwt?(token)
       # 在这里实现您的 JWT 校验逻辑

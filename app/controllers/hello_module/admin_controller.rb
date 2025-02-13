@@ -61,7 +61,7 @@ module ::HelloModule
       data = JSON.parse(request.body.read)
 
       if data == nil || data.length != 3
-        render_response(data: { success: false, message: '数据不合法' }, code: 400)
+        render_response(data: nil, code: 400, msg: '数据不合法')
         return
       end
 

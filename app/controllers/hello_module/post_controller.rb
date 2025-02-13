@@ -13,22 +13,22 @@ module ::HelloModule
       current_page = (params[:currentPage] || 1).to_i
       page_size = (params[:pageSize] || 10).to_i
 
-      app_curated_topics = AppCuratedTopic
-                             .order(id: :desc)
-                             .limit(page_size)
-                             .offset(current_page * page_size - page_size)
-      topic_ids = app_curated_topics.map(&:topic_id)
+      query = AppCuratedTopic.where(is_curated: 1, is_deleted: 0).order(id: :desc)
 
+      app_curated_topics = query.limit(page_size).offset(current_page * page_size - page_size)
+      total = query.count
+
+      topic_ids = app_curated_topics.map(&:topic_id)
       res = cal_topics_by_topic_ids(topic_ids)
 
-      render_response(data: res)
+      render_response(data: create_page_list(res, total, current_page, page_size ))
     end
 
     def latest_list
       current_page = (params[:currentPage] || 1).to_i
       page_size = (params[:pageSize] || 10).to_i
 
-      topics = Topic
+      query = Topic
                  .select('topics.id')
                  .joins('INNER JOIN categories ON topics.category_id = categories.id')
                  .where(deleted_by_id: nil)
@@ -36,11 +36,14 @@ module ::HelloModule
                  .where(visible: true)
                  .where(closed: false)
                  .where('categories.read_restricted = false')
-                 .order(id: :desc).limit(page_size).offset(current_page * page_size - page_size)
+                 .order(id: :desc)
+
+      topics = query.limit(page_size).offset(current_page * page_size - page_size)
+      total = query.count
 
       res = cal_topics_by_topic_ids(topics.map(&:id))
 
-      render_response(data: res)
+      render_response(data: create_page_list(res, total, current_page, page_size ))
     end
 
     def list_show
@@ -49,7 +52,7 @@ module ::HelloModule
 
       category_id = params.require(:category_id)
 
-      topics = Topic
+      query = Topic
                  .select('topics.id')
                  .joins('INNER JOIN categories ON topics.category_id = categories.id')
                  .where(deleted_by_id: nil)
@@ -59,11 +62,14 @@ module ::HelloModule
                  .where('categories.read_restricted = false')
                  .where(category_id: category_id)
                  .order('topics.id DESC')
-                 .order(id: :desc).limit(page_size).offset(current_page * page_size - page_size)
+                 .order(id: :desc)
+
+      topics = query.limit(page_size).offset(current_page * page_size - page_size)
+      total = query.count
 
       res = cal_topics_by_topic_ids(topics.map(&:id))
 
-      render_response(data: res)
+      render_response(data: create_page_list(res, total, current_page, page_size ))
     end
 
     def show
@@ -97,7 +103,9 @@ module ::HelloModule
 
       topic_id = params.require(:topic_id)
 
-      posts = Post.where(topic_id: topic_id, post_number: 2).order(id: :desc).limit(page_size).offset(current_page * page_size - page_size)
+      query = Post.where(topic_id: topic_id, post_number: 2).order(id: :desc)
+      posts = query.limit(page_size).offset(current_page * page_size - page_size)
+      total = posts.count
 
       res = posts.map do |p|
         new_raw, videos, images = cal_post_videos_and_images(p.id, p.raw)
@@ -108,7 +116,7 @@ module ::HelloModule
         post
       end
 
-      render_response(data: res)
+      render_response(data: create_page_list(res, total, current_page, page_size ))
     end
 
     def topic_comment_list
@@ -311,7 +319,7 @@ module ::HelloModule
           originalName: item["original_filename"],
           thumbnailWidth: item["thumbnail_width"],
           thumbnailHeight: item["thumbnail_height"],
-          short_url: item["short_url"], # todo: need to implement
+          shortUrl: item["short_url"], # todo: need to implement
         }
       end
 

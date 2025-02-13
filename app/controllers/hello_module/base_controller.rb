@@ -23,7 +23,13 @@ module ::HelloModule
         return
       end
 
-      render_response(data: JSON.parse(theme_setting.value))
+      theme_settings = JSON.parse(theme_setting.value)
+      res = []
+      theme_settings.each do |item|
+        res.push(serialize_theme_setting(item))
+      end
+
+      render_response(data: res)
     end
 
     def search
@@ -67,7 +73,7 @@ module ::HelloModule
           cover_img: cover_img,
           )
         unless app_video_upload.save
-          render_response(data: { success: false, message: '上传失败' }, code: 500)
+          render_response(data: nil, msg: '上传失败', code: 500)
           return
         end
        render_response(data: {
@@ -84,10 +90,9 @@ module ::HelloModule
       else
         render_response(data: nil, code: 400, success: false, msg: '上传类型错误')
       end
-
-
     rescue => e
-      render json: { success: false, message: e.message }, status: :internal_server_error
+      LoggerHelper.error("upload error: #{e.message}")
+      render_response(data: nil, msg: '上传失败', code: 500)
     end
 
     def discourse_host
@@ -95,6 +100,19 @@ module ::HelloModule
     end
 
     private
+
+    def serialize_theme_setting(theme_setting)
+      {
+        "link": theme_setting["link"],
+        "headline": theme_setting["headline"],
+        "text": theme_setting["text"],
+        "textBg": theme_setting["text_bg"],
+        "buttonText": theme_setting["button_text"],
+        "imageUrl": theme_setting["image_url"],
+        "slideBgColor": theme_setting["slide_bg_color"],
+        "slideType": theme_setting["slide_type"],
+      }
+    end
 
     def upload_image(file, me)
       url = params[:url]
