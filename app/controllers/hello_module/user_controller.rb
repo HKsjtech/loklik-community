@@ -3,6 +3,7 @@
 module ::HelloModule
   class UserController < ::ApplicationController
     include MyHelper
+    include DiscourseHelper
     requires_plugin PLUGIN_NAME
 
     skip_before_action :verify_authenticity_token # 跳过认证
@@ -332,6 +333,44 @@ module ::HelloModule
       rescue => e
         render_response(code: 400, success: false, msg: e.message)
       end
+    end
+
+    def report
+      post_or_topic_id = (params.require(:id)).to_i # //主题id/帖子id
+      is_comment = params.require(:isComment) # 若为true时, id传评论的帖子id；若为false时，id传主题id
+      content = params.require(:content) # 举报内容
+
+      if is_comment
+        post = Post.find_by_id(post_or_topic_id)
+        if post.nil?
+          return render_response(code: 404, msg: "帖子不存在", success: false)
+        end
+      else
+        topic = Topic.find_by_id(post_or_topic_id)
+        if topic.nil?
+          return render_response(code: 404, msg: "主题不存在", success: false)
+        end
+        post = topic.ordered_posts.first
+      end
+
+      post_action_type = PostActionType.find_by_name_key("notify_moderators")
+      unless post_action_type
+        raise "Post action type not found"
+      end
+
+      creator =
+        PostActionCreator.new(
+          @current_user,
+          post,
+          post_action_type.id,
+          message: content,
+          flag_topic: !is_comment,
+          )
+      result = creator.perform
+
+      return render_response(code: 400, msg: get_operator_msg(result), success: false) if result.errors.any?
+
+      render_response
     end
 
     private
