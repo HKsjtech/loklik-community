@@ -22,10 +22,10 @@ module ::HelloModule
 
       external_info = AppUserExternalInfo.find_by_external_user_id(user_external_id)
       if external_info.nil?
-        return render_response(data: { is_sync: false })
+        return render_response(data: { isSync: false })
       end
 
-      render_response(data: { is_sync: !external_info.nil? })
+      render_response(data: { isSync: !external_info.nil? })
     end
 
   end
