@@ -231,7 +231,6 @@ module ::HelloModule
 
     def destroy_topic
       topic = Topic.with_deleted.find_by(id: params[:topic_id])
-      # force_destroy = ActiveModel::Type::Boolean.new.cast(params[:force_destroy])
 
       unless topic
         return render_response(code: 400, success: false, msg: "帖子不存在")
@@ -247,14 +246,17 @@ module ::HelloModule
       guardian = Guardian.new(system_user, request)
       guardian.ensure_can_delete!(topic)
 
+      post = topic.ordered_posts.with_deleted.first
       PostDestroyer.new(
         system_user,
-        topic.ordered_posts.with_deleted.first,
+        post,
         context: params[:context],
         force_destroy: false,
         ).destroy
 
       return render_response(code: 400, success: false, msg: topic.errors.full_messages.join(", ")) if topic.errors.any?
+
+      AppPostRecord.where(post_id: post.id).update_all(is_deleted: 1)
 
       render_response
     rescue Discourse::InvalidAccess
@@ -280,6 +282,8 @@ module ::HelloModule
         force_destroy: false,
         ).destroy
       return render_response(code: 400, success: false, msg: post.errors.full_messages.join(", ")) if post.errors.any?
+      AppPostRecord.where(post_id: post.id).update_all(is_deleted: 1)
+
       render_response
     end
 
@@ -315,10 +319,16 @@ module ::HelloModule
         res = serialize_data(manager.perform, NewPostResultSerializer, root: false)
 
         if res && res[:errors] && res[:errors].any?
-          render_response(code: 400, success: false, msg: res[:errors].join(", "))
-        else
-          render_response(data: res[:post][:topic_id], success: true, msg: "发帖成功")
+          return render_response(code: 400, success: false, msg: res[:errors].join(", "))
         end
+
+        app_post_record = AppPostRecord.create(post_id: res[:post][:id], is_deleted: 0)
+
+        unless app_post_record.save
+          return render_response(code: 500, success: false, msg: "创建帖子失败")
+        end
+
+        render_response(data: res[:post][:topic_id], success: true, msg: "发帖成功")
       rescue => e
         render_response(code: 400, success: false, msg: e.message)
       end
