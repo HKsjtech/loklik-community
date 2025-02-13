@@ -7,7 +7,7 @@ module ::HelloModule
     include AuthHelper
 
     def is_sync
-      token = request.get_header("HTTP_AUTHORIZATION")
+      token = request.get_header("HTTP_SJTOKEN")
       if token.nil? || token.empty?
         return render_response(code: 401, success: false, msg: "token is required")
       end
