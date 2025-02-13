@@ -91,7 +91,7 @@ module ::HelloModule
     end
 
     def discourse_host
-      render_response(data: { discourse_host: Discourse.base_url })
+      render_response(data: { discourseHost: Discourse.base_url })
     end
 
     private
