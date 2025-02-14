@@ -393,38 +393,38 @@ module ::HelloModule
     end
 
     def user_post_list
-      # current_page = (params[:currentPage] || 1).to_i
-      # page_size = (params[:pageSize] || 10).to_i
-      #
-      # user_id = params[:userId].to_i
-      #
-      # if user_id.blank? || user_id == 0
-      #   user =  @current_user
-      # else
-      #   user = User.find_by_id(user_id)
-      #   if user.blank?
-      #     return render_response(code: 404, msg: "用户不存在", success: false)
-      #   end
-      # end
-      #
-      #
-      # query = Topic
-      #           .select('topics.id')
-      #           .joins('INNER JOIN categories ON topics.category_id = categories.id')
-      #           .where(deleted_by_id: nil)
-      #           .where(archetype: 'regular')
-      #           .where(visible: true)
-      #           .where(closed: false)
-      #           .where(user_id: user.id)
-      #           .where('categories.read_restricted = false')
-      #           .order(id: :desc)
-      #
-      # topics = query.limit(page_size).offset(current_page * page_size - page_size)
-      # total = query.count
-      #
-      # res = cal_topics_by_topic_ids(topics.map(&:id))
-      #
-      # render_response(data: create_page_list(res, total, current_page, page_size ))
+      current_page = (params[:currentPage] || 1).to_i
+      page_size = (params[:pageSize] || 10).to_i
+
+      user_id = params[:userId].to_i
+
+      if user_id.blank? || user_id == 0
+        user =  @current_user
+      else
+        user = User.find_by_id(user_id)
+        if user.blank?
+          return render_response(code: 404, msg: "用户不存在", success: false)
+        end
+      end
+
+
+      query = Topic
+                .select('topics.id')
+                .joins('INNER JOIN categories ON topics.category_id = categories.id')
+                .where(deleted_by_id: nil)
+                .where(archetype: 'regular')
+                .where(visible: true)
+                .where(closed: false)
+                .where(user_id: user.id)
+                .where('categories.read_restricted = false')
+                .order(id: :desc)
+
+      topics = query.limit(page_size).offset(current_page * page_size - page_size)
+      total = query.count
+
+      res = PostService.cal_topics_by_topic_ids(topics.map(&:id))
+
+      render_response(data: create_page_list(res, total, current_page, page_size ))
     end
 
     private

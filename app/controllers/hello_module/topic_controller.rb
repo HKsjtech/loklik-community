@@ -33,6 +33,7 @@ module ::HelloModule
       ]
       query = Post.select(select_fields)
                   .where(topic_id: topic_id)
+                  .where("posts.post_number > 1") # 过滤第一层评论
                   .joins('LEFT JOIN app_user_external_info ON posts.user_id = app_user_external_info.user_id')
                   .order(post_number: :asc)
       posts = query.limit(page_size).offset(current_page * page_size - page_size)
