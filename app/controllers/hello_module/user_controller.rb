@@ -373,7 +373,42 @@ module ::HelloModule
       render_response
     end
 
+    def detail
+      user_id = params[:userId].to_i
+
+      if user_id.blank? || user_id == 0
+        user =  @current_user
+      else
+        user = User.find_by_id(user_id)
+        if user.blank?
+          return render_response(code: 404, msg: "用户不存在", success: false)
+        end
+      end
+
+      user_external_info = AppUserExternalInfo.where(user_id: user.id).first
+      if user_external_info.nil?
+        return render_response(code: 404, msg: "用户未同步", success: false)
+      end
+
+      render_response(data: seralize_user_detail(user_external_info))
+
+    end
+
     private
+
+    def seralize_user_detail(user_info)
+      {
+        "userId": user_info.user_id,#用户id
+        "name": user_info.surname + user_info.name,#用户名称
+        "avatarUrl": user_info.avatar_url,#用户头像
+        "isUpgrade": user_info.is_upgrade,#是否升级 0-否 1-是
+        "careCount": 0,#关注数
+        "fansCount": 0,#粉丝数
+        "beLike": 0,#被点赞数
+        "isAuthor": true, # 是否作者 true-是
+        "isCare": true # 是否关注 true-是
+      }
+    end
 
     def serialize(user_follow, user_external, fans_ids)
       {

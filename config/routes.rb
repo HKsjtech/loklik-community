@@ -45,6 +45,7 @@ HelloModule::Engine.routes.draw do
   post "/user/comment" => "user#comment"
   delete "/user/post/comment/:post_id" => "user#destroy_post"
   post "/user/report" => "user#report"
+  get "/user/detail" => "user#detail"
 
   # admin routes
   get "/admin/index" => "admin#index"

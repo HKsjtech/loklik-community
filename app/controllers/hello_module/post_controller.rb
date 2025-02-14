@@ -216,7 +216,10 @@ module ::HelloModule
       render_response(code: 200, data: 0, success: true) # 0-不是本人 1-是本人
     end
 
+
     private
+
+
     def cal_topics_by_topic_ids(topic_ids)
       res = serlize_topic(topic_ids)
 
