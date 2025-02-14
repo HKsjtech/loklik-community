@@ -388,13 +388,13 @@ module ::HelloModule
         return render_response(code: 404, msg: "用户未同步", success: false)
       end
 
-      render_response(data: seralize_user_detail(user_external_info))
+      render_response(data: serialize_user_detail(user_external_info))
 
     end
 
     private
 
-    def seralize_user_detail(user_info)
+    def serialize_user_detail(user_info)
       {
         "userId": user_info.user_id,#用户id
         "name": user_info.surname + user_info.name,#用户名称

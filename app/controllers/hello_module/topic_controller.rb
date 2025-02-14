@@ -194,7 +194,7 @@ module ::HelloModule
 
     def cal_post(post, post_action_type_id)
       new_raw, videos, images = cal_post_videos_and_images(post.id, post.raw)
-      post = seralize_post(post, post_action_type_id)
+      post = serialize_post(post, post_action_type_id)
       post["context"] = new_raw
       post["video"] = videos
       post["image"] = images
@@ -202,7 +202,7 @@ module ::HelloModule
       post
     end
 
-    def seralize_post(post, post_action_type_id)
+    def serialize_post(post, post_action_type_id)
       like_status = PostAction.where(post_id: post.id, post_action_type_id: post_action_type_id, user_id: @current_user.id, deleted_at: nil).exists?
       {
         topicId: post.topic_id,
