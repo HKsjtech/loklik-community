@@ -112,8 +112,8 @@ module ::HelloModule
         new_raw, videos, images = cal_post_videos_and_images(p.id, p.raw)
         post = seralize_post(p)
         post["context"] = new_raw
-        post["videos"] = videos
-        post["images"] = images
+        post["video"] = videos
+        post["image"] = images
         post
       end
 
@@ -228,8 +228,8 @@ module ::HelloModule
         post = Post.where(topic_id: topic[:id], post_number: 1).first
         new_raw, videos, images = cal_post_videos_and_images(post.id, post.raw)
         topic["context"] = new_raw
-        topic["videos"] = videos
-        topic["images"] = images
+        topic["video"] = videos
+        topic["image"] = images
       end
 
       res
@@ -242,7 +242,8 @@ module ::HelloModule
         'topics.user_id',
         'app_user_external_info.name',
         'app_user_external_info.avatar_url',
-        'to_char(topics.created_at, \'YYYY-MM-DD HH24:MI:SS\') as open_date_time',
+        #'to_char(topics.created_at, \'YYYY-MM-DD HH24:MI:SS\') as open_date_time',
+        'topics.created_at as open_date_time',
         'topics.title',
         'topics.excerpt as context',
         '(topics.posts_count - 1) as comment_count',
