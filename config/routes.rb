@@ -32,7 +32,9 @@ HelloModule::Engine.routes.draw do
   post "/post/:post_id/like" => "post#post_like"
   put "/post/:post_id/cancel-like" => "post#post_like_cancel"
 
+
   get "/topic/:topic_id/comment-list" => "topic#comment_list"
+  get "/topic/:topic_id/comment-list/:post_number" => "topic#post_show"
 
   # user routers
   post "/user/category" => "user#join_category"

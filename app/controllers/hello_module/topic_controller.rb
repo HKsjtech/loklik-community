@@ -39,18 +39,44 @@ module ::HelloModule
       total = posts.count
 
       post_action_type_id = get_action_type_id("like")
-      puts "post_action_type_id: #{post_action_type_id}"
 
-      res = posts.map do |p|
-        new_raw, videos, images = cal_post_videos_and_images(p.id, p.raw)
-        post = seralize_post(p, post_action_type_id)
-        post["context"] = new_raw
-        post["video"] = videos
-        post["image"] = images
-        post
-      end
+      res = posts.map { |p| cal_post(p, post_action_type_id) }
 
       render_response(data: create_page_list(res, total, current_page, page_size ))
+    end
+
+    # 获取帖子详情评论下的评论列表
+    def post_show
+      topic_id = (params.require(:topic_id)).to_i
+      post_number = (params.require(:post_number)).to_i
+
+      select_fields = [
+        'posts.id',
+        'posts.topic_id',
+        'posts.like_count',
+        'posts.created_at',
+        'posts.reply_count',
+        'posts.user_id',
+        'posts.raw',
+        'posts.created_at',
+        'posts.updated_at',
+        'posts.post_number',
+        'app_user_external_info.surname',
+        'app_user_external_info.name',
+        'app_user_external_info.avatar_url',
+      ]
+      post = Post.select(select_fields)
+                  .where(topic_id: topic_id, post_number: post_number)
+                  .joins('LEFT JOIN app_user_external_info ON posts.user_id = app_user_external_info.user_id')
+                  .first
+      unless post
+        return render_response(msg: "帖子不存在", code: 404)
+      end
+
+      post_action_type_id = get_action_type_id("like")
+      res = cal_post(post, post_action_type_id)
+
+      render_response(data: res)
     end
 
     private
@@ -164,6 +190,16 @@ module ::HelloModule
       end
 
       [new_raw, videos, images]
+    end
+
+    def cal_post(post, post_action_type_id)
+      new_raw, videos, images = cal_post_videos_and_images(post.id, post.raw)
+      post = seralize_post(post, post_action_type_id)
+      post["context"] = new_raw
+      post["video"] = videos
+      post["image"] = images
+
+      post
     end
 
     def seralize_post(post, post_action_type_id)

@@ -189,7 +189,6 @@ module ::HelloModule
       render_response(code: 200, data: 0, success: true) # 0-不是本人 1-是本人
     end
 
-
     private
 
 
