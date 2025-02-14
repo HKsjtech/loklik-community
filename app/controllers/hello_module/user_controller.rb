@@ -388,23 +388,34 @@ module ::HelloModule
         return render_response(code: 404, msg: "用户未同步", success: false)
       end
 
+
       render_response(data: serialize_user_detail(user_external_info))
+    end
+
+    def user_post_list
 
     end
 
     private
 
-    def serialize_user_detail(user_info)
+    def serialize_user_detail(user)
+      # 关注数量
+      care_count = AppUserFollow.where(user_id: user.id, is_deleted: 0).count
+      # 粉丝数量
+      fans_count = AppUserFollow.where(target_user_id: user.id, is_deleted: 0).count
+
+      is_care = AppUserFollow.where(user_id: @current_user.id, target_user_id: user.id, is_deleted: 0).exists?
+
       {
-        "userId": user_info.user_id,#用户id
-        "name": user_info.surname + user_info.name,#用户名称
-        "avatarUrl": user_info.avatar_url,#用户头像
-        "isUpgrade": user_info.is_upgrade,#是否升级 0-否 1-是
-        "careCount": 0,#关注数
-        "fansCount": 0,#粉丝数
-        "beLike": 0,#被点赞数
-        "isAuthor": true, # 是否作者 true-是
-        "isCare": true # 是否关注 true-是
+        "userId": user.user_id,#用户id
+        "name": user.surname + user.name,#用户名称
+        "avatarUrl": user.avatar_url,#用户头像
+        "isUpgrade": user.is_upgrade,#是否升级 0-否 1-是
+        "careCount": care_count,#关注数
+        "fansCount": fans_count,#粉丝数
+        "beLike":  UserService.be_like(user.id),#被点赞数
+        "isAuthor": user.id == @current_user.id, # 是否作者 true-是
+        "isCare": is_care # 是否关注 true-是
       }
     end
 
