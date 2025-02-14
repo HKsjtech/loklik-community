@@ -214,7 +214,7 @@ module ::HelloModule
         postNumber: post.post_number,
         context: post.raw,
         likeCount: post.like_count,
-        likeStatus: like_status,
+        likeStatus: like_status ? 1 : 0,
         replyCount: post.reply_count,
         video: [],
         image: []
