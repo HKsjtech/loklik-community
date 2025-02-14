@@ -55,4 +55,13 @@ module PostHelper
     # 返回处理后的文本
     text.strip
   end
+
+  def get_action_type_id(name_key)
+    post_action_type = PostActionType.find_by_name_key(name_key)
+    unless post_action_type
+      LoggerHelper.error("PostActionType not found: like")
+      raise "PostActionType not found: like"
+    end
+    post_action_type.id
+  end
 end

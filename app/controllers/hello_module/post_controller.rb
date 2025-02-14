@@ -99,28 +99,6 @@ module ::HelloModule
     end
 
     def comment_list
-      current_page = (params[:currentPage] || 1).to_i
-      page_size = (params[:pageSize] || 10).to_i
-
-      topic_id = params.require(:topic_id)
-
-      query = Post.where(topic_id: topic_id, post_number: 2).order(id: :desc)
-      posts = query.limit(page_size).offset(current_page * page_size - page_size)
-      total = posts.count
-
-      res = posts.map do |p|
-        new_raw, videos, images = cal_post_videos_and_images(p.id, p.raw)
-        post = seralize_post(p)
-        post["context"] = new_raw
-        post["video"] = videos
-        post["image"] = images
-        post
-      end
-
-      render_response(data: create_page_list(res, total, current_page, page_size ))
-    end
-
-    def topic_comment_list
       # todo: need to implement
       render_response(data: { latest_list: 'topic_comment_list' })
     end
@@ -162,12 +140,7 @@ module ::HelloModule
         return
       end
 
-      post_action_type = PostActionType.find_by_name_key("like")
-      unless post_action_type
-        render_response(code: 404, msg: "点赞类型不存在", success: false)
-        return
-      end
-      post_action_type_id = post_action_type.id
+      post_action_type_id = get_action_type_id("like")
 
       creator =
         PostActionCreator.new(

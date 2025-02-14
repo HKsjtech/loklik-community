@@ -4,6 +4,7 @@ module ::HelloModule
   class UserController < ::ApplicationController
     include MyHelper
     include DiscourseHelper
+    include PostHelper
     requires_plugin PLUGIN_NAME
 
     skip_before_action :verify_authenticity_token # 跳过认证
@@ -353,16 +354,13 @@ module ::HelloModule
         post = topic.ordered_posts.first
       end
 
-      post_action_type = PostActionType.find_by_name_key("notify_moderators")
-      unless post_action_type
-        raise "Post action type not found"
-      end
+      post_action_type_id = get_action_type_id("notify_moderators")
 
       creator =
         PostActionCreator.new(
           @current_user,
           post,
-          post_action_type.id,
+          post_action_type_id,
           message: content,
           flag_topic: !is_comment,
           )
