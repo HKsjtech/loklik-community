@@ -102,7 +102,6 @@ module ::HelloModule
         'topics.user_id',
         'app_user_external_info.name',
         'app_user_external_info.avatar_url',
-        #'to_char(topics.created_at, \'YYYY-MM-DD HH24:MI:SS\') as open_date_time',
         'topics.created_at as open_date_time',
         'topics.title',
         'topics.excerpt as context',
