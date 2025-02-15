@@ -392,7 +392,7 @@ module ::HelloModule
       render_response(data: serialize_user_detail(user_external_info))
     end
 
-    def user_post_list
+    def user_topic_list
       current_page = (params[:currentPage] || 1).to_i
       page_size = (params[:pageSize] || 10).to_i
 
@@ -426,6 +426,52 @@ module ::HelloModule
 
       render_response(data: create_page_list(res, total, current_page, page_size ))
     end
+
+    def  like_list
+      current_page = (params[:currentPage] || 1).to_i
+      page_size = (params[:pageSize] || 10).to_i
+
+      user_id = params[:userId].to_i
+
+      if user_id.blank? || user_id == 0
+        user =  @current_user
+      else
+        user = User.find_by_id(user_id)
+        if user.blank?
+          return render_response(code: 404, msg: "用户不存在", success: false)
+        end
+      end
+
+      # SELECT topics.id, posts.id, post_actions.id
+      # FROM "topics"
+      #          LEFT JOIN posts ON posts.topic_id = topics.id
+      #          LEFT JOIN post_actions ON post_actions.post_id = posts.id
+      # WHERE
+      #     "topics"."deleted_at" IS NULL AND
+      #     (post_actions.user_id = 1 and post_actions.post_action_type_id = 2) AND
+      #     (posts.post_number = 1) AND
+      #     "topics"."deleted_by_id" IS NULL AND
+      #     "topics"."archetype" = 'regular' AND
+      #     "topics"."visible" = TRUE AND
+      #     "topics"."closed" = FALSE AND
+      #     "topics"."category_id" IN (2, 1, 5, 4) ORDER BY "topics"."id" DESC;
+      query = Topic
+                .select('topics.id')
+                .joins('LEFT JOIN posts ON posts.topic_id = topics.id')
+                .joins('LEFT JOIN post_actions ON post_actions.post_id = posts.id')
+                .where("post_actions.user_id = ? and post_actions.post_action_type_id = ?", user.id, 2)
+                .where("posts.post_number = ?", 1)
+                .where(deleted_by_id: nil, archetype: 'regular',visible: true, closed: false, category_id: all_category_ids)
+                .order(id: :desc)
+
+      topics = query.limit(page_size).offset(current_page * page_size - page_size)
+      total = query.count
+
+      res = PostService.cal_topics_by_topic_ids(topics.map(&:id))
+
+      render_response(data: create_page_list(res, total, current_page, page_size ))
+    end
+
 
     private
 

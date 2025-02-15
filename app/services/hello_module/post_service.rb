@@ -80,11 +80,9 @@ module ::HelloModule
       images = post_uploads
                  .filter { |upload| upload["url"].present? } # 没有上传时也会查询出一条空记录，需要过滤掉
                  .map do |item|
-        item_url = item["url"]
-        url = "https:#{item_url}" if item_url && item_url.start_with?("//")
         {
           id: item["upload_id"],
-          url: url,
+          url: format_url(item["url"]),
           originalName: item["original_filename"],
           thumbnailWidth: item["thumbnail_width"],
           thumbnailHeight: item["thumbnail_height"],
@@ -101,6 +99,7 @@ module ::HelloModule
         'topics.id',
         'topics.user_id',
         'app_user_external_info.name',
+        'app_user_external_info.surname',
         'app_user_external_info.avatar_url',
         'topics.created_at as open_date_time',
         'topics.title',
@@ -122,11 +121,13 @@ module ::HelloModule
                  .order('topics.id DESC')
 
       topics.map do |topic|
+        user_info = cal_post_user_info(topic.user_id, topic)
+
         {
           id: topic.id, # 主题id
           userId: topic.user_id, # 用户id
-          name: topic.name, # 用户名称
-          avatarUrl: topic.avatar_url, # 用户头像
+          name: user_info.name, # 用户名称
+          avatarUrl: user_info.avatar_url, # 用户头像
           openDateTime: topic.open_date_time, # 发布时间格式化
           title: topic.title, # 标题
           context: topic.context, # 内容

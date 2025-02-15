@@ -1,3 +1,4 @@
+require 'ostruct'
 module PostHelper
   def process_text(input_text)
     # 按行分割文本
@@ -63,5 +64,39 @@ module PostHelper
       raise "PostActionType not found: like"
     end
     post_action_type.id
+  end
+
+  def all_category_ids
+     Category.where(read_restricted: false).pluck(:id)
+  end
+
+  def cal_post_user_info(user_id, user_info)
+    userinfo = OpenStruct.new(
+      user_id: user_id,
+      name: "#{user_info.surname}#{user_info.name}",
+      avatar_url: user_info.avatar_url
+    )
+
+    if userinfo.name == ""
+      user = User.select("users.username as username, uploads.url as avatar_url")
+                 .joins("LEFT JOIN uploads ON uploads.id = users.uploaded_avatar_id")
+                 .find(user_id)
+      userinfo.name = user.username
+      userinfo.avatar_url = format_url(user.avatar_url)
+    end
+
+    userinfo
+  end
+
+  def format_url(url)
+    if url.start_with?('http')
+      url
+    elsif url.start_with?('//')
+      "https:#{url}"
+    elsif url.start_with?('/')
+      "#{Discourse.base_url}#{url}"
+    else
+      url
+    end
   end
 end

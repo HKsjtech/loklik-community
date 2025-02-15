@@ -22,7 +22,7 @@ module ::HelloModule
 
       # 排除受保护的路由
       unless @exclude_routes.any? { |route| request.path.start_with?(route) }
-        return call_next(env)
+        @app.call(env)
       end
 
       # 获取 HTTP_SJTOKEN
@@ -46,17 +46,13 @@ module ::HelloModule
 
       # 设置当前用户 ID
       env['current_user_id'] = user_id
-      call_next(env)
-    end
-
-    private
-
-    def call_next(env)
       @app.call(env)
     rescue StandardError => e
       LoggerHelper.error(e)
-      [200, { "Content-Type" => "application/json" }, [response_format(code: 500, success: false, msg: e.message).to_json]]
+      [200, { "Content-Type" => "application/json" }, [response_format(code: 500, success: false, msg: 'Internal Server Error', error: e.message).to_json]]
     end
+
+    private
 
     def valid_jwt?(token)
       # 在这里实现您的 JWT 校验逻辑
