@@ -23,9 +23,7 @@ module ::HelloModule
 
       # 排除受保护的路由
       unless @exclude_routes.any? { |route| request.path.start_with?(route) }
-        puts "request path: #{request.path}"
-        @app.call(env)
-        return
+        return @app.call(env)
       end
 
       begin
