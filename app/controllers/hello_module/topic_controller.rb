@@ -5,6 +5,7 @@ module ::HelloModule
     include MyHelper
     include PostHelper
     include DiscourseHelper
+    include AuthHelper
     requires_plugin PLUGIN_NAME
     skip_before_action :verify_authenticity_token # 跳过认证
 
@@ -63,6 +64,7 @@ module ::HelloModule
         'posts.created_at',
         'posts.updated_at',
         'posts.post_number',
+        'posts.reply_to_post_number',
         'app_user_external_info.surname',
         'app_user_external_info.name',
         'app_user_external_info.avatar_url',
@@ -82,6 +84,8 @@ module ::HelloModule
     end
 
     private
+
+
 
     def cal_topics_by_topic_ids(topic_ids)
       res = serlize_topic(topic_ids)
@@ -225,7 +229,7 @@ module ::HelloModule
     end
 
     def fetch_current_user
-      user_id = request.env['current_user_id']
+      user_id = get_current_user_id
       @current_user = User.find_by_id(user_id)
     end
 

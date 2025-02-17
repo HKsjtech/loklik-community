@@ -5,6 +5,7 @@ module ::HelloModule
     include MyHelper
     include PostHelper
     include DiscourseHelper
+    include AuthHelper
     requires_plugin PLUGIN_NAME
     skip_before_action :verify_authenticity_token # 跳过认证
 
@@ -126,7 +127,7 @@ module ::HelloModule
 
     def post_like
       # current_user
-      user_id = request.env['current_user_id']
+      user_id = get_current_user_id
       post_id = (params.require(:post_id)).to_i
 
       post = Post.find_by_id(post_id)
@@ -156,7 +157,7 @@ module ::HelloModule
     end
 
     def post_like_cancel
-      user_id = request.env['current_user_id']
+      user_id = get_current_user_id
       post_id = (params.require(:post_id)).to_i
 
       post = Post.find_by_id(post_id)
@@ -192,7 +193,7 @@ module ::HelloModule
     private
 
     def fetch_current_user
-      user_id = request.env['current_user_id']
+      user_id = get_current_user_id
       @current_user = User.find_by_id(user_id)
     end
 

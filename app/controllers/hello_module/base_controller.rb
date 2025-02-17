@@ -6,6 +6,7 @@ module ::HelloModule
     include MyHelper
     include MyS3Helper
     include PostHelper
+    include AuthHelper
     requires_plugin PLUGIN_NAME
     skip_before_action :verify_authenticity_token # 跳过认证
 
@@ -54,7 +55,7 @@ module ::HelloModule
     end
 
     def upload
-      user_id = request.env['current_user_id']
+      user_id = get_current_user_id
       me = User.find_by_id(user_id) # 验证用户是否存在
       type = params[:type] # 0-图片 1-视频 2-封面图
       cover_img = params[:coverImg] # 封面图 当上传视频时，必传

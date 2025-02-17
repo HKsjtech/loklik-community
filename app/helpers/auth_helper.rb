@@ -41,4 +41,13 @@ module AuthHelper
 
     [true, result["data"]]
   end
+
+  def get_current_user_id
+    user_id = request.env['current_user_id']
+    if user_id.blank?
+      LoggerHelper.warn("current_user_id is blank")
+      raise Discourse::InvalidAccess.new("current_user_id is blank")
+    end
+    user_id.to_i
+  end
 end

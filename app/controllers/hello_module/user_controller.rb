@@ -5,13 +5,14 @@ module ::HelloModule
     include MyHelper
     include DiscourseHelper
     include PostHelper
+    include AuthHelper
     requires_plugin PLUGIN_NAME
 
     skip_before_action :verify_authenticity_token # 跳过认证
     before_action :fetch_current_user
 
     def join_category
-      user_id = request.env['current_user_id']
+      user_id = get_current_user_id
 
       categories_id = params[:categoriesId]
       # 校验id是否存在
@@ -27,7 +28,7 @@ module ::HelloModule
     end
 
     def leave_category
-      user_id = request.env['current_user_id']
+      user_id = get_current_user_id
       categories_id = params[:categoriesId]
 
       # 校验id是否存在
@@ -49,7 +50,7 @@ module ::HelloModule
     end
 
     def follow
-      user_id = request.env['current_user_id']
+      user_id = get_current_user_id
       follow_user_id = (params[:userId]).to_i
 
       ex_user = User.find_by_id(follow_user_id)
@@ -57,7 +58,7 @@ module ::HelloModule
         return render_response(code: 400, success: false, msg: "用户不存在")
       end
 
-      if user_id == ex_user.id
+      if user_id == follow_user_id
         return render_response(code: 400, success: false, msg: "不能关注自己")
       end
 
@@ -70,7 +71,7 @@ module ::HelloModule
     end
 
     def cancel_follow
-      user_id = request.env['current_user_id']
+      user_id = get_current_user_id
       follow_user_id = (params[:userId]).to_i
 
       ex_user = User.find_by_id(follow_user_id)
@@ -97,7 +98,7 @@ module ::HelloModule
     end
 
     def fans_list
-      user_id = request.env['current_user_id']
+      user_id = get_current_user_id
 
       # 校验id是否存在
       user = User.find_by(id: user_id)
@@ -126,7 +127,7 @@ module ::HelloModule
     end
 
     def care_list
-      user_id = request.env['current_user_id']
+      user_id = get_current_user_id
 
       # 校验id是否存在
       user = User.find_by(id: user_id)
@@ -376,7 +377,7 @@ module ::HelloModule
 
     def detail
       user_id = params[:userId].to_i
-
+      puts "user_id: #{user_id}"
       if user_id.blank? || user_id == 0
         user =  @current_user
       else
@@ -509,11 +510,12 @@ module ::HelloModule
 
     def serialize_user_detail(user)
       # 关注数量
-      care_count = AppUserFollow.where(user_id: user.id, is_deleted: 0).count
+      care_count = AppUserFollow.where(user_id: user.user_id, is_deleted: 0).count
+      puts care_count
       # 粉丝数量
-      fans_count = AppUserFollow.where(target_user_id: user.id, is_deleted: 0).count
+      fans_count = AppUserFollow.where(target_user_id: user.user_id, is_deleted: 0).count
 
-      is_care = AppUserFollow.where(user_id: @current_user.id, target_user_id: user.id, is_deleted: 0).exists?
+      is_care = AppUserFollow.where(user_id: @current_user.id, target_user_id: user.user_id, is_deleted: 0).exists?
 
       {
         "userId": user.user_id,#用户id
@@ -540,7 +542,7 @@ module ::HelloModule
     end
 
     def fetch_current_user
-      user_id = request.env['current_user_id']
+      user_id = get_current_user_id
       @current_user = User.find_by_id(user_id)
     end
 

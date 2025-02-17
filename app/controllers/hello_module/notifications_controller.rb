@@ -5,6 +5,7 @@ module ::HelloModule
     include MyHelper
     include DiscourseHelper
     include PostHelper
+    include AuthHelper
     requires_plugin PLUGIN_NAME
 
     skip_before_action :verify_authenticity_token # 跳过认证
@@ -53,7 +54,7 @@ module ::HelloModule
 
     private
     def fetch_current_user
-      user_id = request.env['current_user_id']
+      user_id = get_current_user_id
       @current_user = User.find_by_id(user_id)
     end
   end

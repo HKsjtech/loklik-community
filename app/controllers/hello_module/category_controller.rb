@@ -3,6 +3,7 @@
 module ::HelloModule
   class CategoryController < ::ApplicationController
     include MyHelper
+    include AuthHelper
     requires_plugin PLUGIN_NAME
     skip_before_action :verify_authenticity_token # 跳过认证
 
@@ -23,7 +24,7 @@ module ::HelloModule
     end
 
     def list
-      user_id = request.env['current_user_id']
+      user_id = get_current_user_id
       user_categories_list = AppUserCategories.where(is_deleted: 0, user_id: user_id)
       user_categories_ids = user_categories_list.map { |uc| uc.categories_id }
 
