@@ -52,7 +52,7 @@ HelloModule::Engine.routes.draw do
   get "/user/detail" => "user#detail"
   get "/user/like-list" => "user#like_list"
   get "/user/post-list" => "user#user_topic_list"
-  get "/user/like-list" => "user#like_list"
+  get "/user/comment-list" => "user#comment_list"
 
   # admin routes
   get "/admin/index" => "admin#index"

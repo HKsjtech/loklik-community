@@ -472,6 +472,20 @@ module ::HelloModule
       render_response(data: create_page_list(res, total, current_page, page_size ))
     end
 
+    def comment_list
+      current_page = (params[:currentPage] || 1).to_i
+      page_size = (params[:pageSize] || 10).to_i
+
+      topics, total = UserService.comment_list(page_size, current_page, @current_user.id, all_category_ids)
+
+      topic_ids = topics.map do |topic|
+        topic["id"]
+      end
+
+      res = PostService.cal_topics_by_topic_ids(topic_ids)
+
+      render_response(data: create_page_list(res, total, current_page, page_size ))
+    end
 
     private
 
