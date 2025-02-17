@@ -5,6 +5,7 @@ module ::HelloModule
   class BaseController < ::ApplicationController
     include MyHelper
     include MyS3Helper
+    include PostHelper
     requires_plugin PLUGIN_NAME
     skip_before_action :verify_authenticity_token # 跳过认证
 
@@ -33,8 +34,23 @@ module ::HelloModule
     end
 
     def search
-      # todo: need to implement
-      render_response(data: { search: 'search' })
+      current_page = (params[:currentPage] || 1).to_i
+      page_size = (params[:pageSize] || 10).to_i
+      search_key = params.require(:q)
+
+      query = Topic
+                .select('topics.id')
+                .joins('LEFT JOIN posts ON posts.topic_id = topics.id')
+                .where("topics.title LIKE ? OR posts.raw LIKE ?", "%#{search_key}%", "%#{search_key}%")
+                .where("posts.post_number = ?", 1)
+                .where(deleted_by_id: nil, archetype: 'regular',visible: true, closed: false, category_id: all_category_ids)
+                .order(id: :desc)
+      topics = query.limit(page_size).offset(current_page * page_size - page_size)
+      total = query.count
+
+      res = PostService.cal_topics_by_topic_ids(topics.map(&:id))
+
+      render_response(data: create_page_list(res, total, current_page, page_size ))
     end
 
     def upload
