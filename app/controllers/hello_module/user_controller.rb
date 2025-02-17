@@ -520,7 +520,7 @@ module ::HelloModule
         "careCount": care_count,#关注数
         "fansCount": fans_count,#粉丝数
         "beLike":  UserService.be_like(user.id),#被点赞数
-        "isAuthor": user.id == @current_user.id, # 是否作者 true-是
+        "isAuthor": user.user_id == @current_user.id, # 是否作者 true-是
         "isCare": is_care # 是否关注 true-是
       }
     end

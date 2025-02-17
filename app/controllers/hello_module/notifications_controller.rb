@@ -18,8 +18,31 @@ module ::HelloModule
     end
 
     def message_list
-      res = Notification.where(notification_type: [2, 5], user_id: @current_user.id, read: false)
-      render_response(data: res.as_json(only: [:id, :notification_type, :data]))
+      nos = Notification.where(notification_type: [2, 5], user_id: @current_user.id, read: false)
+      res = nos.map do |n|
+        json_data = JSON.parse(n.data)
+        if n.notification_type == 2
+          original_post = Post.find_by(id: json_data["original_post_id"])
+          if original_post
+            post_content = process_text(original_post.raw)[0]
+          end
+        end
+
+        {
+          "id": n.id,
+          "userId": n.user_id,
+          "name": n.user.username,
+          "avatarUrl": n.user.avatar_template.gsub('{size}', '50'),
+          "notificationType": n.notification_type,
+          "content": post_content,
+          "topicId": n.topic_id,
+          "title": n.topic.title,
+          "read": n.read,
+          "sendTime": n.created_at
+        }
+      end
+
+      render_response(data: res)
     end
 
     def mark_read
