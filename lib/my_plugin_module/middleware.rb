@@ -14,6 +14,7 @@ module ::HelloModule
         "/loklik/category",
         "/loklik/post",
         "/loklik/topic",
+        "/loklik/notifications",
       ]
     end
 
@@ -26,7 +27,7 @@ module ::HelloModule
         @app.call(env)
         return
       end
-      puts "============="
+
       begin
         # 获取 HTTP_SJTOKEN
         token = request.get_header("HTTP_SJTOKEN")

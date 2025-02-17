@@ -53,6 +53,7 @@ HelloModule::Engine.routes.draw do
   get "/user/like-list" => "user#like_list"
   get "/user/post-list" => "user#user_topic_list"
   get "/user/comment-list" => "user#comment_list"
+  get "/user/collect-post-list" => "user#collect_topic_list"
 
   # admin routes
   get "/admin/index" => "admin#index"
@@ -61,6 +62,9 @@ HelloModule::Engine.routes.draw do
   get "/admin/select_categories" => "admin#select_categories"
   post "/admin/set_select_categories" => "admin#set_select_categories"
 
+  get "/notifications/un-read-count" => "notifications#unread_count"
+  get "/notifications/message-list" => "notifications#message_list"
+  put "/notifications/mark-read" => "notifications#mark_read"
 
 end
 

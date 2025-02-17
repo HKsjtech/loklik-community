@@ -57,4 +57,27 @@ where
 
     [result, count.first["count"]]
   end
+
+  def self.collect_list(page_size, current_page, user_id, category_ids)
+    category_ids = category_ids.join(",")
+
+    query = "
+from topics t
+         left join app_user_external_info auei on t.user_id = auei.user_id
+         join bookmarks b on t.id = b.bookmarkable_id and b.bookmarkable_type = 'Topic'
+where t.deleted_by_id is null and t.archetype = 'regular' and t.visible = true and t.closed = false
+  and t.category_id in (#{category_ids})
+  and b.user_id = 3
+order by b.created_at desc"
+
+    sql = "select t.id #{query}
+limit #{page_size}
+offset #{(current_page - 1) * page_size};"
+    result = ActiveRecord::Base.connection.execute(sql)
+
+    count_sql = "select count(*) as count"
+    count = ActiveRecord::Base.connection.execute(count_sql)
+
+    [result, count.first["count"]]
+  end
 end
