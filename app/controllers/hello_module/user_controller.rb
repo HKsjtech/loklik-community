@@ -50,20 +50,20 @@ module ::HelloModule
 
     def follow
       user_id = request.env['current_user_id']
-      follow_external_user_id = params[:userId]
+      follow_user_id = (params[:userId]).to_i
 
-      ex_user = AppUserExternalInfo.find_by_external_user_id(follow_external_user_id)
+      ex_user = User.find_by_id(follow_user_id)
       unless ex_user
         return render_response(code: 400, success: false, msg: "用户不存在")
       end
 
-      if user_id == ex_user.user_id
+      if user_id == ex_user.id
         return render_response(code: 400, success: false, msg: "不能关注自己")
       end
 
       # 校验id是否存在
-      unless AppUserFollow.upsert({ user_id: user_id, target_user_id: ex_user.user_id, is_deleted: 0 }, unique_by: [:user_id, :target_user_id])
-        return render_response(code: 400, success: false, msg: "论坛不存在")
+      unless AppUserFollow.upsert({ user_id: user_id, target_user_id: follow_user_id, is_deleted: 0 }, unique_by: [:user_id, :target_user_id])
+        return render_response(code: 400, success: false, msg: "关注失败")
       end
 
       render_response
@@ -71,16 +71,19 @@ module ::HelloModule
 
     def cancel_follow
       user_id = request.env['current_user_id']
+      follow_user_id = (params[:userId]).to_i
 
-      follow_external_user_id = params[:userId]
-
-      ex_user = AppUserExternalInfo.find_by_external_user_id(follow_external_user_id)
+      ex_user = User.find_by_id(follow_user_id)
       unless ex_user
         return render_response(code: 400, success: false, msg: "用户不存在")
       end
 
+      if user_id == ex_user.id
+        return render_response(code: 400, success: false, msg: "不能关注自己")
+      end
+
       # 校验id是否存在
-      user_follow = AppUserFollow.find_by(user_id: user_id, target_user_id: ex_user.user_id)
+      user_follow = AppUserFollow.find_by(user_id: user_id, target_user_id: ex_user.id)
       unless user_follow
         return render_response(code: 400, success: false, msg: "未关注用户")
       end
