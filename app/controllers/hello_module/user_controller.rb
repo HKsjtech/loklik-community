@@ -427,7 +427,7 @@ module ::HelloModule
       render_response(data: create_page_list(res, total, current_page, page_size ))
     end
 
-    def  like_list
+    def like_list
       current_page = (params[:currentPage] || 1).to_i
       page_size = (params[:pageSize] || 10).to_i
 

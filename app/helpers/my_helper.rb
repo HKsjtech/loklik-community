@@ -14,12 +14,13 @@ module MyHelper
     render json: response_format(data: parsed_data, code: code, success: success, msg: msg), status: code
   end
 
-  def response_format(data: nil, code: 200, success: true, msg: "操作成功")
-    {
+  def response_format(data: nil, code: 200, success: true, msg: "操作成功", error: "")
+    res = {
       code: code,
       success: success,
       data: data,
-      msg: msg
+      msg: msg,
+      error: error
     }
   end
 
@@ -29,6 +30,7 @@ module MyHelper
       total: total,
       size: size,
       current: current,
+      pages: (total.to_f / size).ceil,
       # orders: [],
       # optimizeCountSql: true,
       # searchCount: true,

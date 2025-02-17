@@ -33,7 +33,7 @@ module ::HelloModule
       all = cate_srv.filter { |category| !user_categories_ids.include?(category[:id]) }
 
       render_response(data: {
-        mime: mine,
+        mine: mine,
         all: all
       })
     end

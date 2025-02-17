@@ -22,34 +22,38 @@ module ::HelloModule
 
       # 排除受保护的路由
       unless @exclude_routes.any? { |route| request.path.start_with?(route) }
+        puts "request path: #{request.path}"
         @app.call(env)
+        return
       end
+      puts "============="
+      begin
+        # 获取 HTTP_SJTOKEN
+        token = request.get_header("HTTP_SJTOKEN")
 
-      # 获取 HTTP_SJTOKEN
-      token = request.get_header("HTTP_SJTOKEN")
+        if SiteSetting.app_auth_host.blank?
+          # JWT 无效，返回 401
+          return [200, { "Content-Type" => "application/json" },
+                  [response_format(code: 401, success: false, msg: "app_auth_host not set on server").to_json]
+          ]
+        end
 
-      if SiteSetting.app_auth_host.blank?
-        # JWT 无效，返回 401
-        return [200, { "Content-Type" => "application/json" },
-                [response_format(code: 401, success: false, msg: "app_auth_host not set on server").to_json]
-        ]
+        # 校验 JWT
+        ok, user_id = valid_jwt?(token)
+        unless ok
+          # JWT 无效，返回 401
+          return [200, { "Content-Type" => "application/json" },
+                  [response_format(code: 401, success: false, msg: "Unauthorized1").to_json]
+          ]
+        end
+
+        # 设置当前用户 ID
+        env['current_user_id'] = user_id
+        @app.call(env)
+      rescue StandardError => e
+        LoggerHelper.error(e)
+        [200, { "Content-Type" => "application/json" }, [response_format(code: 500, success: false, msg: 'Internal Server Error', error: e.message).to_json]]
       end
-
-      # 校验 JWT
-      ok, user_id = valid_jwt?(token)
-      unless ok
-        # JWT 无效，返回 401
-        return [200, { "Content-Type" => "application/json" },
-                [response_format(code: 401, success: false, msg: "Unauthorized").to_json]
-        ]
-      end
-
-      # 设置当前用户 ID
-      env['current_user_id'] = user_id
-      @app.call(env)
-    rescue StandardError => e
-      LoggerHelper.error(e)
-      [200, { "Content-Type" => "application/json" }, [response_format(code: 500, success: false, msg: 'Internal Server Error', error: e.message).to_json]]
     end
 
     private
