@@ -27,6 +27,7 @@ module ::HelloModule
         'posts.created_at',
         'posts.updated_at',
         'posts.post_number',
+        'posts.reply_to_post_number',
         'app_user_external_info.surname',
         'app_user_external_info.name',
         'app_user_external_info.avatar_url',
@@ -217,6 +218,7 @@ module ::HelloModule
         likeCount: post.like_count,
         likeStatus: like_status ? 1 : 0,
         replyCount: post.reply_count,
+        replyToPostNumber: post.reply_to_post_number,
         video: [],
         image: []
       }
