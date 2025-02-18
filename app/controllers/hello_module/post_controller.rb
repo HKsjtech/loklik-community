@@ -69,7 +69,7 @@ module ::HelloModule
       topics = query.limit(page_size).offset(current_page * page_size - page_size)
       total = query.count
 
-      res = cal_topics_by_topic_ids(topics.map(&:id))
+      res = PostService.cal_topics_by_topic_ids(topics.map(&:id))
 
       render_response(data: create_page_list(res, total, current_page, page_size ))
     end
