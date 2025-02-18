@@ -51,7 +51,7 @@ module ::HelloModule
                  .filter { |video| video.present? } # http连接可能找不到上传记录  需要过滤掉
                  .map do |video|
         {
-          "url": video["url"],
+          "url": format_url(video["url"]),
           "coverImg": video["cover_img"],
           "thumbnailWidth": video["thumbnail_width"],
           "thumbnailHeight": video["thumbnail_height"],
