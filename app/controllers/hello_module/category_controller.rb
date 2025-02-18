@@ -4,8 +4,10 @@ module ::HelloModule
   class CategoryController < ::ApplicationController
     include MyHelper
     include AuthHelper
+    include PostHelper
     requires_plugin PLUGIN_NAME
     skip_before_action :verify_authenticity_token # 跳过认证
+    before_action :fetch_current_user
 
     def region_list
       categories_selected = AppCategoriesSelected.order(sort: :asc).all
@@ -40,12 +42,39 @@ module ::HelloModule
     end
 
     def show
-      category_id = params[:category_id]
-      category = CategoryService.show(get_request_host, category_id)
-      render_response(data: category)
-    rescue StandardError => e
-      render_response(success: false, code: 400, msg: "category not found")
+      category_id = (params.require(:category_id)).to_i
+      puts all_category_ids
+      if all_category_ids.exclude?(category_id)
+        return render_response(success: false, code: 400, msg: "category not found")
+      end
+
+      category = Category.find(category_id)
+      # category = CategoryService.show(get_request_host, category_id)
+
+      render_response(data: serialize_category(category))
     end
 
+    private
+
+    def serialize_category(category)
+      add_category_count = AppUserCategories.where(categories_id: category.id, is_deleted: 0, user_id: @current_user.id).count
+      is_add_category = AppUserCategories.find_by(categories_id: category.id, user_id: @current_user.id, is_deleted: 0).present?
+
+      {
+        "id": category.id,
+        "name": category.name,
+        "url": category.url,
+        "description": category.description,
+        "isAddCategory": is_add_category,
+        "addCategoryCount": add_category_count,
+        "topicCount": category.topic_count,
+        "interactCount": CategoryService.cal_interact_count(category.id),
+      }
+    end
+
+    def fetch_current_user
+      user_id = get_current_user_id
+      @current_user = User.find_by_id(user_id)
+    end
   end
 end
