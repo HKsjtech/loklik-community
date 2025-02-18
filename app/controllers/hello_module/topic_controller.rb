@@ -79,7 +79,7 @@ module ::HelloModule
       end
 
       all_posts = []
-      tmp_posts = find_reply_post_number_ids(topic_id, [post.post_number])=
+      tmp_posts = find_reply_post_number_ids(topic_id, [post.post_number])
       # 如果 posts 不为空， 则循环调用  find_reply_post_number_ids， 直到 posts 为空
       while tmp_posts.present? && tmp_posts.length > 0
         post_number_ids = tmp_posts.map(&:post_number)
