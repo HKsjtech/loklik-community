@@ -377,7 +377,6 @@ module ::HelloModule
 
     def detail
       user_id = params[:userId].to_i
-      puts "user_id: #{user_id}"
       if user_id.blank? || user_id == 0
         user =  @current_user
       else

@@ -53,6 +53,7 @@ module ::HelloModule
       topic_id = (params.require(:topic_id)).to_i
       post_number = (params.require(:post_number)).to_i
 
+
       select_fields = [
         'posts.id',
         'posts.topic_id',
@@ -70,23 +71,53 @@ module ::HelloModule
         'app_user_external_info.avatar_url',
       ]
       post = Post.select(select_fields)
-                  .where(topic_id: topic_id, post_number: post_number)
                   .joins('LEFT JOIN app_user_external_info ON posts.user_id = app_user_external_info.user_id')
+                  .where(topic_id: topic_id, post_number: post_number)
                   .first
       unless post
         return render_response(msg: "帖子不存在", code: 404)
       end
 
+      all_posts = []
+      tmp_posts = find_reply_post_number_ids(topic_id, [post.post_number])=
+      # 如果 posts 不为空， 则循环调用  find_reply_post_number_ids， 直到 posts 为空
+      while tmp_posts.present? && tmp_posts.length > 0
+        post_number_ids = tmp_posts.map(&:post_number)
+        tmp_posts = find_reply_post_number_ids(topic_id, post_number_ids)
+        all_posts.concat(tmp_posts)
+      end
+
       post_action_type_id = get_action_type_id("like")
-      res = cal_post(post, post_action_type_id)
+
+      res = all_posts.map { |p| cal_post(p, post_action_type_id) }
 
       render_response(data: res)
     end
 
     private
 
-
-
+    def find_reply_post_number_ids(topic_id, post_number_ids)
+      select_fields = [
+        'posts.id',
+        'posts.topic_id',
+        'posts.like_count',
+        'posts.created_at',
+        'posts.reply_count',
+        'posts.user_id',
+        'posts.raw',
+        'posts.created_at',
+        'posts.updated_at',
+        'posts.post_number',
+        'posts.reply_to_post_number',
+        'app_user_external_info.surname',
+        'app_user_external_info.name',
+        'app_user_external_info.avatar_url',
+      ]
+      Post.select(select_fields)
+                 .where(topic_id: topic_id, reply_to_post_number: post_number_ids)
+                 .joins('LEFT JOIN app_user_external_info ON posts.user_id = app_user_external_info.user_id')
+          .order(created_at: :asc)
+    end
     def cal_topics_by_topic_ids(topic_ids)
       res = serlize_topic(topic_ids)
 
