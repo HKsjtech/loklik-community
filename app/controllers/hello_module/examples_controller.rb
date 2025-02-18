@@ -39,6 +39,9 @@ module ::HelloModule
     end
 
     def test_post
+      if params[:image]
+        puts params[:image]
+      end
       render_response(data: "test_post")
     end
 

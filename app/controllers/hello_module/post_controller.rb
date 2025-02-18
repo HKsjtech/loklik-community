@@ -97,11 +97,9 @@ module ::HelloModule
       BookmarkManager.new(@current_user).destroy_for_topic(topic)
 
       render_response
-
     end
 
     def post_like
-      # current_user
       user_id = get_current_user_id
       post_id = (params.require(:post_id)).to_i
 

@@ -153,7 +153,7 @@ module ::HelloModule
           .order(created_at: :asc)
     end
     def cal_topics_by_topic_ids(topic_ids)
-      res = serlize_topic(topic_ids)
+      res = serialize_topic(topic_ids)
 
       # 如果需要将结果转换为 JSON 字符串
       res.each do |topic|
@@ -168,7 +168,7 @@ module ::HelloModule
 
     end
 
-    def serlize_topic(topic_ids)
+    def serialize_topic(topic_ids)
       select_fields = [
         'topics.id',
         'topics.user_id',

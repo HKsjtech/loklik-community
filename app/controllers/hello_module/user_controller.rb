@@ -219,7 +219,11 @@ module ::HelloModule
       changes = {}
       changes[:title] = params[:title] if params[:title]
       if params[:raw]
-        changes[:raw] = params[:raw] + cal_new_post_raw(params[:image], params[:video]) if params[:image] || params[:video]
+        changes[:raw] = params[:raw]
+      end
+
+      if params[:image] || params[:video]
+        changes[:raw] = changes[:raw] + cal_new_post_raw(params[:image], params[:video])
       end
 
       if changes.none?
