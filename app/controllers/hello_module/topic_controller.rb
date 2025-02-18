@@ -11,6 +11,39 @@ module ::HelloModule
 
     before_action :fetch_current_user
 
+    def show
+      topic_id = params.require(:topic_id)
+
+      topic = Topic.find(topic_id)
+      unless topic
+        return render_response(msg: "帖子不存在", code: 404)
+      end
+
+      posts = PostService.cal_topics_by_topic_ids([topic_id])
+      res = posts[0]
+
+      is_care = AppUserFollow.where(user_id: @current_user.id, target_user_id: topic.user_id, is_deleted: false).present?
+      is_add_category = AppUserCategories.where(user_id: @current_user.id, categories_id: topic.category_id, is_deleted: false).present?
+
+      first_post = topic.ordered_posts.first
+      is_app = AppPostRecord.where(post_id: first_post.id, is_deleted: false).present?
+
+      post_action_type_id = get_action_type_id("like")
+      like_status = PostAction.where(post_id: first_post.id, post_action_type_id: post_action_type_id, user_id: @current_user.id, deleted_at: nil).exists?
+
+      collect_count = Bookmark.where(bookmarkable_type: 'Topic', bookmarkable_id: topic_id).count
+      bookmark_status = Bookmark.where(bookmarkable_type: 'Post', bookmarkable_id: first_post.id, user_id: @current_user.id).exists?
+      res["isAuthor"] = topic.user_id == @current_user.id # 是否为作者帖子
+      res["isCare"] = is_care # 是否关注作者
+      res["isAddCategory"] = is_add_category # 是否加入该分类
+      res["isApp"] = is_app # 帖子是否App发布
+      res["collectCount"] = collect_count # 收藏数量
+      res["likeStatus"] = like_status ? 1 : 0 # 点赞状态 0-否 1-是
+      res["bookmarkStatus"] = bookmark_status ? 1 : 0 # 收藏状态 0-否 1-是
+
+      render_response(data: res)
+    end
+
     def comment_list
       current_page = (params[:currentPage] || 1).to_i
       page_size = (params[:pageSize] || 10).to_i

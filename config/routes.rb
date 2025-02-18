@@ -24,7 +24,7 @@ HelloModule::Engine.routes.draw do
   get "/post/curated-list" => "post#curated_list"
   get "/post/latest-list" => "post#latest_list"
   get "/post/list/:category_id" => "post#list_show"
-  get "/post/:topic_id" => "post#show"
+
 
   get "/post/:topic_id/comment-list/:post_number" => "post#comment_list"
   post "/post/:topic_id/collect" => "post#topic_collect"
@@ -32,7 +32,7 @@ HelloModule::Engine.routes.draw do
   post "/post/:post_id/like" => "post#post_like"
   put "/post/:post_id/cancel-like" => "post#post_like_cancel"
 
-
+  get "/topic/:topic_id" => "topic#show"
   get "/topic/:topic_id/comment-list" => "topic#comment_list"
   get "/topic/:topic_id/comment-list/:post_number" => "topic#post_show"
 

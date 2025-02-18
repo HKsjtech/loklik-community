@@ -544,8 +544,7 @@ module ::HelloModule
 
     def serialize(user_follow, user_external, fans_ids)
       {
-        "id": user_external.user_id, #用户id
-        "userId": user_external.external_user_id, #用户id
+        "userId":  user_external.user_id, #用户id
         "name": user_external.name, #用户名称
         "avatarUrl": user_external.avatar_url, #用户头像
         "careDateTime": user_follow.updated_at, #关注时间

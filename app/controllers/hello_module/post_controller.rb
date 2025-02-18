@@ -74,31 +74,6 @@ module ::HelloModule
       render_response(data: create_page_list(res, total, current_page, page_size ))
     end
 
-    def show
-      topic_id = params.require(:topic_id)
-
-      res = PostService.cal_topics_by_topic_ids([topic_id])
-      topic = res[0]
-
-      # todo: need to implement
-      # "isAuthor": false,//是否为作者帖子
-      # "isCare": false,//是否关注作者
-      # "isAddCategory": false,//是否加入该分类
-      # "isApp": true,//帖子是否App发布
-      # "collectCount": 999,//收藏数量
-      # "likeStatus": 0,//点赞状态 0-否 1-是
-      # "bookmarkStatus": 0//收藏状态 0-否 1-是
-      topic["isAuthor"] = false
-      topic["isCare"] = false
-      topic["isAddCategory"] = false
-      topic["isApp"] = true
-      topic["collectCount"] = 999
-      topic["likeStatus"] = 0
-      topic["bookmarkStatus"] = 0
-
-      render_response(data: topic)
-    end
-
     def comment_list
       # todo: need to implement
       render_response(data: { latest_list: 'topic_comment_list' })
