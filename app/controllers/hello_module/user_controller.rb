@@ -98,6 +98,9 @@ module ::HelloModule
     end
 
     def fans_list
+      current_page = (params[:currentPage] || 1).to_i
+      page_size = (params[:pageSize] || 10).to_i
+
       user_id = get_current_user_id
 
       # 校验id是否存在
@@ -106,7 +109,11 @@ module ::HelloModule
         return render_response(code: 400, success: false, msg: "用户不存在")
       end
 
-      fans_users = AppUserFollow.where(target_user_id: user_id, is_deleted: 0)
+      query = AppUserFollow.where(target_user_id: user_id, is_deleted: 0)
+
+      fans_users = query.limit(page_size).offset(current_page * page_size - page_size)
+      total = query.count
+
       fans_user_ids = fans_users.pluck(:user_id)
 
       follow_users = AppUserFollow.where(user_id: user_id, is_deleted: 0)
@@ -122,11 +129,13 @@ module ::HelloModule
         serialize(fans_user, user_external_info, follow_user_ids)
       end
 
-
-      render_response(data: res)
+      render_response(data: create_page_list(res, total, current_page, page_size ))
     end
 
     def care_list
+      current_page = (params[:currentPage] || 1).to_i
+      page_size = (params[:pageSize] || 10).to_i
+
       user_id = get_current_user_id
 
       # 校验id是否存在
@@ -135,7 +144,11 @@ module ::HelloModule
         return render_response(code: 400, success: false, msg: "用户不存在")
       end
 
-      care_users = AppUserFollow.where(user_id: user_id, is_deleted: 0)
+      query = AppUserFollow.where(user_id: user_id, is_deleted: 0)
+
+      care_users = query.limit(page_size).offset(current_page * page_size - page_size)
+      total = query.count
+
       care_user_ids = care_users.pluck(:target_user_id)
 
       fans_users = AppUserFollow.where(target_user_id: user_id, is_deleted: 0)
@@ -151,7 +164,7 @@ module ::HelloModule
         serialize(care_user, user_external, fans_user_ids)
       end
 
-      render_response(data: res)
+      render_response(data: create_page_list(res, total, current_page, page_size ))
     end
 
     def create_topic
