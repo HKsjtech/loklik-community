@@ -5,7 +5,8 @@ module ::HelloModule
     def initialize
       @connection = nil
       @channel = nil
-      @queue = nil
+      @queue_login = nil
+      @queue_update = nil
 
       connect
     end
@@ -21,33 +22,58 @@ module ::HelloModule
       @connection = Bunny.new(amqp_connect_string)
       @connection.start
       @channel = @connection.create_channel
-      @queue = @channel.queue('loklik:ideastudio:community:login.sync.queue', durable: true)
+      @queue_login = @channel.queue('loklik:ideastudio:community:login.sync.queue', durable: true)
+      @queue_update = @channel.queue('loklik:ideastudio:community:userinfo.sync.queue', durable: true)
       LoggerHelper.info("连接到RabbitMQ成功")
     rescue => e
       LoggerHelper.warn("连接到RabbitMQ失败: #{e.message}")
     end
 
     def start_consuming
-      if @queue.nil?
+      Thread.new { start_consuming_update }
+      Thread.new { start_consuming_login }
+    end
+
+    def start_consuming_login
+      if @queue_login.nil?
         LoggerHelper.info("请先连接RabbitMQ")
         return
       end
 
       LoggerHelper.info("开始消费loklik:ideastudio:community:login.sync.queue队列")
-      @queue.subscribe(:manual_ack => true, :block => true) do |delivery_info, properties, body|
-        LoggerHelper.info("收到消息：")
+      @queue_login.subscribe(:manual_ack => true, :block => true) do |delivery_info, properties, body|
+        LoggerHelper.info("收到login消息：")
         LoggerHelper.info(body)
 
-        process_message(body)
+        ConsumerService.consumer_user_login(body)
 
         LoggerHelper.info("处理完成")
         @channel.ack(delivery_info.delivery_tag)
         LoggerHelper.info("ack完成")
       end
+    rescue => e
+      LoggerHelper.error("RabbitMQ消费失败: #{e.message}")
     end
 
-    def process_message(message)
-      ConsumerService.consumer_user_login(message)
+    def start_consuming_update
+      if @queue_update.nil?
+        LoggerHelper.info("请先连接RabbitMQ")
+        return
+      end
+
+      LoggerHelper.info("开始消费loklik:ideastudio:community:userinfo.sync.queue队列")
+      @queue_update.subscribe(:manual_ack => true, :block => true) do |delivery_info, properties, body|
+        LoggerHelper.info("收到更新消息：")
+        LoggerHelper.info(body)
+
+        ConsumerService.consumer_user_update(body)
+
+        LoggerHelper.info("处理完成")
+        @channel.ack(delivery_info.delivery_tag)
+        LoggerHelper.info("ack完成")
+      end
+    rescue => e
+      LoggerHelper.error("RabbitMQ消费失败: #{e.message}")
     end
 
     def stop

@@ -50,6 +50,50 @@ class ConsumerService
     nil
   end
 
+  # {"avatarUrl":"https://sjtech-public.s3.amazonaws.com/avatar/constellation/sagittarius.png","isUpgrade":1,"name":"翔","surname":"贺","userId":"1879721790746529792"}
+  def self.consumer_user_update(body)
+    unless SiteSetting.enable_discourse_connect
+      LoggerHelper.warn("Discourse Connect is not enabled")
+      return nil
+    end
+    unless SiteSetting.discourse_connect_secret
+      LoggerHelper.warn("Discourse Connect Secret is not set")
+      return nil
+    end
+    unless SiteSetting.plugin_discourse_api_secret
+      LoggerHelper.warn("Discourse API Secret is not set")
+      return nil
+    end
+
+    user_info = JSON.parse(body)
+
+    app_user_external_info = HelloModule::AppUserExternalInfo.find_by(
+      external_user_id: user_info["userId"]
+    )
+
+    if app_user_external_info.nil?
+      LoggerHelper.error("Failed to find app user")
+      return nil
+    end
+
+    # 更新或设置其他字段
+    app_user_external_info.name = user_info["name"]
+    app_user_external_info.surname = user_info["surname"]
+    app_user_external_info.avatar_url = user_info["avatarUrl"]
+    app_user_external_info.is_upgrade = user_info["isUpgrade"]
+
+    LoggerHelper.info("new user info: #{app_user_external_info.inspect}")
+
+    unless app_user_external_info.save
+      LoggerHelper.error("Failed to save app user")
+    end
+
+    user
+  rescue => e
+    LoggerHelper.error("Failed to login user from Discourse: #{e.message}")
+    nil
+  end
+
   def self.request_sso(user_info)
     sso_params = {
       'external_id' => user_info["userId"],
