@@ -113,7 +113,7 @@ module ::HelloModule
       end
 
       all_posts = []
-      tmp_posts = find_reply_post_number_ids(topic_id, [post.post_number])
+      tmp_posts = find_reply_post_number_ids(topic_id, [post.id])
       # 如果 posts 不为空， 则循环调用  find_reply_post_number_ids， 直到 posts 为空
       while tmp_posts.present? && tmp_posts.length > 0
         post_number_ids = tmp_posts.map(&:post_number)
@@ -219,8 +219,8 @@ module ::HelloModule
                  .filter { |video| video.present? } # http连接可能找不到上传记录  需要过滤掉
                  .map do |video|
         {
-          "url": video["url"],
-          "coverImg": video["cover_img"],
+          "url": format_url(video["url"]),
+          "coverImg": format_url(video["cover_img"]),
           "thumbnailWidth": video["thumbnail_width"],
           "thumbnailHeight": video["thumbnail_height"],
         }

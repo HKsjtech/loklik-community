@@ -52,7 +52,7 @@ module ::HelloModule
                  .map do |video|
         {
           "url": format_url(video["url"]),
-          "coverImg": video["cover_img"],
+          "coverImg": format_url(video["cover_img"]),
           "thumbnailWidth": video["thumbnail_width"],
           "thumbnailHeight": video["thumbnail_height"],
         }
