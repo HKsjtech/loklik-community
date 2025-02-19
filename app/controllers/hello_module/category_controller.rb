@@ -65,7 +65,7 @@ module ::HelloModule
       {
         "id": category.id,
         "name": category.name,
-        "url": category.url,
+        "url": format_url(category.url),
         "description": category.description,
         "isAddCategory": is_add_category,
         "addCategoryCount": add_category_count,
