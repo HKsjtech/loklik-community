@@ -42,7 +42,7 @@ module ::HelloModule
     private
 
     def self.cal_post_videos_and_images(post_id, post_row)
-      new_raw, video_links = process_text(post_row)
+      new_raw, video_links, image_lines = process_text(post_row)
       # 计算 video
       app_video_uploads = AppVideoUpload.where(url: video_links)
       ordered_videos = video_links.map { |link| app_video_uploads.find { |video| video.url == link } }
@@ -80,13 +80,17 @@ module ::HelloModule
       images = post_uploads
                  .filter { |upload| upload["url"].present? } # 没有上传时也会查询出一条空记录，需要过滤掉
                  .map do |item|
+        puts "image_lines: #{image_lines}"
+        filename = remove_file_ext(item["original_filename"])
+        puts "filename: #{filename}"
+        short_url = find_upload_url(image_lines, filename)
         {
           id: item["upload_id"],
           url: format_url(item["url"]),
           originalName: item["original_filename"],
           thumbnailWidth: item["thumbnail_width"],
           thumbnailHeight: item["thumbnail_height"],
-          shortUrl: item["short_url"], # todo: need to implement
+          shortUrl: short_url,
         }
       end
 

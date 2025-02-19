@@ -570,8 +570,9 @@ module ::HelloModule
       # 图片
       if images.present?
         images.each do |image|
-          # ![image|690x316](upload://ttjM3OvnCo3NRd3mx8jSq4edWw1.png)
-          res += "\n![image|#{image[:thumbnailWidth]}x#{image[:thumbnailHeight]}](#{image[:shortUrl]})"
+          # ![1831162626387005440|645x475](upload://3yV3pjc9HkuEhvmX5dcYw2JBI8f.jpeg)
+          origin_file_name = remove_file_ext(image[:originalName])
+          res += "\n![#{origin_file_name}|#{image[:thumbnailWidth]}x#{image[:thumbnailHeight]}](#{image[:shortUrl]})"
         end
       end
 

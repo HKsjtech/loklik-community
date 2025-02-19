@@ -10,17 +10,22 @@ module PostHelper
     end
 
     # 处理后的结果
-    processed_lines = lines.reject do |line|
+    images_lines = lines.filter do |line|
       # 去掉图片行（包含 ![ 和 ]( 的行）
-      line.match?(/!\[.*\]\(.*\)/) ||
-      # 去掉视频链接行（以 https 开头的行）
-      line.start_with?('https:')
+      line.match?(/!\[.*\]\(.*\)/)
+    end
+
+    lines = lines.filter do |line|
+      # 去掉视频链接行
+      line.strip.start_with?('http:', 'https:') == false &&
+      # 去掉图片行
+      line.match?(/!\[.*\]\(.*\)/) == false
     end
 
     # 返回处理后的文本，按行连接
-    text =processed_lines.join("\n")
+    text = lines.join("\n")
 
-    [remove_markdown(text), video_link_lines]
+    [remove_markdown(text), video_link_lines, images_lines]
   end
 
   def remove_markdown(text)
@@ -98,5 +103,24 @@ module PostHelper
     else
       url
     end
+  end
+
+  # 移除文件扩展名
+  def remove_file_ext(filename)
+    File.basename(filename, File.extname(filename))
+  end
+
+  # 找到 Markdown 图片语法中的指定文件名对应的 URL
+  def find_upload_url(markdown_images, target_filename)
+    # 构建文件名到URL的映射哈希（带缓存）
+    # 查找对应的元素
+    result = markdown_images.find do |image|
+      image.include?(target_filename)
+    end
+
+    # 提取对应的 upload URL
+    upload_url = result.match(/(upload:\/\/[^\)]+)/)[1] if result
+
+    upload_url
   end
 end

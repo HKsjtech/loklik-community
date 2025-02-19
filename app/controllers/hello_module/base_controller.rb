@@ -159,8 +159,8 @@ module ::HelloModule
 
       render_response(data: {
         "id": result["id"],
-        "url": result["url"],
-        "originalName": result["original_name"],
+        "url": format_url(result["url"]),
+        "originalName": result["original_filename"],
         "fileSize": result["filesize"],
         "thumbnailWidth": result["thumbnail_width"],
         "thumbnailHeight": result["thumbnail_height"],
