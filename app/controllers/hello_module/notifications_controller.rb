@@ -19,7 +19,15 @@ module ::HelloModule
     end
 
     def message_list
-      nos = Notification.where(notification_type: [2, 5], user_id: @current_user.id, read: false)
+      current_page = (params[:currentPage] || 1).to_i
+      page_size = (params[:pageSize] || 10).to_i
+
+
+      query = Notification.where(notification_type: [2, 5], user_id: @current_user.id, read: false)
+
+      nos =  query.limit(page_size).offset(current_page * page_size - page_size)
+      total = query.count
+
       res = nos.map do |n|
         json_data = JSON.parse(n.data)
         if n.notification_type == 2
@@ -43,7 +51,7 @@ module ::HelloModule
         }
       end
 
-      render_response(data: res)
+      render_response(data: create_page_list(res, total, current_page, page_size ))
     end
 
     def mark_read
