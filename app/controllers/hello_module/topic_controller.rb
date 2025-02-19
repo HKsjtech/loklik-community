@@ -32,7 +32,7 @@ module ::HelloModule
       like_status = PostAction.where(post_id: first_post.id, post_action_type_id: post_action_type_id, user_id: @current_user.id, deleted_at: nil).exists?
 
       collect_count = Bookmark.where(bookmarkable_type: 'Topic', bookmarkable_id: topic_id).count
-      bookmark_status = Bookmark.where(bookmarkable_type: 'Post', bookmarkable_id: first_post.id, user_id: @current_user.id).exists?
+      bookmark_status = Bookmark.where(bookmarkable_type: 'Topic', bookmarkable_id: topic_id, user_id: @current_user.id).exists?
       res["isAuthor"] = topic.user_id == @current_user.id # 是否为作者帖子
       res["isCare"] = is_care # 是否关注作者
       res["isAddCategory"] = is_add_category # 是否加入该分类
