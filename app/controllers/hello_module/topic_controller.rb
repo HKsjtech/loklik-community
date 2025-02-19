@@ -11,6 +11,125 @@ module ::HelloModule
 
     before_action :fetch_current_user
 
+    def create_topic
+      min_topic_title_length = SiteSetting.min_topic_title_length || 8
+      min_post_length = SiteSetting.min_post_length || 8
+
+      title = params[:title]
+      raw = params[:raw]
+
+      if title.length < min_topic_title_length
+        return render_response(code: 400, success: false, msg: "标题长度不能少于#{min_topic_title_length}个字符")
+      end
+
+      if raw.length < min_post_length
+        return render_response(code: 400, success: false, msg: "内容长度不能少于#{min_post_length}个字符")
+      end
+
+      raw += PostService.cal_new_post_raw(params[:image], params[:video]) if params[:image] || params[:video]
+
+      manager_params = {}
+      manager_params[:raw] = raw
+      manager_params[:title] = params[:title]
+      manager_params[:category] = params[:categoryId]
+      manager_params[:first_post_checks] = false
+      manager_params[:advance_draft] = false
+      manager_params[:ip_address] = request.remote_ip
+      manager_params[:user_agent] = request.user_agent
+
+      begin
+        manager = NewPostManager.new(@current_user, manager_params)
+        res = serialize_data(manager.perform, NewPostResultSerializer, root: false)
+
+        if res && res[:errors] && res[:errors].any?
+          return render_response(code: 400, success: false, msg: res[:errors].join(", "))
+        end
+
+        new_post_id = res[:post][:id]
+        app_post_record = AppPostRecord.create(post_id: new_post_id, is_deleted: 0)
+
+        unless app_post_record.save
+          return render_response(code: 500, success: false, msg: "创建帖子失败")
+        end
+
+        render_response(data: res[:post][:topic_id], success: true, msg: "发帖成功")
+
+      rescue => e
+        render_response(code: 400, success: false, msg: e.message)
+      end
+    end
+
+    def edit_topic
+      changes = {}
+      changes[:title] = params[:title] if params[:title]
+      if params[:raw]
+        changes[:raw] = params[:raw]
+      end
+
+      if params[:image] || params[:video]
+        changes[:raw] = changes[:raw] + PostService.cal_new_post_raw(params[:image], params[:video])
+      end
+
+      if changes.none?
+        return render_response(code: 400, success: false, msg: "没有任何修改")
+      end
+
+      topic = Topic.find_by(id: params[:topicId].to_i)
+
+      unless topic
+        return render_response(code: 400, success: false, msg: "帖子不存在")
+      end
+
+      first_post = topic.ordered_posts.first
+
+      success =
+        PostRevisor.new(first_post, topic).revise!(
+          @current_user,
+          changes,
+          validate_post: false,
+          bypass_bump: false,
+          keep_existing_draft: false,
+          )
+
+      return render_response(code: 400, success: false, msg: topic.errors.full_messages.join(", ")) if !success && topic.errors.any?
+
+      render_response
+    end
+
+    def destroy_topic
+      topic = Topic.with_deleted.find_by(id: params[:topic_id])
+
+      unless topic
+        return render_response(code: 400, success: false, msg: "帖子不存在")
+      end
+
+      if topic.user_id != @current_user.id
+        return render_response(code: 400, success: false, msg: "只能删除自己的帖子")
+      end
+
+      # 删除 Topic 会有权限问题，先用系统用户删除
+      system_user = User.find_by(id: -1)
+
+      guardian = Guardian.new(system_user, request)
+      guardian.ensure_can_delete!(topic)
+
+      post = topic.ordered_posts.with_deleted.first
+      PostDestroyer.new(
+        system_user,
+        post,
+        context: params[:context],
+        force_destroy: false,
+        ).destroy
+
+      return render_response(code: 400, success: false, msg: topic.errors.full_messages.join(", ")) if topic.errors.any?
+
+      AppPostRecord.where(post_id: post.id).update_all(is_deleted: 1)
+
+      render_response
+    rescue Discourse::InvalidAccess
+      render_response(code: 400, success: false, msg: I18n.t("delete_topic_failed"))
+    end
+
     def show
       topic_id = params.require(:topic_id)
 

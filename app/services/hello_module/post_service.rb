@@ -38,6 +38,24 @@ module ::HelloModule
       res
     end
 
+    def self.cal_new_post_raw(images, video)
+      res = ""
+
+      # 图片
+      if images.present?
+        images.each do |image|
+          # ![1831162626387005440|645x475](upload://3yV3pjc9HkuEhvmX5dcYw2JBI8f.jpeg)
+          origin_file_name = remove_file_ext(image[:originalName])
+          res += "\n![#{origin_file_name}|#{image[:thumbnailWidth]}x#{image[:thumbnailHeight]}](#{image[:shortUrl]})"
+        end
+      end
+
+      # 视频
+      res += "\n\n#{video}" if video
+
+      res
+    end
+
 
     private
 
@@ -142,7 +160,6 @@ module ::HelloModule
         }
       end
     end
-
 
   end
 end
