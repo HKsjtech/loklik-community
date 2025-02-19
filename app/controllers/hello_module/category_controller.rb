@@ -27,13 +27,15 @@ module ::HelloModule
 
     def list
       user_id = get_current_user_id
-      user_categories_list = AppUserCategories.where(is_deleted: 0, user_id: user_id)
-      user_categories_ids = user_categories_list.map { |uc| uc.categories_id }
+      user_categories_list = AppUserCategories.where(is_deleted: 0, user_id: user_id).order(updated_at: :desc).all
+      user_categories_ids = user_categories_list.pluck(:categories_id)
 
       cate_srv = CategoryService.all(get_request_host)
 
-      mine = cate_srv.filter { |category| user_categories_ids.include?(category[:id]) }
+      # 这里需要 user_categories_ids 的排序，所以使用 user_categories_ids 去查找分类
+      mine = user_categories_ids.map { |id| cate_srv.find {|ca| ca[:id] == id} }
       all = cate_srv.filter { |category| !user_categories_ids.include?(category[:id]) }
+      all.sort! { |a, b| b[:id] <=> a[:id] }
 
       render_response(data: {
         mine: mine,
