@@ -51,7 +51,6 @@ module ::HelloModule
       end
 
       category = Category.find(category_id)
-      # category = CategoryService.show(get_request_host, category_id)
 
       render_response(data: serialize_category(category))
     end

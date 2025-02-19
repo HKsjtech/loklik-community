@@ -50,4 +50,5 @@ module AuthHelper
     end
     user_id.to_i
   end
+
 end

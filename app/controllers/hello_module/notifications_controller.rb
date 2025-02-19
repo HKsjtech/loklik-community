@@ -36,12 +36,12 @@ module ::HelloModule
             post_content = process_text(original_post.raw)[0]
           end
         end
-
+        user_info = UserService.cal_user_info_by_id(n.user_id)
         {
           "id": n.id,
           "userId": n.user_id,
-          "name": n.user.username,
-          "avatarUrl": n.user.avatar_template.gsub('{size}', '50'),
+          "name": user_info.name,
+          "avatarUrl": user_info.avatar_url,
           "notificationType": n.notification_type,
           "content": post_content,
           "topicId": n.topic_id,
