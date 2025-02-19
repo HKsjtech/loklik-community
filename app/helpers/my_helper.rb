@@ -11,7 +11,7 @@ module MyHelper
       parsed_data = data
     end
 
-    render json: response_format(data: parsed_data, code: code, success: success, msg: msg), status: code
+    render json: response_format(data: parsed_data, code: code, success: success, msg: msg), status: 200
   end
 
   def response_format(data: nil, code: 200, success: true, msg: "操作成功", error: "")

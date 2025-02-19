@@ -67,7 +67,7 @@ from topics t
          join bookmarks b on t.id = b.bookmarkable_id and b.bookmarkable_type = 'Topic'
 where t.deleted_by_id is null and t.archetype = 'regular' and t.visible = true and t.closed = false
   and t.category_id in (#{category_ids})
-  and b.user_id = 3
+  and b.user_id = #{user_id}
 order by b.created_at desc"
 
     sql = "select t.id #{query}

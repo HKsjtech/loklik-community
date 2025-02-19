@@ -533,10 +533,12 @@ module ::HelloModule
 
       is_care = AppUserFollow.where(user_id: @current_user.id, target_user_id: user.user_id, is_deleted: 0).exists?
 
+      user_info = cal_post_user_info(user.user_id, user)
+
       {
-        "userId": user.user_id,#用户id
-        "name": user.surname + user.name,#用户名称
-        "avatarUrl": user.avatar_url,#用户头像
+        "userId": user_info.user_id,#用户id
+        "name": user_info.name,#用户名称
+        "avatarUrl": user_info.avatar_url,#用户头像
         "isUpgrade": user.is_upgrade,#是否升级 0-否 1-是
         "careCount": care_count,#关注数
         "fansCount": fans_count,#粉丝数
@@ -547,10 +549,11 @@ module ::HelloModule
     end
 
     def serialize(user_follow, user_external, fans_ids)
+      user_info = cal_post_user_info(user_follow.user_id, user_external)
       {
-        "userId":  user_external.user_id, #用户id
-        "name": user_external.name, #用户名称
-        "avatarUrl": user_external.avatar_url, #用户头像
+        "userId":  user_info.user_id, #用户id
+        "name": user_info.name, #用户名称
+        "avatarUrl": user_info.avatar_url, #用户头像
         "careDateTime": user_follow.updated_at, #关注时间
         "isFans": fans_ids.include?(user_external.user_id) #是否粉丝
       }
