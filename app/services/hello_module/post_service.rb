@@ -100,6 +100,9 @@ module ::HelloModule
       images = []
       image_lines.each do |line|
         real_filename = extract_identifier(line)
+        if real_filename == ""
+          next
+        end
         post_upload = post_uploads.find { |upload| remove_file_ext(upload["original_filename"]) == real_filename }
         if post_upload.present?
           short_url = find_upload_url(image_lines, remove_file_ext(post_upload["original_filename"]))
@@ -174,7 +177,7 @@ module ::HelloModule
       end
 
       # 返回匹配结果或抛出异常
-      alt_part || (raise ArgumentError, "Invalid markdown image format")
+      alt_part
     end
 
   end
