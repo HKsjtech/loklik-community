@@ -97,18 +97,21 @@ module ::HelloModule
       post_uploads = post_uploads
         .filter { |upload| upload["url"].present? } # 没有上传时也会查询出一条空记录，需要过滤掉
 
-      images = image_lines.map do |line|
+      images = []
+      image_lines.map do |line|
         real_filename = extract_identifier(line)
-        post_upload = post_uploads.find { |upload| upload["original_filename"].split('.').first == real_filename }
-        short_url = find_upload_url(image_lines, post_upload["original_filename"])
-        {
-          id: post_upload["upload_id"],
-          url: format_url(post_upload["url"]),
-          originalName: post_upload["original_filename"],
-          thumbnailWidth: post_upload["thumbnail_width"],
-          thumbnailHeight: post_upload["thumbnail_height"],
-          shortUrl: short_url,
-        }
+        post_upload = post_uploads.find { |upload| remove_file_ext(upload["original_filename"]) == real_filename }
+        if post_upload.present?
+          short_url = find_upload_url(image_lines, remove_file_ext(post_upload["original_filename"]))
+          images <<  {
+            id: post_upload["upload_id"],
+            url: format_url(post_upload["url"]),
+            originalName: post_upload["original_filename"],
+            thumbnailWidth: post_upload["thumbnail_width"],
+            thumbnailHeight: post_upload["thumbnail_height"],
+            shortUrl: short_url,
+          }
+        end
       end
 
       [new_raw, videos, images]

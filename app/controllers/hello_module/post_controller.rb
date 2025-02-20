@@ -74,10 +74,6 @@ module ::HelloModule
       render_response(data: create_page_list(res, total, current_page, page_size ))
     end
 
-    def comment_list
-      # todo: need to implement
-      render_response(data: { latest_list: 'topic_comment_list' })
-    end
 
     def post_like
       user_id = get_current_user_id
