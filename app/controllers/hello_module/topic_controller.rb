@@ -152,6 +152,7 @@ module ::HelloModule
 
       collect_count = Bookmark.where(bookmarkable_type: 'Topic', bookmarkable_id: topic_id).count
       bookmark_status = Bookmark.where(bookmarkable_type: 'Topic', bookmarkable_id: topic_id, user_id: @current_user.id).exists?
+
       res["isAuthor"] = topic.user_id == @current_user.id # 是否为作者帖子
       res["isCare"] = is_care # 是否关注作者
       res["isAddCategory"] = is_add_category # 是否加入该分类
@@ -159,6 +160,7 @@ module ::HelloModule
       res["collectCount"] = collect_count # 收藏数量
       res["likeStatus"] = like_status ? 1 : 0 # 点赞状态 0-否 1-是
       res["bookmarkStatus"] = bookmark_status ? 1 : 0 # 收藏状态 0-否 1-是
+      res["firstPostId"] = first_post.id
 
       render_response(data: res)
     end

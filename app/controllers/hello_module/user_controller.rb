@@ -220,7 +220,6 @@ module ::HelloModule
       manager_params[:raw] = raw
       manager_params[:topic_id] = params[:topicId]
       manager_params[:archetype] = "regular"
-      # manager_params[:category] = params[:categoryId]
       manager_params[:reply_to_post_number] = params[:replyToPostNumber]
       manager_params[:visible] = true
       manager_params[:image_sizes] = nil

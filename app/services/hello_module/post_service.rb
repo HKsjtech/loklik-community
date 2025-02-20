@@ -93,21 +93,20 @@ module ::HelloModule
                        .joins('LEFT JOIN upload_references urs ON posts.id = urs.target_id AND urs.target_type = \'Post\'')
                        .joins('LEFT JOIN uploads ON uploads.id = urs.upload_id')
                        .where(id: post_id)
+                       .order('uploads.updated_at DESC')
+      post_uploads = post_uploads
+        .filter { |upload| upload["url"].present? } # 没有上传时也会查询出一条空记录，需要过滤掉
 
-
-      images = post_uploads
-                 .filter { |upload| upload["url"].present? } # 没有上传时也会查询出一条空记录，需要过滤掉
-                 .map do |item|
-        puts "image_lines: #{image_lines}"
-        filename = remove_file_ext(item["original_filename"])
-        puts "filename: #{filename}"
-        short_url = find_upload_url(image_lines, filename)
+      images = image_lines.map do |line|
+        real_filename = extract_identifier(line)
+        post_upload = post_uploads.find { |upload| upload["original_filename"].split('.').first == real_filename }
+        short_url = find_upload_url(image_lines, post_upload["original_filename"])
         {
-          id: item["upload_id"],
-          url: format_url(item["url"]),
-          originalName: item["original_filename"],
-          thumbnailWidth: item["thumbnail_width"],
-          thumbnailHeight: item["thumbnail_height"],
+          id: post_upload["upload_id"],
+          url: format_url(post_upload["url"]),
+          originalName: post_upload["original_filename"],
+          thumbnailWidth: post_upload["thumbnail_width"],
+          thumbnailHeight: post_upload["thumbnail_height"],
           shortUrl: short_url,
         }
       end
@@ -159,6 +158,15 @@ module ::HelloModule
           commentCount: topic.comment_count # 评论数量
         }
       end
+    end
+
+
+    def self.extract_identifier(markdown_str)
+      # 使用正则表达式匹配 Markdown 图片的 alt 部分
+      alt_part = markdown_str.match(/!\[([^\|\]]+)(?:\|.*?)?\]/x)&.captures&.first
+
+      # 返回匹配结果或抛出异常
+      alt_part || (raise ArgumentError, "Invalid markdown image format")
     end
 
   end
