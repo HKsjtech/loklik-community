@@ -5,7 +5,6 @@ module PostHelper
     lines = input_text.split("\n")
 
     video_link_lines = lines.filter do |line|
-      # 去掉视频链接行（以 http 或 https 开头的行）
       line.strip.start_with?('http:', 'https:')
     end
 
