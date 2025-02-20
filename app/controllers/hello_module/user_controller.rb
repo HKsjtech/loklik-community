@@ -323,7 +323,6 @@ module ::HelloModule
         end
       end
 
-
       query = Topic
                 .select('topics.id')
                 .joins('INNER JOIN categories ON topics.category_id = categories.id')
@@ -333,7 +332,7 @@ module ::HelloModule
                 .where(closed: false)
                 .where(user_id: user.id)
                 .where('categories.read_restricted = false')
-                .order(id: :desc)
+                .order(created_at: :desc)
 
       topics = query.limit(page_size).offset(current_page * page_size - page_size)
       total = query.count
@@ -378,7 +377,7 @@ module ::HelloModule
                 .where("post_actions.user_id = ? and post_actions.post_action_type_id = ?", user.id, 2)
                 .where("posts.post_number = ?", 1)
                 .where(deleted_by_id: nil, archetype: 'regular',visible: true, closed: false, category_id: all_category_ids)
-                .order(id: :desc)
+                .order("post_actions.updated_at DESC")
 
       topics = query.limit(page_size).offset(current_page * page_size - page_size)
       total = query.count
@@ -413,7 +412,10 @@ module ::HelloModule
         topic["id"]
       end
 
-      res = PostService.cal_topics_by_topic_ids(topic_ids)
+      cal_topics = PostService.cal_topics_by_topic_ids(topic_ids)
+      res = topic_ids.map do |topic|
+        cal_topics.find { |t| t[:id] == topic }
+      end
 
       render_response(data: create_page_list(res, total, current_page, page_size ))
     end

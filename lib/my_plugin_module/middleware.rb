@@ -42,7 +42,7 @@ module ::HelloModule
         unless ok
           # JWT 无效，返回 401
           return [200, { "Content-Type" => "application/json" },
-                  [response_format(code: 401, success: false, msg: "Unauthorized1").to_json]
+                  [response_format(code: 401, success: false, msg: "Unauthorized").to_json]
           ]
         end
 

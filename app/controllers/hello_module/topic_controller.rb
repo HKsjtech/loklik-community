@@ -247,6 +247,26 @@ module ::HelloModule
       render_response(data: res)
     end
 
+    def topic_collect
+      topic = Topic.find(params[:topic_id].to_i)
+
+      bookmark_manager = BookmarkManager.new(@current_user)
+      bookmark_manager.create_for(bookmarkable_id: topic.id, bookmarkable_type: "Topic")
+
+      return render_response(code: 400, data: nil, msg: get_operator_msg(bookmark_manager), success: false)  if bookmark_manager.errors.any?
+
+      render_response
+    end
+
+    def topic_collect_cancel
+      params.require(:topic_id)
+
+      topic = Topic.find(params[:topic_id].to_i)
+      BookmarkManager.new(@current_user).destroy_for_topic(topic)
+
+      render_response
+    end
+
     private
 
     def find_reply_post_number_ids(topic_id, post_number_ids)

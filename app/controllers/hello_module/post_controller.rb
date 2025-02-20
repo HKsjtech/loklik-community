@@ -79,26 +79,6 @@ module ::HelloModule
       render_response(data: { latest_list: 'topic_comment_list' })
     end
 
-    def topic_collect
-      topic = Topic.find(params[:topic_id].to_i)
-
-      bookmark_manager = BookmarkManager.new(@current_user)
-      bookmark_manager.create_for(bookmarkable_id: topic.id, bookmarkable_type: "Topic")
-
-      return render_response(code: 400, data: nil, msg: get_operator_msg(bookmark_manager), success: false)  if bookmark_manager.errors.any?
-
-      render_response
-    end
-
-    def topic_collect_cancel
-      params.require(:topic_id)
-
-      topic = Topic.find(params[:topic_id].to_i)
-      BookmarkManager.new(@current_user).destroy_for_topic(topic)
-
-      render_response
-    end
-
     def post_like
       user_id = get_current_user_id
       post_id = (params.require(:post_id)).to_i

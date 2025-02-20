@@ -93,7 +93,7 @@ from topics t
 where t.deleted_by_id is null and t.archetype = 'regular' and t.visible = true and t.closed = false
   and t.category_id in (#{category_ids})
   and b.user_id = #{user_id}
-order by b.created_at desc"
+order by b.updated_at desc"
 
       sql = "select t.id #{query}
 limit #{page_size}

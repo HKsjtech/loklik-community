@@ -27,8 +27,6 @@ HelloModule::Engine.routes.draw do
 
 
   get "/post/:topic_id/comment-list/:post_number" => "post#comment_list"
-  post "/post/:topic_id/collect" => "post#topic_collect"
-  put "/post/:topic_id/cancel-collect" => "post#topic_collect_cancel"
   post "/post/:post_id/like" => "post#post_like"
   put "/post/:post_id/cancel-like" => "post#post_like_cancel"
 
@@ -38,6 +36,8 @@ HelloModule::Engine.routes.draw do
   get "/topic/:topic_id" => "topic#show"
   get "/topic/:topic_id/comment-list" => "topic#comment_list"
   get "/topic/:topic_id/comment-list/:post_number" => "topic#post_show"
+  post "/topic/:topic_id/collect" => "topic#topic_collect"
+  put "/topic/:topic_id/cancel-collect" => "topic#topic_collect_cancel"
 
   # user routers
   post "/user/category" => "user#join_category"
