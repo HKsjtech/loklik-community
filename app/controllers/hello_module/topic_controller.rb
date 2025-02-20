@@ -192,7 +192,7 @@ module ::HelloModule
                   .where("posts.post_number > 1") # 过滤第一层评论
                   .where("posts.reply_to_post_number is null") # 只需要回复帖子的第一层评论
                   .joins('LEFT JOIN app_user_external_info ON posts.user_id = app_user_external_info.user_id')
-                  .order(post_number: :asc)
+                  .order(post_number: :desc)
       posts = query.limit(page_size).offset(current_page * page_size - page_size)
       total = posts.count
 
@@ -203,11 +203,10 @@ module ::HelloModule
       render_response(data: create_page_list(res, total, current_page, page_size ))
     end
 
-    # 获取帖子详情评论下的评论列表
+    # 评论的回复列表
     def post_show
       topic_id = (params.require(:topic_id)).to_i
       post_number = (params.require(:post_number)).to_i
-
 
       select_fields = [
         'posts.id',
@@ -234,12 +233,12 @@ module ::HelloModule
       end
 
       all_posts = []
-      tmp_posts = find_reply_post_number_ids(topic_id, [post.id])
+      tmp_posts = find_reply_post_number_ids(topic_id, [post_number])
       # 如果 posts 不为空， 则循环调用  find_reply_post_number_ids， 直到 posts 为空
       while tmp_posts.present? && tmp_posts.length > 0
+        all_posts.concat(tmp_posts)
         post_number_ids = tmp_posts.map(&:post_number)
         tmp_posts = find_reply_post_number_ids(topic_id, post_number_ids)
-        all_posts.concat(tmp_posts)
       end
 
       post_action_type_id = get_action_type_id("like")

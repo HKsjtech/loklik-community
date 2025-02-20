@@ -303,7 +303,6 @@ module ::HelloModule
         return render_response(code: 404, msg: "用户未同步", success: false)
       end
 
-
       render_response(data: serialize_user_detail(user_external_info))
     end
 
@@ -411,10 +410,7 @@ module ::HelloModule
         topic["id"]
       end
 
-      cal_topics = PostService.cal_topics_by_topic_ids(topic_ids)
-      res = topic_ids.map do |topic|
-        cal_topics.find { |t| t[:id] == topic }
-      end
+      res = PostService.cal_topics_by_topic_ids(topic_ids)
 
       render_response(data: create_page_list(res, total, current_page, page_size ))
     end

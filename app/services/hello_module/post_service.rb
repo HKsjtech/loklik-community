@@ -24,15 +24,20 @@ module ::HelloModule
     end
 
     def self.cal_topics_by_topic_ids(topic_ids)
-      res = serialize_topic(topic_ids)
+      cal_topics = serialize_topic(topic_ids)
 
       # 如果需要将结果转换为 JSON 字符串
-      res.each do |topic|
+      cal_topics.each do |topic|
         post = Post.where(topic_id: topic[:id], post_number: 1).first
         new_raw, videos, images = cal_post_videos_and_images(post.id, post.raw)
         topic["context"] = new_raw
         topic["video"] = videos
         topic["image"] = images
+      end
+
+      # 保持排序一致
+      res = topic_ids.map do |topic_id|
+        cal_topics.find { |t| t[:id] == topic_id }
       end
 
       res
