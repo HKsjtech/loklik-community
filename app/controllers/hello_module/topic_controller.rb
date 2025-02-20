@@ -205,7 +205,7 @@ module ::HelloModule
     end
 
     # 评论的回复列表
-    def post_show
+    def comment_comment_list
       topic_id = (params.require(:topic_id)).to_i
       post_number = (params.require(:post_number)).to_i
 
@@ -244,7 +244,9 @@ module ::HelloModule
 
       post_action_type_id = get_action_type_id("like")
 
-      res = all_posts.map { |p| cal_post(p, post_action_type_id) }
+      res = all_posts
+              .sort! { |a, b| a[:created_at] <=> b[:created_at] }
+              .map { |p| cal_post(p, post_action_type_id) }
 
       render_response(data: res)
     end

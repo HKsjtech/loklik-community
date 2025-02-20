@@ -35,7 +35,7 @@ HelloModule::Engine.routes.draw do
   delete "/topic/:topic_id" => "topic#destroy_topic"
   get "/topic/:topic_id" => "topic#show"
   get "/topic/:topic_id/comment-list" => "topic#comment_list"
-  get "/topic/:topic_id/comment-list/:post_number" => "topic#post_show"
+  get "/topic/:topic_id/comment-list/:post_number" => "topic#comment_comment_list"
   post "/topic/:topic_id/collect" => "topic#topic_collect"
   put "/topic/:topic_id/cancel-collect" => "topic#topic_collect_cancel"
 
