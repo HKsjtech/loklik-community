@@ -187,14 +187,15 @@ module ::HelloModule
         'app_user_external_info.name',
         'app_user_external_info.avatar_url',
       ]
-      query = Post.select(select_fields)
+      query = Post
                   .where(topic_id: topic_id)
                   .where("posts.post_number > 1") # 过滤第一层评论
                   .where("posts.reply_to_post_number is null") # 只需要回复帖子的第一层评论
                   .joins('LEFT JOIN app_user_external_info ON posts.user_id = app_user_external_info.user_id')
                   .order(post_number: :desc)
-      posts = query.limit(page_size).offset(current_page * page_size - page_size)
-      total = posts.count
+
+      posts = query.select(select_fields).limit(page_size).offset(current_page * page_size - page_size)
+      total = query.count
 
       post_action_type_id = get_action_type_id("like")
 
