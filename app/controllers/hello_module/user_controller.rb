@@ -109,7 +109,7 @@ module ::HelloModule
         return render_response(code: 400, success: false, msg: "用户不存在")
       end
 
-      query = AppUserFollow.where(target_user_id: user_id, is_deleted: 0)
+      query = AppUserFollow.where(target_user_id: user_id, is_deleted: 0).order(updated_at: :desc)
 
       fans_users = query.limit(page_size).offset(current_page * page_size - page_size)
       total = query.count
@@ -126,7 +126,14 @@ module ::HelloModule
         unless user_external_info # 用户信息不存在
           next
         end
-        serialize(fans_user, user_external_info, follow_user_ids)
+        user_info = cal_post_user_info(fans_user.user_id, user_external_info)
+        {
+          "userId": user_info.user_id, #用户id
+          "name": user_info.name, #用户名称
+          "avatarUrl": user_info.avatar_url, #用户头像
+          "careDateTime": fans_user.updated_at, #关注时间
+          "isCare": follow_user_ids.include?(user_info.user_id) #是否关注
+        }
       end
 
       render_response(data: create_page_list(res, total, current_page, page_size ))
@@ -144,7 +151,7 @@ module ::HelloModule
         return render_response(code: 400, success: false, msg: "用户不存在")
       end
 
-      query = AppUserFollow.where(user_id: user_id, is_deleted: 0)
+      query = AppUserFollow.where(user_id: user_id, is_deleted: 0).order(updated_at: :desc)
 
       care_users = query.limit(page_size).offset(current_page * page_size - page_size)
       total = query.count
@@ -161,7 +168,15 @@ module ::HelloModule
         unless user_external
           next
         end
-        serialize(care_user, user_external, fans_user_ids)
+
+        user_info = cal_post_user_info(user_external.user_id, user_external)
+        {
+          "userId": user_info.user_id, #用户id
+          "name": user_info.name, #用户名称
+          "avatarUrl": user_info.avatar_url, #用户头像
+          "careDateTime": care_user.updated_at, #关注时间
+          "isFans": fans_user_ids.include?(user_info.user_id) #是否关注
+        }
       end
 
       render_response(data: create_page_list(res, total, current_page, page_size ))
@@ -426,17 +441,6 @@ module ::HelloModule
         "beLike":  UserService.be_like(user.id),#被点赞数
         "isAuthor": user.user_id == @current_user.id, # 是否作者 true-是
         "isCare": is_care # 是否关注 true-是
-      }
-    end
-
-    def serialize(user_follow, user_external, fans_ids)
-      user_info = cal_post_user_info(user_follow.user_id, user_external)
-      {
-        "userId":  user_info.user_id, #用户id
-        "name": user_info.name, #用户名称
-        "avatarUrl": user_info.avatar_url, #用户头像
-        "careDateTime": user_follow.updated_at, #关注时间
-        "isFans": fans_ids.include?(user_external.user_id) #是否粉丝
       }
     end
 
