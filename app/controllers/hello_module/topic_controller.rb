@@ -131,7 +131,7 @@ module ::HelloModule
     end
 
     def show
-      topic_id = params.require(:topic_id)
+      topic_id = (params.require(:topic_id)).to_i
 
       topic = Topic.find(topic_id)
       unless topic
