@@ -23,7 +23,7 @@ module ::HelloModule
       page_size = (params[:pageSize] || 10).to_i
 
 
-      query = Notification.where(notification_type: [2, 5], user_id: @current_user.id, read: false)
+      query = Notification.where(notification_type: [2, 5], user_id: @current_user.id, read: false).order(created_at: :desc)
 
       nos =  query.limit(page_size).offset(current_page * page_size - page_size)
       total = query.count
