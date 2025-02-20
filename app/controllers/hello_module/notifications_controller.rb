@@ -25,7 +25,7 @@ module ::HelloModule
 
       query = Notification.where(notification_type: [2, 5], user_id: @current_user.id).order(created_at: :desc)
 
-      nos =  query.limit(page_size).offset(current_page * page_size - page_size)
+      nos = query.limit(page_size).offset(current_page * page_size - page_size)
       total = query.count
 
       res = nos.map do |n|
@@ -34,9 +34,15 @@ module ::HelloModule
           original_post = Post.find_by(id: json_data["original_post_id"])
           if original_post
             post_content = process_text(original_post.raw)[0]
+            user_id = original_post.user_id
+          end
+        elsif n.notification_type == 5
+          if n.post_action_id
+            pa = PostAction.find_by(id: n.post_action_id)
+            user_id = pa.user_id
           end
         end
-        user_info = UserService.cal_user_info_by_id(n.user_id)
+        user_info = UserService.cal_user_info_by_id(user_id)
         {
           "id": n.id,
           "userId": n.user_id,
