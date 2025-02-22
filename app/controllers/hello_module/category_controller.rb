@@ -60,11 +60,15 @@ module ::HelloModule
     def serialize_category(category)
       add_category_count = AppUserCategories.where(categories_id: category.id, is_deleted: 0, user_id: @current_user.id).count
       is_add_category = AppUserCategories.find_by(categories_id: category.id, user_id: @current_user.id, is_deleted: 0).present?
-
+      urs = UploadReference
+        .select("uploads.url as url")
+        .joins("INNER JOIN uploads ON uploads.id = upload_references.upload_id")
+        .where(target_type: "Category", target_id: category.id)
+        .first
       {
         "id": category.id,
         "name": category.name,
-        "url": format_url(category.url),
+        "url": format_url(urs&.url),
         "description": category.description,
         "isAddCategory": is_add_category,
         "addCategoryCount": add_category_count,
