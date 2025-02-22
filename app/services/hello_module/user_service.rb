@@ -8,7 +8,8 @@ module ::HelloModule
         userinfo = OpenStruct.new(
           user_id: user_id,
           name: "#{external_info.surname}#{external_info.name}",
-          avatar_url: external_info.avatar_url
+          avatar_url: external_info.avatar_url,
+          is_upgrade: external_info.is_upgrade,
         )
       else
         user = User.select("users.username as username, uploads.url as avatar_url")
@@ -18,6 +19,7 @@ module ::HelloModule
           user_id: user_id,
           name: "#{user.username}",
           avatar_url: user.avatar_url,
+          is_upgrade: true,
         )
       end
 
