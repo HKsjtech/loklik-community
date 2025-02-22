@@ -298,12 +298,7 @@ module ::HelloModule
         end
       end
 
-      user_external_info = AppUserExternalInfo.where(user_id: user.id).first
-      if user_external_info.nil?
-        return render_response(code: 404, msg: "用户未同步", success: false)
-      end
-
-      render_response(data: serialize_user_detail(user_external_info))
+      render_response(data: serialize_user_detail(user))
     end
 
     def user_topic_list
@@ -419,24 +414,24 @@ module ::HelloModule
 
     def serialize_user_detail(user)
       # 关注数量
-      care_count = AppUserFollow.where(user_id: user.user_id, is_deleted: 0).count
+      care_count = AppUserFollow.where(user_id: user.id, is_deleted: 0).count
       puts care_count
       # 粉丝数量
-      fans_count = AppUserFollow.where(target_user_id: user.user_id, is_deleted: 0).count
+      fans_count = AppUserFollow.where(target_user_id: user.id, is_deleted: 0).count
 
-      is_care = AppUserFollow.where(user_id: @current_user.id, target_user_id: user.user_id, is_deleted: 0).exists?
+      is_care = AppUserFollow.where(user_id: @current_user.id, target_user_id: user.id, is_deleted: 0).exists?
 
-      user_info = cal_post_user_info(user.user_id, user)
+      user_info = UserService.cal_user_info_by_id(user.id)
 
       {
         "userId": user_info.user_id,#用户id
         "name": user_info.name,#用户名称
         "avatarUrl": user_info.avatar_url,#用户头像
-        "isUpgrade": user.is_upgrade,#是否升级 0-否 1-是
+        "isUpgrade": user_info.is_upgrade,#是否升级 0-否 1-是
         "careCount": care_count,#关注数
         "fansCount": fans_count,#粉丝数
         "beLike":  UserService.be_like(user.id),#被点赞数
-        "isAuthor": user.user_id == @current_user.id, # 是否作者 true-是
+        "isAuthor": user.id == @current_user.id, # 是否作者 true-是
         "isCare": is_care # 是否关注 true-是
       }
     end

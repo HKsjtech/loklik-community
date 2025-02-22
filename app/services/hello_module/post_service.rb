@@ -8,7 +8,7 @@ module ::HelloModule
       # 如果需要将结果转换为 JSON 字符串
       cal_topics.each do |topic|
         post = Post.where(topic_id: topic[:id], post_number: 1).first
-        new_raw, videos, images = cal_post_videos_and_images(post.id, post.raw)
+        new_raw, videos, images = PostService.cal_post_videos_and_images(post.id, post.raw)
         topic["context"] = new_raw
         topic["video"] = videos
         topic["image"] = images
@@ -41,9 +41,6 @@ module ::HelloModule
 
       res
     end
-
-
-    private
 
     def self.cal_post_videos_and_images(post_id, post_row)
       new_raw, video_links, image_lines = process_text(post_row)
