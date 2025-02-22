@@ -19,7 +19,7 @@ module ::HelloModule
           user_id: user_id,
           name: "#{user.username}",
           avatar_url: user.avatar_url,
-          is_upgrade: true,
+          is_upgrade: 0,
         )
       end
 
