@@ -19,6 +19,8 @@ module ::HelloModule
         cal_topics.find { |t| t[:id] == topic_id }
       end
 
+      res.filter { |t| t.present? } # 过滤掉空结果
+
       res
     end
 

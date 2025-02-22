@@ -183,6 +183,7 @@ module ::HelloModule
         'posts.updated_at',
         'posts.post_number',
         'posts.reply_to_post_number',
+        'posts.reply_to_user_id',
         'app_user_external_info.surname',
         'app_user_external_info.name',
         'app_user_external_info.avatar_url',
@@ -221,6 +222,7 @@ module ::HelloModule
         'posts.updated_at',
         'posts.post_number',
         'posts.reply_to_post_number',
+        'posts.reply_to_user_id',
         'app_user_external_info.surname',
         'app_user_external_info.name',
         'app_user_external_info.avatar_url',
@@ -286,6 +288,7 @@ module ::HelloModule
         'posts.updated_at',
         'posts.post_number',
         'posts.reply_to_post_number',
+        'posts.reply_to_user_id',
         'app_user_external_info.surname',
         'app_user_external_info.name',
         'app_user_external_info.avatar_url',
@@ -418,12 +421,18 @@ module ::HelloModule
 
     def serialize_post(post, post_action_type_id)
       like_status = PostAction.where(post_id: post.id, post_action_type_id: post_action_type_id, user_id: @current_user.id, deleted_at: nil).exists?
+      user_info = UserService.cal_user_info_by_id(post.user_id)
+
+      # 回复人的用户id
+      reply_user_id = post.reply_to_user_id
+      reply_user_info = UserService.cal_user_info_by_id(reply_user_id) if reply_user_id.present?
+
       {
         topicId: post.topic_id,
         postId: post.id,
         userId: post.user_id,
-        name: post.surname + post.name,
-        avatarUrl: post.avatar_url,
+        name: user_info.name,
+        avatarUrl: user_info.avatar_url,
         openDateTime: post.created_at,
         postNumber: post.post_number,
         context: post.raw,
@@ -432,7 +441,9 @@ module ::HelloModule
         replyCount: post.reply_count,
         replyToPostNumber: post.reply_to_post_number,
         video: [],
-        image: []
+        image: [],
+        replyUserId: reply_user_id, #回复人的用户id
+        replyName: reply_user_info&.name,#回复人的名字
       }
     end
 

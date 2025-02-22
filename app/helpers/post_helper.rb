@@ -93,6 +93,9 @@ module PostHelper
   end
 
   def format_url(url)
+    if url == "" || url.nil?
+      return ""
+    end
     if url.start_with?('http')
       url
     elsif url.start_with?('//')
