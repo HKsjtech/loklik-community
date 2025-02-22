@@ -114,19 +114,11 @@ module ::HelloModule
       fans_users = query.limit(page_size).offset(current_page * page_size - page_size)
       total = query.count
 
-      fans_user_ids = fans_users.pluck(:user_id)
-
       follow_users = AppUserFollow.where(user_id: user_id, is_deleted: 0)
       follow_user_ids = follow_users.pluck(:target_user_id)
 
-      fans_external_infos = AppUserExternalInfo.where(user_id: fans_user_ids, is_deleted: 0)
-
       res = fans_users.map do |fans_user|
-        user_external_info = fans_external_infos.find_by(user_id: fans_user.user_id)
-        unless user_external_info # 用户信息不存在
-          next
-        end
-        user_info = cal_post_user_info(fans_user.user_id, user_external_info)
+        user_info = UserService.cal_user_info_by_id(fans_user.user_id)
         {
           "userId": user_info.user_id, #用户id
           "name": user_info.name, #用户名称
@@ -156,20 +148,11 @@ module ::HelloModule
       care_users = query.limit(page_size).offset(current_page * page_size - page_size)
       total = query.count
 
-      care_user_ids = care_users.pluck(:target_user_id)
-
       fans_users = AppUserFollow.where(target_user_id: user_id, is_deleted: 0)
       fans_user_ids = fans_users.pluck(:user_id)
 
-      app_user_external_infos = AppUserExternalInfo.where(user_id: care_user_ids, is_deleted: 0)
-
       res = care_users.to_a.map do |care_user|
-        user_external = app_user_external_infos.find_by(user_id: care_user.target_user_id)
-        unless user_external
-          next
-        end
-
-        user_info = cal_post_user_info(user_external.user_id, user_external)
+        user_info = UserService.cal_user_info_by_id(care_user.target_user_id)
         {
           "userId": user_info.user_id, #用户id
           "name": user_info.name, #用户名称
