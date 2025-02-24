@@ -47,7 +47,6 @@ module ::HelloModule
 
     def show
       category_id = (params.require(:category_id)).to_i
-      puts all_category_ids
       if all_category_ids.exclude?(category_id)
         return render_response(success: false, code: 400, msg: "category not found")
       end
@@ -60,7 +59,7 @@ module ::HelloModule
     private
 
     def serialize_category(category)
-      add_category_count = AppUserCategories.where(categories_id: category.id, is_deleted: 0, user_id: @current_user.id).count
+      add_category_count = AppUserCategories.where(categories_id: category.id, is_deleted: 0).count
       is_add_category = AppUserCategories.find_by(categories_id: category.id, user_id: @current_user.id, is_deleted: 0).present?
       urs = UploadReference
         .select("uploads.url as url")
