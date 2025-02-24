@@ -14,7 +14,9 @@ module ::HelloModule
       categories_selected_ids = categories_selected.map { |c| c.categories_id }
 
       cate_srv = CategoryService.all(get_request_host)
-      cas = cate_srv.filter { |category| categories_selected_ids.include?(category[:id]) }
+      cas = categories_selected_ids.map do |category_id|
+        cate_srv.find {|ca| ca[:id] == category_id}
+      end
 
       render_response(data: cas)
     end
