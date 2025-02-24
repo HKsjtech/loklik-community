@@ -10,13 +10,21 @@ export default class AdminPluginsPurpleTentacleController extends Controller {
   @tracked total = 0;
   @tracked size = 10;
   @tracked totalPage = 0;
+  // 金刚区配置相关内容
+  @tracked categoryList = [];
+  @tracked selectedCategoryList = [];
+  @tracked selectedIdList = [];
 
   constructor() {
     super();
     this.filteredItems = [];
+    this.categoryList = [];
+    this.selectedCategoryList = [];
+    this.selectedIdList = [];
+
     this.loadPosts();
-    this.loadCategoryList()
-    // this.loadSelectedCategoryList()
+    this.loadCategoryList();
+    // this.loadSelectedCategoryList();
   }
 
   loadPosts() {
@@ -95,12 +103,6 @@ export default class AdminPluginsPurpleTentacleController extends Controller {
     this.loadPosts();
   }
 
-
-  // 金刚区配置相关内容
-  @tracked categoryList = 0;
-  @tracked selectedCategoryList = 0;
-  @tracked selectedIdList = [];
-
   loadCategoryList() {
     fetch(`/loklik/admin/categories.json`) // 调用后端 API
       .then(response => {
@@ -175,6 +177,7 @@ export default class AdminPluginsPurpleTentacleController extends Controller {
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
+        alert("保存成功");
         this.loadSelectedCategoryList();
       })
       .catch(error => {

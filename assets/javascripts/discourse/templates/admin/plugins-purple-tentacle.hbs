@@ -21,19 +21,19 @@
       <th>ID</th>
       <th>标题</th>
       <th>作者</th>
-      <th>创建时间</th>
+{{!--       <th>创建时间</th> --}}
       <th>操作</th>
-      <th>操作人</th>
-      <th>操作时间</th>
+{{!--       <th>操作人</th> --}}
+{{!--       <th>操作时间</th> --}}
     </tr>
   </thead>
   <tbody>
     {{#each this.filteredItems as |item|}}
       <tr>
         <td>{{item.id}}</td>
-        <td>{{item.title}}</td>
+        <td><a href="/t/topic/{{item.id}}">{{item.title}}</a></td>
         <td>{{item.author}}</td>
-        <td>{{item.created_at}}</td>
+{{!--         <td>{{item.created_at}}</td> --}}
         <td>
           {{#if (eq item.is_curated 1)}}
             <button {{action "curated" item 0}}>取消精选</button>
@@ -41,8 +41,8 @@
             <button {{action "curated" item 1}}>加精选</button>
           {{/if}}
         </td>
-        <td>{{item.operator}}</td>
-        <td>{{item.updated_at}}</td>
+{{!--         <td>{{item.operator}}</td> --}}
+{{!--         <td>{{item.updated_at}}</td> --}}
       </tr>
     {{/each}}
   </tbody>
@@ -59,18 +59,18 @@
 
 <form id="your-plugin-settings-form">
   <div class="form-group">
-    <label for="label1">首页金刚区1配置:</label>
+    <label for="label1">论坛1:</label>
     <select value={{this.selectedCategoryList.[0].categories_id}}  onchange={{action "updateSelectedCategory0" value="target.value"}}>
       <option value="0">未配置</option>
-      {{#each categoryList as |category|}}
+      {{#each this.categoryList as |category|}}
         <option value="{{category.id}}">{{category.name}}</option>
       {{/each}}
     </select>
   </div>
 
   <div class="form-group">
-    <label for="label2">首页金刚区2配置:</label>
-    <select value={{this.selectedCategoryList.[1].categories_id}}  onchange={{action "updateSelectedCategory1" value="target.value"}}>
+    <label for="label2">论坛2:</label>
+    <select value={{this.selectedCategoryList.[1].categories_id}} onchange={{action "updateSelectedCategory1" value="target.value"}}>
       <option value="0">未配置</option>
         {{#each categoryList as |category|}}
       <option value="{{category.id}}">{{category.name}}</option>
@@ -79,7 +79,7 @@
   </div>
 
   <div class="form-group">
-    <label for="label3">首页金刚区3配置:</label>
+    <label for="label3">论坛3:</label>
     <select value={{this.selectedCategoryList.[2].categories_id}}  onchange={{action "updateSelectedCategory2" value="target.value"}}>
       <option value="0">未配置</option>
         {{#each categoryList as |category|}}

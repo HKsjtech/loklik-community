@@ -3,14 +3,14 @@ zh_CN:
     admin:
       site_settings:
         categories:
-          TODO_plugin_name: "Loklik 社区插件"
+          TODO_plugin_name: "Loklik 社区APP插件"
   js:
     discourse_plugin_name:
       placeholder: placeholder
 
     purple_tentacle:
-      title: "帖子管理"
-      show: "Show Purple Tentacle"
+      title: "Loklik 社区APP"
+      show: "Loklik 社区APP"
 
   site_settings:
     app_auth_host: "app认证地址. 例如: https://app.example.com"
