@@ -51,7 +51,7 @@ module ::HelloModule
           "notificationType": n.notification_type,
           "content": post_content,
           "topicId": n.topic_id,
-          "title": n.topic.title,
+          "title": n.topic&.title,
           "read": n.read,
           "sendTime": n.created_at
         }

@@ -1,6 +1,9 @@
 module AuthHelper
   def generate_sso_redirect_url(token)
     secret = SiteSetting.discourse_connect_secret
+    if secret.blank?
+      raise Discourse::InvalidAccess.new("discourse_connect_secret is blank")
+    end
 
     # 1. 生成 nonce
     nonce = SecureRandom.random_number(10**10).to_s
@@ -30,7 +33,7 @@ module AuthHelper
     end
     # 发起请求，获取用户信息
     url = "#{app_auth_host}?#{params}" # app_auth_host example: http://sso.example.com or https://sso.example.com/
-    puts url
+    LoggerHelper.info("get user external id from: #{url}")
     openapi_client = OpenApiHelper.new(Discourse.base_url)
     result = openapi_client.get(url)
 
