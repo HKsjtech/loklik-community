@@ -1,6 +1,7 @@
 module ::HelloModule
   class PostService
     extend PostHelper
+    extend DiscourseHelper
 
     def self.cal_topics_by_topic_ids(topic_ids)
       cal_topics = serialize_topic(topic_ids)
@@ -103,7 +104,6 @@ module ::HelloModule
       [new_raw, videos, images]
     end
 
-
     def self.serialize_topic(topic_ids)
       select_fields = [
         'topics.id',
@@ -149,7 +149,6 @@ module ::HelloModule
       end
     end
 
-
     def self.extract_identifier(markdown_str)
       # 使用正则表达式匹配 Markdown 图片的 alt 部分
       # ![image_picker_3A9A59BC-8B84-4060-9502-3B19E9173891-19280-000A7E1ACB12E080|334x500](upload://k9KOfedX2rFargvxXzlxfTprIip.jpeg)
@@ -163,5 +162,62 @@ module ::HelloModule
       alt_part
     end
 
+    # 找到一个评论所有的子评论
+    def self.find_all_sub_post(topic_id, post_number)
+      all_posts = []
+      tmp_posts = find_reply_post_number_ids(topic_id, [post_number])
+      # 如果 posts 不为空， 则循环调用  find_reply_post_number_ids， 直到 posts 为空
+      while tmp_posts.present? && tmp_posts.length > 0
+        all_posts.concat(tmp_posts)
+        post_number_ids = tmp_posts.map(&:post_number)
+        tmp_posts = find_reply_post_number_ids(topic_id, post_number_ids)
+      end
+      all_posts
+    end
+
+    def self.remove_post(post)
+      post = Post.with_deleted.find_by(id: post.id)
+      # 删除 Topic 会有权限问题，先用系统用户删除
+      system_user = User.find_by(id: -1)
+      # guardian = Guardian.new(system_user, request)
+      # guardian.ensure_can_delete!(post)
+      PostDestroyer.new(
+        system_user,
+        post,
+        context: nil,
+        force_destroy: false,
+        ).destroy
+      if post.errors.any?
+        LoggerHelper.error("remove_post error: #{get_operator_msg(post)}")
+        return get_operator_msg(post)
+      end
+      AppPostRecord.where(post_id: post.id).update_all(is_deleted: 1)
+      nil
+    end
+
+    private
+    def self.find_reply_post_number_ids(topic_id, post_number_ids)
+      select_fields = [
+        'posts.id',
+        'posts.topic_id',
+        'posts.like_count',
+        'posts.created_at',
+        'posts.reply_count',
+        'posts.user_id',
+        'posts.raw',
+        'posts.created_at',
+        'posts.updated_at',
+        'posts.post_number',
+        'posts.reply_to_post_number',
+        'posts.reply_to_user_id',
+        'app_user_external_info.surname',
+        'app_user_external_info.name',
+        'app_user_external_info.avatar_url',
+      ]
+      Post.select(select_fields)
+          .where(topic_id: topic_id, reply_to_post_number: post_number_ids)
+          .joins('LEFT JOIN app_user_external_info ON posts.user_id = app_user_external_info.user_id')
+          .order(created_at: :asc)
+    end
   end
 end

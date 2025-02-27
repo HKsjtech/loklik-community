@@ -173,18 +173,14 @@ module ::HelloModule
       if post.user_id != @current_user.id
         return render_response(code: 400, success: false, msg: "只能删除自己的帖子")
       end
-      # 删除 Topic 会有权限问题，先用系统用户删除
-      system_user = User.find_by(id: -1)
-      guardian = Guardian.new(system_user, request)
-      guardian.ensure_can_delete!(post)
-      PostDestroyer.new(
-        system_user,
-        post,
-        context: params[:context],
-        force_destroy: false,
-        ).destroy
-      return render_response(code: 400, success: false, msg: post.errors.full_messages.join(", ")) if post.errors.any?
-      AppPostRecord.where(post_id: post.id).update_all(is_deleted: 1)
+
+      all_posts = PostService.find_all_sub_post(post.topic_id, post.post_number)
+      all_posts.concat([post]) # 包含本帖子
+
+      all_posts.each do |p|
+        err_msg = PostService.remove_post(p)
+        return render_response(code: 400, success: false, msg: err_msg)  if err_msg != nil
+      end
 
       render_response
     end
