@@ -346,7 +346,7 @@ module ::HelloModule
                 .select('topics.id')
                 .joins('LEFT JOIN posts ON posts.topic_id = topics.id')
                 .joins('LEFT JOIN post_actions ON post_actions.post_id = posts.id')
-                .where("post_actions.user_id = ? and post_actions.post_action_type_id = ?", user.id, 2)
+                .where("post_actions.deleted_at IS NULL and post_actions.user_id = ? and post_actions.post_action_type_id = ?", user.id, 2)
                 .where("posts.post_number = ?", 1)
                 .where(deleted_by_id: nil, archetype: 'regular',visible: true, closed: false, category_id: all_category_ids)
                 .order("post_actions.updated_at DESC")
