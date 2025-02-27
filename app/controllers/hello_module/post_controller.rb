@@ -74,7 +74,6 @@ module ::HelloModule
       render_response(data: create_page_list(res, total, current_page, page_size ))
     end
 
-
     def post_like
       user_id = get_current_user_id
       post_id = (params.require(:post_id)).to_i

@@ -37,26 +37,24 @@ module ::HelloModule
       manager_params[:ip_address] = request.remote_ip
       manager_params[:user_agent] = request.user_agent
 
-      begin
-        manager = NewPostManager.new(@current_user, manager_params)
-        res = serialize_data(manager.perform, NewPostResultSerializer, root: false)
+      manager = NewPostManager.new(@current_user, manager_params)
+      res = serialize_data(manager.perform, NewPostResultSerializer, root: false)
 
-        if res && res[:errors] && res[:errors].any?
-          return render_response(code: 400, success: false, msg: res[:errors].join(", "))
-        end
-
-        new_post_id = res[:post][:id]
-        app_post_record = AppPostRecord.create(post_id: new_post_id, is_deleted: 0)
-
-        unless app_post_record.save
-          return render_response(code: 500, success: false, msg: "创建帖子失败")
-        end
-
-        render_response(data: res[:post][:topic_id], success: true, msg: "发帖成功")
-
-      rescue => e
-        render_response(code: 400, success: false, msg: e.message)
+      if res && res[:errors] && res[:errors].any?
+        return render_response(code: 400, success: false, msg: res[:errors].join(", "))
       end
+
+      new_post_id = res[:post][:id]
+      app_post_record = AppPostRecord.create(post_id: new_post_id, is_deleted: 0)
+
+      unless app_post_record.save
+        return render_response(code: 500, success: false, msg: "创建帖子失败")
+      end
+
+      render_response(data: res[:post][:topic_id], success: true, msg: "发帖成功")
+    rescue RateLimiter::LimitExceeded => e
+      LoggerHelper.warn(e)
+      render_response(code: 429, success: false, msg: "你操作太频繁了，请稍后再试")
     end
 
     def edit_topic

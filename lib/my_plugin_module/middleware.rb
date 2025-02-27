@@ -49,6 +49,9 @@ module ::HelloModule
         # 设置当前用户 ID
         env['current_user_id'] = user_id
         @app.call(env)
+      rescue RateLimiter::LimitExceeded => e
+        LoggerHelper.warn(e)
+        [200, { "Content-Type" => "application/json" }, [response_format(code: 400, success: false, msg: '你操作太频繁了，请稍后再试', error: e.message).to_json]]
       rescue StandardError => e
         LoggerHelper.error(e)
         [200, { "Content-Type" => "application/json" }, [response_format(code: 500, success: false, msg: 'Internal Server Error', error: e.message).to_json]]
