@@ -10,6 +10,7 @@ HelloModule::Engine.routes.draw do
   get "/base/search" => "base#search"
   post "/base/upload" => "base#upload"
   get "/base/discourse-host" => "base#discourse_host"
+  get  "/base/settings" => "base#settings"
 
   # auth routes
   get "/auth/is-sync" => "auth#is_sync"

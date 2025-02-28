@@ -70,7 +70,7 @@ module ::HelloModule
       # 去掉 "Bearer " 前缀 得到 JWT
       token = token.sub("Bearer ", "") if token.start_with?("Bearer ")
 
-      redis_key = "jwt_token:#{token}"
+      redis_key = "loklik_plugin:jwt_token:#{token}"
 
       user_id = Redis.current.get(redis_key)
       if user_id

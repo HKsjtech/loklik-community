@@ -79,6 +79,11 @@ module ::HelloModule
           render_response(data: { success: false, message: '缺少必要参数' }, code: 400)
           return
         end
+
+        unless check_upload_video_limit
+          return render_response(data: nil, success: false, msg: '上传视频数量已达到上限', code: 400)
+        end
+
         public_url = upload_file(file)
         app_video_upload = AppVideoUpload.new(
           url: public_url,
@@ -93,7 +98,9 @@ module ::HelloModule
           render_response(data: nil, msg: '上传失败', code: 500)
           return
         end
-       render_response(data: {
+
+        incr_upload_videos_count
+        render_response(data: {
           "id": app_video_upload.id,
           "url": app_video_upload.url,
           "originalName": app_video_upload.original_name,
@@ -103,6 +110,7 @@ module ::HelloModule
           "extension": app_video_upload.extension,
           "shortUrl": "",
         })
+
         nil
       else
         render_response(data: nil, code: 400, success: false, msg: '上传类型错误')
@@ -114,6 +122,14 @@ module ::HelloModule
 
     def discourse_host
       render_response(data: { discourseHost: Discourse.base_url })
+    end
+
+    def settings
+      settings = {
+        "max_upload_videos_user_per_day": SiteSetting.max_upload_videos_user_per_day
+      }
+
+      render_response(data: settings)
     end
 
     private
@@ -167,6 +183,27 @@ module ::HelloModule
         "extension": result["extension"],
         "shortUrl": result["short_url"],
       })
+    end
+
+    def check_upload_video_limit
+      # 当天日期
+      today = Time.now.strftime('%Y-%m-%d')
+      redis_key = "loklik_plugin:upload_videos:#{get_current_user_id}-#{today}"
+      puts redis_key
+      max_upload_videos_user_per_day = SiteSetting.max_upload_videos_user_per_day
+      res = Redis.current.get(redis_key)
+      puts "res: #{res}, max_upload_videos_user_per_day: #{max_upload_videos_user_per_day}"
+      if res && res.to_i >= max_upload_videos_user_per_day
+        false
+      else
+        true
+      end
+    end
+
+    def incr_upload_videos_count
+      today = Time.now.strftime('%Y-%m-%d')
+      redis_key = "loklik_plugin:upload_videos:#{get_current_user_id}-#{today}"
+      Redis.current.incr(redis_key)
     end
 
   end

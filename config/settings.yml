@@ -8,3 +8,7 @@ TODO_plugin_name:
   plugin_discourse_api_secret:
     default: ""
     client: false
+  max_upload_videos_user_per_day:
+    default: 5
+    client: false
+    max: 5
