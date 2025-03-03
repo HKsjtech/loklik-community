@@ -126,7 +126,8 @@ module ::HelloModule
 
     def settings
       settings = {
-        "max_upload_videos_user_per_day": SiteSetting.max_upload_videos_user_per_day
+        "max_upload_videos_user_per_day": SiteSetting.max_upload_videos_user_per_day,
+        "max_upload_video_size":  SiteSetting.max_upload_video_size
       }
 
       render_response(data: settings)

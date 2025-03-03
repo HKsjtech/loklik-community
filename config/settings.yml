@@ -12,3 +12,7 @@ TODO_plugin_name:
     default: 5
     client: false
     max: 5
+  max_upload_video_size:
+    default: 50
+    client: false
+    max: 50
