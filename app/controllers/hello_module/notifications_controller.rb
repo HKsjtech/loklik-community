@@ -62,6 +62,8 @@ module ::HelloModule
         }
       end
 
+      res.filter! { |n| n.present? } # 去掉 nil
+
       render_response(data: create_page_list(res, total, current_page, page_size ))
     end
 
