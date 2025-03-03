@@ -42,6 +42,11 @@ module ::HelloModule
             user_id = pa.user_id
           end
         end
+
+        if user_id.blank?
+          next
+        end
+
         user_info = UserService.cal_user_info_by_id(user_id)
         {
           "id": n.id,
