@@ -95,10 +95,11 @@ module ::HelloModule
     end
 
     def destroy_topic
-      topic = Topic.with_deleted.find_by(id: params[:topic_id])
+      topic_id = params[:topic_id].to_i
 
+      topic = Topic.find_by(id: topic_id)
       unless topic
-        return render_response(code: 400, success: false, msg: "帖子不存在")
+        return render_response(msg: "帖子不存在", code: 404)
       end
 
       if topic.user_id != @current_user.id
@@ -245,7 +246,12 @@ module ::HelloModule
     end
 
     def topic_collect
-      topic = Topic.find(params[:topic_id].to_i)
+      topic_id = params[:topic_id].to_i
+
+      topic = Topic.find_by(id: topic_id)
+      unless topic
+        return render_response(msg: "帖子不存在", code: 404)
+      end
 
       bookmark_manager = BookmarkManager.new(@current_user)
       bookmark_manager.create_for(bookmarkable_id: topic.id, bookmarkable_type: "Topic")
@@ -256,16 +262,19 @@ module ::HelloModule
     end
 
     def topic_collect_cancel
-      params.require(:topic_id)
+      topic_id = params[:topic_id].to_i
 
-      topic = Topic.find(params[:topic_id].to_i)
+      topic = Topic.find_by(id: topic_id)
+      unless topic
+        return render_response(msg: "帖子不存在", code: 404)
+      end
+
       BookmarkManager.new(@current_user).destroy_for_topic(topic)
 
       render_response
     end
 
     private
-
 
     def cal_post(post, post_action_type_id)
       new_raw, videos, images = PostService.cal_post_videos_and_images(post.id, post.raw)
