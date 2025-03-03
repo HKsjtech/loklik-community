@@ -1,85 +1,159 @@
-<h1>精选帖子管理</h1>
+<style>
+  .container {
+    display: flex; /* 仍然使用 flex 布局 */
+  }
 
-<div class="search-controls">
-  <label>标题</label>
-  <input type="text" class="form-control" placeholder="标题" value={{this.titleSearch}} oninput={{action (mut this.titleSearch) value="target.value"}} />
+  .sidebar {
+    width: 200px; /* 左侧菜单栏的宽度 */
+    min-width: 200px; /* 左侧菜单栏的最小宽度 */
+    background-color: #f8f9fa; /* 背景颜色 */
+    padding: 10px;
+    border-right: 1px solid #dee2e6; /* 右边框 */
+    display: flex; /* 使用flex布局 */
+    flex-direction: column; /* 垂直排列 */
+  }
 
-  <label>精选</label>
-  <select class="form-control" value={{this.isCurated}}  onchange={{action (mut this.isCurated) value="target.value"}}>
-    <option value="">请选择</option>
-    <option value="1">是</option>
-    <option value="0">否</option>
-  </select>
+  .nav-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex; /* 使用flex布局 */
+    flex-wrap: wrap; /* 允许换行 */
+  }
 
-  <button class="btn btn-primary" {{action "search"}}>搜索</button>
-  <button class="btn btn-secondary" {{action "reset"}}>重置</button>
+  .nav-item {
+    flex: 1 0 48%; /* 每个菜单项占据48%宽度，留出间距 */
+    margin-bottom: 10px; /* 菜单项之间的间距 */
+  }
+
+  .nav-link {
+    display: block; /* 使链接块级展示 */
+    padding: 10px;
+    background-color: #e9ecef; /* 默认背景颜色 */
+    color: #007bff; /* 默认链接颜色 */
+    border-radius: 4px; /* 圆角 */
+    text-decoration: none; /* 去掉下划线 */
+    transition: background-color 0.2s; /* 背景颜色过渡效果 */
+    text-align: center; /* 文字居中 */
+  }
+
+  .nav-link:hover {
+    background-color: #ced4da; /* 悬停效果 */
+  }
+
+  .nav-link.active {
+    background-color: #007bff; /* 选中时的背景颜色 */
+    color: white; /* 选中时的文字颜色 */
+  }
+
+  .content {
+    flex: 1; /* 内容区域 */
+    padding: 20px;
+  }
+</style>
+
+<div class="container">
+  <div class="sidebar">
+    <nav class="nav">
+      <ul class="nav-list">
+        <li class="nav-item">
+          <a href="#" class="nav-link {{if this.showingCuratedPosts "active"}}" onclick={{action "showCuratedPosts"}}>精选帖子管理</a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link {{if this.showingConfig "active"}}" onclick={{action "showConfig"}}>金刚区配置</a>
+        </li>
+      </ul>
+    </nav>
+  </div>
+
+  <div class="content">
+    <div id="curated-posts" class="content-section" style={{if this.showingCuratedPosts "display: block" "display: none"}}>
+      <h2>精选帖子管理</h2>
+      <div class="search-controls">
+        <label>标题</label>
+        <input type="text" class="form-control" placeholder="标题" value={{this.titleSearch}} oninput={{action (mut this.titleSearch) value="target.value"}} />
+
+        <label>精选</label>
+        <select class="form-control" value={{this.isCurated}} onchange={{action (mut this.isCurated) value="target.value"}}>
+          <option value="">请选择</option>
+          <option value="1">是</option>
+          <option value="0">否</option>
+        </select>
+
+        <button class="btn btn-primary" {{action "search"}}>搜索</button>
+        <button class="btn btn-secondary" {{action "reset"}}>重置</button>
+      </div>
+
+      <table class="table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>标题</th>
+            <th>作者</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each this.filteredItems as |item|}}
+            <tr>
+              <td>{{item.id}}</td>
+              <td><a href="/t/topic/{{item.id}}">{{item.title}}</a></td>
+              <td>{{item.author}}</td>
+              <td>
+                {{#if (eq item.is_curated 1)}}
+                  <button class="btn btn-warning" {{action "curated" item 0}}>取消精选</button>
+                {{else}}
+                  <button class="btn btn-success" {{action "curated" item 1}}>加精选</button>
+                {{/if}}
+              </td>
+            </tr>
+          {{/each}}
+        </tbody>
+      </table>
+
+      <div class="pagination">
+        <button class="btn btn-secondary" {{action "goPerPage" this.current}}>上一页</button>
+        <span>第 {{this.current}} 页 / 共 {{this.totalPage}} 页</span>
+        <button class="btn btn-secondary" {{action "goNextPage" this.current}}>下一页</button>
+      </div>
+    </div>
+
+    <div id="config" class="content-section" style={{if this.showingConfig "display: block" "display: none"}}>
+      <h2>金刚区配置</h2>
+
+      <form id="your-plugin-settings-form">
+        <div class="form-group">
+          <label for="label1">论坛1:</label>
+          <select class="form-control" value={{this.selectedCategoryList.[0].categories_id}} onchange={{action "updateSelectedCategory0" value="target.value"}}>
+            <option value="0">未配置</option>
+            {{#each this.categoryList as |category|}}
+              <option value="{{category.id}}">{{category.name}}</option>
+            {{/each}}
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="label2">论坛2:</label>
+          <select class="form-control" value={{this.selectedCategoryList.[1].categories_id}} onchange={{action "updateSelectedCategory1" value="target.value"}}>
+            <option value="0">未配置</option>
+            {{#each categoryList as |category|}}
+              <option value="{{category.id}}">{{category.name}}</option>
+            {{/each}}
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="label3">论坛3:</label>
+          <select class="form-control" value={{this.selectedCategoryList.[2].categories_id}} onchange={{action "updateSelectedCategory2" value="target.value"}}>
+            <option value="0">未配置</option>
+            {{#each categoryList as |category|}}
+              <option value="{{category.id}}">{{category.name}}</option>
+            {{/each}}
+          </select>
+        </div>
+
+        <button type="button" class="btn btn-primary" {{action "setSelectedCategories"}}>保存</button>
+      </form>
+    </div>
+  </div>
 </div>
-
-<table class="table">
-  <thead>
-    <tr>
-      <th>ID</th>
-      <th>标题</th>
-      <th>作者</th>
-      <th>操作</th>
-    </tr>
-  </thead>
-  <tbody>
-    {{#each this.filteredItems as |item|}}
-      <tr>
-        <td>{{item.id}}</td>
-        <td><a href="/t/topic/{{item.id}}">{{item.title}}</a></td>
-        <td>{{item.author}}</td>
-        <td>
-          {{#if (eq item.is_curated 1)}}
-            <button class="btn btn-warning" {{action "curated" item 0}}>取消精选</button>
-          {{else}}
-            <button class="btn btn-success" {{action "curated" item 1}}>加精选</button>
-          {{/if}}
-        </td>
-      </tr>
-    {{/each}}
-  </tbody>
-</table>
-
-<div class="pagination">
-  <button class="btn btn-secondary" {{action "goPerPage" this.current}}>上一页</button>
-  <span>第 {{this.current}} 页 / 共 {{this.totalPage}} 页</span>
-  <button class="btn btn-secondary" {{action "goNextPage" this.current}}>下一页</button>
-</div>
-
-<h1>金刚区配置</h1>
-
-<form id="your-plugin-settings-form">
-  <div class="form-group">
-    <label for="label1">论坛1:</label>
-    <select class="form-control" value={{this.selectedCategoryList.[0].categories_id}}  onchange={{action "updateSelectedCategory0" value="target.value"}}>
-      <option value="0">未配置</option>
-      {{#each this.categoryList as |category|}}
-        <option value="{{category.id}}">{{category.name}}</option>
-      {{/each}}
-    </select>
-  </div>
-
-  <div class="form-group">
-    <label for="label2">论坛2:</label>
-    <select class="form-control" value={{this.selectedCategoryList.[1].categories_id}} onchange={{action "updateSelectedCategory1" value="target.value"}}>
-      <option value="0">未配置</option>
-      {{#each categoryList as |category|}}
-        <option value="{{category.id}}">{{category.name}}</option>
-      {{/each}}
-    </select>
-  </div>
-
-  <div class="form-group">
-    <label for="label3">论坛3:</label>
-    <select class="form-control" value={{this.selectedCategoryList.[2].categories_id}}  onchange={{action "updateSelectedCategory2" value="target.value"}}>
-      <option value="0">未配置</option>
-      {{#each categoryList as |category|}}
-        <option value="{{category.id}}">{{category.name}}</option>
-      {{/each}}
-    </select>
-  </div>
-
-  <button type="button" class="btn btn-primary" {{action "setSelectedCategories"}}>保存</button>
-</form>

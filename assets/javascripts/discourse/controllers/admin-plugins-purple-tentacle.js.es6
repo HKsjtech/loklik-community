@@ -15,6 +15,9 @@ export default class AdminPluginsPurpleTentacleController extends Controller {
   @tracked selectedCategoryList = [];
   @tracked selectedIdList = [];
 
+  @tracked showingCuratedPosts = true;
+  @tracked showingConfig = false;
+
   constructor() {
     super();
     this.filteredItems = [];
@@ -25,6 +28,20 @@ export default class AdminPluginsPurpleTentacleController extends Controller {
     this.loadPosts();
     this.loadCategoryList();
     // this.loadSelectedCategoryList();
+
+    this.showCuratedPosts();
+  }
+
+  @action
+  showCuratedPosts() {
+    this.showingCuratedPosts = true
+    this.showingConfig = false
+  }
+
+  @action
+  showConfig() {
+    this.showingCuratedPosts = false
+    this.showingConfig = true
   }
 
   loadPosts() {

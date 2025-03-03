@@ -28,3 +28,29 @@ label {
 .fixed-width-select {
   width: 150px;        /* 设置下拉框的固定宽度 */
 }
+
+.nav {
+  background-color: #f8f9fa; /* 背景颜色 */
+  padding: 10px;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.nav-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+}
+
+.nav-item {
+  margin-right: 20px; /* 菜单项之间的间距 */
+}
+
+.nav-link {
+  text-decoration: none;
+  color: #007bff; /* 链接颜色 */
+}
+
+.nav-link:hover {
+  text-decoration: underline; /* 悬停效果 */
+}
