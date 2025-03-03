@@ -44,7 +44,7 @@ module ::HelloModule
         end
 
         if user_id.blank?
-          next
+          next # 如果post被删除了，就不再显示通知
         end
 
         user_info = UserService.cal_user_info_by_id(user_id)
@@ -56,7 +56,7 @@ module ::HelloModule
           "notificationType": n.notification_type,
           "content": post_content,
           "topicId": n.topic_id,
-          "title": n.topic&.title,
+          "title": json_data["topic_title"],
           "read": n.read,
           "sendTime": n.created_at
         }
