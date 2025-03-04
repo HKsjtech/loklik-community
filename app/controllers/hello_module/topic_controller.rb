@@ -137,7 +137,7 @@ module ::HelloModule
         return render_response(msg: "帖子不存在", code: 404)
       end
 
-      posts = PostService.cal_topics_by_topic_ids([topic_id])
+      posts = PostService.cal_topics_by_topic_ids([topic_id], @current_user.id)
       res = posts[0]
 
       is_care = AppUserFollow.where(user_id: @current_user.id, target_user_id: topic.user_id, is_deleted: false).present?

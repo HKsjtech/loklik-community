@@ -35,6 +35,7 @@ module ::HelloModule
     end
 
     def search
+      user_id = get_current_user_id
       current_page = (params[:currentPage] || 1).to_i
       page_size = (params[:pageSize] || 10).to_i
       search_key = params.require(:q)
@@ -49,13 +50,13 @@ module ::HelloModule
       topics = query.limit(page_size).offset(current_page * page_size - page_size)
       total = query.count
 
-      res = PostService.cal_topics_by_topic_ids(topics.map(&:id))
+      res = PostService.cal_topics_by_topic_ids(topics.map(&:id), user_id)
 
       render_response(data: create_page_list(res, total, current_page, page_size ))
     end
 
     def upload
-      user_id = get_current_user_id
+
       me = User.find_by_id(user_id) # 验证用户是否存在
       type = params[:type] # 0-图片 1-视频 2-封面图
       cover_img = params[:coverImg] # 封面图 当上传视频时，必传

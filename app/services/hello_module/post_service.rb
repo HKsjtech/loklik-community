@@ -3,8 +3,8 @@ module ::HelloModule
     extend PostHelper
     extend DiscourseHelper
 
-    def self.cal_topics_by_topic_ids(topic_ids)
-      cal_topics = serialize_topic(topic_ids)
+    def self.cal_topics_by_topic_ids(topic_ids, user_id)
+      cal_topics = serialize_topic(topic_ids, user_id)
 
       # 如果需要将结果转换为 JSON 字符串
       cal_topics.each do |topic|
@@ -104,7 +104,7 @@ module ::HelloModule
       [new_raw, videos, images]
     end
 
-    def self.serialize_topic(topic_ids)
+    def self.serialize_topic(topic_ids, user_id)
       select_fields = [
         'topics.id',
         'topics.user_id',
@@ -144,7 +144,8 @@ module ::HelloModule
           title: topic.title, # 标题
           context: topic.context, # 内容
           likeCount: topic.like_count, # 点赞数量
-          commentCount: topic.comment_count # 评论数量
+          commentCount: topic.comment_count, # 评论数量
+          likeStatus: cal_topic_like_status(user_id, topic.id), # 点赞状态 0-否 1-是
         }
       end
     end
@@ -195,6 +196,13 @@ module ::HelloModule
       nil
     end
 
+    def self.cal_topic_like_status(user_id, topic_id)
+      post = Post.where(topic_id: topic_id, post_number: 1).first
+      post_action_type_id = get_action_type_id("like")
+      like_status = PostAction.where(post_id: post.id, post_action_type_id: post_action_type_id, user_id: user_id, deleted_at: nil).exists?
+      like_status ? 1 : 0 # 点赞状态 0-否 1-是
+    end
+
     private
     def self.find_reply_post_number_ids(topic_id, post_number_ids)
       select_fields = [
@@ -219,5 +227,7 @@ module ::HelloModule
           .joins('LEFT JOIN app_user_external_info ON posts.user_id = app_user_external_info.user_id')
           .order(created_at: :asc)
     end
+
+
   end
 end

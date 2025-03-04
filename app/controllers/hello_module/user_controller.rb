@@ -309,7 +309,7 @@ module ::HelloModule
       topics = query.limit(page_size).offset(current_page * page_size - page_size)
       total = query.count
 
-      res = PostService.cal_topics_by_topic_ids(topics.map(&:id))
+      res = PostService.cal_topics_by_topic_ids(topics.map(&:id), @current_user.id)
 
       render_response(data: create_page_list(res, total, current_page, page_size ))
     end
@@ -354,7 +354,7 @@ module ::HelloModule
       topics = query.limit(page_size).offset(current_page * page_size - page_size)
       total = query.count
 
-      res = PostService.cal_topics_by_topic_ids(topics.map(&:id))
+      res = PostService.cal_topics_by_topic_ids(topics.map(&:id), @current_user.id)
 
       render_response(data: create_page_list(res, total, current_page, page_size ))
     end
@@ -369,7 +369,7 @@ module ::HelloModule
         topic["id"]
       end
 
-      res = PostService.cal_topics_by_topic_ids(topic_ids)
+      res = PostService.cal_topics_by_topic_ids(topic_ids, @current_user.id)
 
       render_response(data: create_page_list(res, total, current_page, page_size ))
     end
@@ -384,7 +384,7 @@ module ::HelloModule
         topic["id"]
       end
 
-      res = PostService.cal_topics_by_topic_ids(topic_ids)
+      res = PostService.cal_topics_by_topic_ids(topic_ids, @current_user.id)
 
       render_response(data: create_page_list(res, total, current_page, page_size ))
     end
