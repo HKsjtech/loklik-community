@@ -9,7 +9,7 @@ module ::HelloModule
     requires_plugin PLUGIN_NAME
     skip_before_action :verify_authenticity_token # 跳过认证
 
-    before_action :fetch_current_user, only: [:post_like, :post_like_cancel, :topic_collect, :topic_collect_cancel]
+    before_action :fetch_current_user
 
     def curated_list
       current_page = (params[:currentPage] || 1).to_i
