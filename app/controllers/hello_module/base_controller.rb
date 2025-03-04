@@ -56,6 +56,7 @@ module ::HelloModule
     end
 
     def upload
+      user_id = get_current_user_id
 
       me = User.find_by_id(user_id) # 验证用户是否存在
       type = params[:type] # 0-图片 1-视频 2-封面图
