@@ -3,6 +3,14 @@ module ::HelloModule
     extend PostHelper
 
     def self.cal_user_info_by_id(user_id)
+      if user_id.blank?
+        return OpenStruct.new(
+          user_id: "",
+          name: "",
+          avatar_url: "",
+          is_upgrade: 0,
+          )
+      end
       external_info = AppUserExternalInfo.find_by(user_id: user_id)
       if !external_info.nil?
         userinfo = OpenStruct.new(
