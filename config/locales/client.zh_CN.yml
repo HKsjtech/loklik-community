@@ -18,4 +18,3 @@ zh_CN:
     plugin_discourse_api_secret_key: "Discourse API密钥，没有的话需要管理员创建。"
     max_upload_videos_user_per_day: "每天最大上传视频数量"
     max_upload_video_size: "最大上传视频大小，单位为MB"
-

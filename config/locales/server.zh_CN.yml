@@ -1,0 +1,17 @@
+zh_CN:
+  loklik:
+    upload_video_limit: "您已达到每天可上传视频的最大次数。每日限制为 %{limit} 次。"
+    upload_video_s3_disabled: "未启用 S3 上传功能。请联系管理员。"
+    operation_failed: "操作失败。请稍后再试。"
+    auth_failed: "身份验证失败。"
+    params_error: "参数错误。检查您的参数：%{params}"
+    post_not_found: "帖子未找到。"
+    topic_not_found: "主题未找到。"
+    user_not_found: "用户未找到。"
+    category_not_found: "类别未找到。"
+    rate_limit_exceeded: "超出速率限制。请稍后再试。"
+    resource_not_belong_to_you: "该资源不属于您。"
+    category_not_join: "未加入类别。"
+    cannot_follow_yourself: "您不能关注自己。"
+    please_follow_user: "请先关注该用户。"
+    operation_success: "操作成功。"

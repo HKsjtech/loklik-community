@@ -1,0 +1,17 @@
+en_US:
+  loklik:
+    upload_video_limit: "You have reached the maximum number of videos you can upload per day. %{limit} times per day."
+    upload_video_s3_disabled: "S3 upload not enabled. Please contact the admin."
+    operation_failed: "Operation failed. Please try again later."
+    auth_failed: "Authentication failed."
+    params_error: "Parameters error. check your parameters: %{params}"
+    post_not_found: "Post not found."
+    topic_not_found: "Topic not found."
+    user_not_found: "User not found."
+    category_not_found: "Category not found."
+    rate_limit_exceeded: "Rate limit exceeded. Please try again later."
+    resource_not_belong_to_you: "The resource does not belong to you."
+    category_not_join: "Category not join."
+    cannot_follow_yourself: "You cannot follow yourself."
+    please_follow_user: "Please follow the user first."
+    operation_success: "Operation success."

@@ -1,0 +1,17 @@
+nl_NL:
+  loklik:
+    upload_video_limit: "U heeft de maximale hoeveelheid video's bereikt die u per dag kunt uploaden. De dagelijkse limiet is %{limit} keer."
+    upload_video_s3_disabled: "S3-uploadfunctie is niet ingeschakeld. Neem contact op met de beheerder."
+    operation_failed: "De operatie is mislukt. Probeer het later opnieuw."
+    auth_failed: "Authenticatie is mislukt."
+    params_error: "Parameters fout. Controleer uw parameters: %{params}"
+    post_not_found: "Bericht niet gevonden."
+    topic_not_found: "Onderwerp niet gevonden."
+    user_not_found: "Gebruiker niet gevonden."
+    category_not_found: "Categorie niet gevonden."
+    rate_limit_exceeded: "Snelheidslimiet overschreden. Probeer het later opnieuw."
+    resource_not_belong_to_you: "Deze resource behoort niet tot u."
+    category_not_join: "U bent niet lid van de categorie."
+    cannot_follow_yourself: "U kunt uzelf niet volgen."
+    please_follow_user: "Volg deze gebruiker eerst."
+    operation_success: "Operatie is succesvol."

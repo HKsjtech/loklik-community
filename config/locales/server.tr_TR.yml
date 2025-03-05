@@ -1,0 +1,17 @@
+tr_TR:
+  loklik:
+    upload_video_limit: "Günlük yükleyebileceğiniz video sayısının maksimumuna ulaştınız. Günlük limit %{limit} kezdir."
+    upload_video_s3_disabled: "S3 yükleme özelliği etkinleştirilmemiştir. Lütfen yöneticinizle iletişime geçin."
+    operation_failed: "İşlem başarısız oldu. Lütfen daha sonra tekrar deneyin."
+    auth_failed: "Kimlik doğrulama başarısız oldu."
+    params_error: "Parametre hatası. Lütfen parametrelerinizi kontrol edin: %{params}"
+    post_not_found: "Gönderi bulunamadı."
+    topic_not_found: "Konu bulunamadı."
+    user_not_found: "Kullanıcı bulunamadı."
+    category_not_found: "Kategori bulunamadı."
+    rate_limit_exceeded: "Hız sınırı aşıldı. Lütfen daha sonra tekrar deneyin."
+    resource_not_belong_to_you: "Bu kaynak size ait değil."
+    category_not_join: "Kategoriyi katılmamışsınız."
+    cannot_follow_yourself: "Kendinizi takip edemezsiniz."
+    please_follow_user: "Lütfen önce bu kullanıcıyı takip edin."
+    operation_success: "İşlem başarılı."

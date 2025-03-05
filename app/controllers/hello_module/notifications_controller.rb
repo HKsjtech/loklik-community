@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module ::HelloModule
-  class NotificationsController < ::ApplicationController
+  class NotificationsController < CommonController
     include MyHelper
     include DiscourseHelper
     include PostHelper

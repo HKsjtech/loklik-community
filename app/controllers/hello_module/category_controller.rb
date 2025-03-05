@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module ::HelloModule
-  class CategoryController < ::ApplicationController
+  class CategoryController < CommonController
     include MyHelper
     include AuthHelper
     include PostHelper
@@ -49,7 +49,7 @@ module ::HelloModule
     def show
       category_id = (params.require(:category_id)).to_i
       if all_category_ids.exclude?(category_id)
-        return render_response(success: false, code: 400, msg: "category not found")
+        return render_response(success: false, code: 400, msg: I18n.t("loklik.params_error", params: "category_id"))
       end
 
       category = Category.find(category_id)

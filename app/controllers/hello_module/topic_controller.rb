@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module ::HelloModule
-  class TopicController < ::ApplicationController
+  class TopicController < CommonController
     include MyHelper
     include PostHelper
     include DiscourseHelper
@@ -12,19 +12,19 @@ module ::HelloModule
     before_action :fetch_current_user
 
     def create_topic
-      min_topic_title_length = SiteSetting.min_topic_title_length || 8
-      min_post_length = SiteSetting.min_post_length || 8
+      # min_topic_title_length = SiteSetting.min_topic_title_length || 8
+      # min_post_length = SiteSetting.min_post_length || 8
 
-      title = params[:title]
+      # title = params[:title]
       raw = params[:raw]
 
-      if title.length < min_topic_title_length
-        return render_response(code: 400, success: false, msg: "标题长度不能少于#{min_topic_title_length}个字符")
-      end
-
-      if raw.length < min_post_length
-        return render_response(code: 400, success: false, msg: "内容长度不能少于#{min_post_length}个字符")
-      end
+      # if title.length < min_topic_title_length
+      #   return render_response(code: 400, success: false, msg: "标题长度不能少于#{min_topic_title_length}个字符")
+      # end
+      #
+      # if raw.length < min_post_length
+      #   return render_response(code: 400, success: false, msg: "内容长度不能少于#{min_post_length}个字符")
+      # end
 
       raw += PostService.cal_new_post_raw(params[:image], params[:video]) if params[:image] || params[:video]
 
@@ -48,13 +48,13 @@ module ::HelloModule
       app_post_record = AppPostRecord.create(post_id: new_post_id, is_deleted: 0)
 
       unless app_post_record.save
-        return render_response(code: 500, success: false, msg: "创建帖子失败")
+        return render_response(code: 500, success: false, msg: I18n.t("loklik.operation_failed"))
       end
 
-      render_response(data: res[:post][:topic_id], success: true, msg: "发帖成功")
+      render_response(data: res[:post][:topic_id], success: true, msg: "success")
     rescue RateLimiter::LimitExceeded => e
       LoggerHelper.warn(e)
-      render_response(code: 429, success: false, msg: "你操作太频繁了，请稍后再试")
+      render_response(code: 429, success: false, msg: I18n.t("loklik.rate_limit_exceeded"))
     end
 
     def edit_topic
@@ -69,13 +69,13 @@ module ::HelloModule
       end
 
       if changes.none?
-        return render_response(code: 400, success: false, msg: "没有任何修改")
+        return render_response(code: 400, success: false, msg: I18n.t("loklik.params_error", params: "raw"))
       end
 
       topic = Topic.find_by(id: params[:topicId].to_i)
 
       unless topic
-        return render_response(code: 400, success: false, msg: "帖子不存在")
+        return render_response(code: 400, success: false, msg: I18n.t("loklik.topic_not_found"))
       end
 
       first_post = topic.ordered_posts.first
@@ -99,11 +99,11 @@ module ::HelloModule
 
       topic = Topic.find_by(id: topic_id)
       unless topic
-        return render_response(msg: "帖子不存在", code: 404)
+        return render_response(msg: I18n.t("loklik.topic_not_found"), code: 404)
       end
 
       if topic.user_id != @current_user.id
-        return render_response(code: 400, success: false, msg: "只能删除自己的帖子")
+        return render_response(code: 400, success: false, msg: I18n.t("loklik.resource_not_belong_to_you"))
       end
 
       # 删除 Topic 会有权限问题，先用系统用户删除
@@ -126,7 +126,7 @@ module ::HelloModule
 
       render_response
     rescue Discourse::InvalidAccess
-      render_response(code: 400, success: false, msg: I18n.t("delete_topic_failed"))
+      render_response(code: 400, success: false, msg: I18n.t("loklik.operation_failed"))
     end
 
     def show
@@ -134,7 +134,7 @@ module ::HelloModule
 
       topic = Topic.find_by(id: topic_id)
       unless topic
-        return render_response(msg: "帖子不存在", code: 404)
+        return render_response(msg: I18n.t("loklik.topic_not_found"), code: 404)
       end
 
       posts = PostService.cal_topics_by_topic_ids([topic_id], @current_user.id)
@@ -231,7 +231,7 @@ module ::HelloModule
                   .where(topic_id: topic_id, post_number: post_number)
                   .first
       unless post
-        return render_response(msg: "帖子不存在", code: 404)
+        return render_response(msg: I18n.t("loklik.post_not_found"), code: 404)
       end
 
       all_posts = PostService.find_all_sub_post(topic_id, post_number)
@@ -250,7 +250,7 @@ module ::HelloModule
 
       topic = Topic.find_by(id: topic_id)
       unless topic
-        return render_response(msg: "帖子不存在", code: 404)
+        return render_response(msg: I18n.t("loklik.topic_not_found"), code: 404)
       end
 
       bookmark_manager = BookmarkManager.new(@current_user)
@@ -266,7 +266,7 @@ module ::HelloModule
 
       topic = Topic.find_by(id: topic_id)
       unless topic
-        return render_response(msg: "帖子不存在", code: 404)
+        return render_response(msg: I18n.t("loklik.topic_not_found"), code: 404)
       end
 
       BookmarkManager.new(@current_user).destroy_for_topic(topic)

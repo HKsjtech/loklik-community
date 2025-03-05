@@ -1,0 +1,17 @@
+it_IT:
+  loklik:
+    upload_video_limit: "Hai raggiunto il numero massimo di video che puoi caricare al giorno. Il limite giornaliero è di %{limit} volte."
+    upload_video_s3_disabled: "Caricamento S3 non abilitato. Si prega di contattare l'amministratore."
+    operation_failed: "Operazione fallita. Per favore, riprova più tardi."
+    auth_failed: "Autenticazione fallita."
+    params_error: "Errore nei parametri. Controlla i tuoi parametri: %{params}"
+    post_not_found: "Post non trovato."
+    topic_not_found: "Argomento non trovato."
+    user_not_found: "Utente non trovato."
+    category_not_found: "Categoria non trovata."
+    rate_limit_exceeded: "Limite di frequenza superato. Per favore, riprova più tardi."
+    resource_not_belong_to_you: "Questa risorsa non ti appartiene."
+    category_not_join: "Non hai aderito alla categoria."
+    cannot_follow_yourself: "Non puoi seguire te stesso."
+    please_follow_user: "Per favore, segui prima l'utente."
+    operation_success: "Operazione riuscita."

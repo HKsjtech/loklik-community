@@ -1,0 +1,17 @@
+ko_KR:
+  loklik:
+    upload_video_limit: "하루에 업로드할 수 있는 비디오의 최대 수에 도달했습니다. 일일 제한은 %{limit}회입니다."
+    upload_video_s3_disabled: "S3 업로드 기능이 활성화되지 않았습니다. 관리자에게 문의하세요."
+    operation_failed: "작업이 실패했습니다. 나중에 다시 시도하세요."
+    auth_failed: "인증에 실패했습니다."
+    params_error: "매개변수 오류입니다. 매개변수를 확인하세요: %{params}"
+    post_not_found: "게시물을 찾을 수 없습니다."
+    topic_not_found: "주제를 찾을 수 없습니다."
+    user_not_found: "사용자를 찾을 수 없습니다."
+    category_not_found: "카테고리를 찾을 수 없습니다."
+    rate_limit_exceeded: "속도 제한을 초과했습니다. 나중에 다시 시도하세요."
+    resource_not_belong_to_you: "이 리소스는 귀하의 것이 아닙니다."
+    category_not_join: "카테고리에 가입하지 않았습니다."
+    cannot_follow_yourself: "자신을 팔로우할 수 없습니다."
+    please_follow_user: "먼저 해당 사용자를 팔로우하세요."
+    operation_success: "작업이 성공했습니다."

@@ -2,7 +2,7 @@
 require 'aws-sdk-s3'
 
 module ::HelloModule
-  class BaseController < ::ApplicationController
+  class BaseController < CommonController
     include MyHelper
     include MyS3Helper
     include PostHelper
@@ -15,13 +15,13 @@ module ::HelloModule
       theme = Theme.find_by(name: banner_plugin_name)
 
       if theme.nil?
-        render json: { msg: 'theme not found. theme: ' + banner_plugin_name}
+        render_response(data: nil, code: 404, success: false, msg: 'theme not install. theme: ' + banner_plugin_name)
         return
       end
 
       theme_setting = ThemeSetting.find_by(theme_id: theme.id)
       if theme_setting.nil?
-        render json: { msg: 'theme setting not found. theme: ' + banner_plugin_name}
+        render_response(data: nil, code: 404, success: false, msg: 'theme not found.')
         return
       end
 
@@ -74,16 +74,16 @@ module ::HelloModule
         # 处理上传的文件
         enable_s3_uploads = SiteSetting.enable_s3_uploads
         unless enable_s3_uploads
-          render_response(data: { success: false, message: 'S3 上传未开启' }, code: 400)
+          render_response(data: nil, code: 400, msg: I18n.t("loklik.upload_video_s3_disabled"), success: false)
           return
         end
         unless cover_img && thumbnail_width && thumbnail_height
-          render_response(data: { success: false, message: '缺少必要参数' }, code: 400)
+          render_response(data: { success: false, message: I18n.t("loklik.params_error", params: "coverImg, thumbnailWidth, thumbnailHeight") }, code: 400)
           return
         end
 
         unless check_upload_video_limit
-          return render_response(data: nil, success: false, msg: '上传视频数量已达到上限', code: 400)
+          return render_response(data: nil, success: false, msg: I18n.t("loklik.upload_video_limit", limit: SiteSetting.max_upload_videos_user_per_day), code: 400)
         end
 
         public_url = upload_file(file)
@@ -97,7 +97,7 @@ module ::HelloModule
           cover_img: cover_img,
           )
         unless app_video_upload.save
-          render_response(data: nil, msg: '上传失败', code: 500)
+          render_response(data: nil, msg: I18n.t("loklik.operation_failed"), code: 500)
           return
         end
 
@@ -115,11 +115,11 @@ module ::HelloModule
 
         nil
       else
-        render_response(data: nil, code: 400, success: false, msg: '上传类型错误')
+        render_response(data: nil, code: 400, success: false, msg: I18n.t("loklik.params_error", params: "type"))
       end
     rescue => e
       LoggerHelper.error("upload error: #{e.message}")
-      render_response(data: nil, msg: '上传失败', code: 500)
+      render_response(data: nil, msg: I18n.t("loklik.operation_failed"), code: 500)
     end
 
     def discourse_host

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module ::HelloModule
-  class PostController < ::ApplicationController
+  class PostController < CommonController
     include MyHelper
     include PostHelper
     include DiscourseHelper
@@ -80,7 +80,7 @@ module ::HelloModule
 
       post = Post.find_by_id(post_id)
       if post.nil?
-        render_response(code: 404, msg: "帖子不存在", success: false)
+        render_response(code: 404, msg: I18n.t("loklik.post_not_found"), success: false)
         return
       end
 

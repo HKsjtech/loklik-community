@@ -3,6 +3,7 @@
 HelloModule::Engine.routes.draw do
   get "/hello" => "examples#index"
   get "/examples/test_amqp" => "examples#test_amqp"
+  get "/examples/language" => "examples#language"
   post "/examples/test_post" => "examples#test_post"
 
   # base routes
