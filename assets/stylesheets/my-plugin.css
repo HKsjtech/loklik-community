@@ -1,105 +1,130 @@
-.search-controls {
+.loklik .search-controls {
   display: flex;
   align-items: center; /* 垂直居中对齐 */
+  margin: 24px 0;
 }
 
-.search-controls label {
+.loklik .search-controls label {
+  width: auto;
   margin-right: 8px; /* 给标签添加右边距 */
 }
 
-.search-controls input,
+/* 给输入框、下拉框和按钮添加右边距 */
+/* .search-controls input,
 .search-controls select,
 .search-controls button {
-  margin-right: 8px; /* 给输入框、下拉框和按钮添加右边距 */
+  margin-right: 8px;
+} */
+
+.loklik .search-controls input[type=text]{
+  margin-bottom: 0;
+}
+
+.loklik .search-controls .items{
+  display: flex;
+  align-items: center;
+}
+.loklik .search-controls .items:first-child{
+  margin-right: 24px;
+}
+.loklik .search-controls .items:last-child{
+  margin-left: auto;
+}
+
+.loklik .search-controls .items .select-kit{
+  min-width: 210px;
+}
+
+.loklik .search-controls .items .btn:last-child{
+  margin-left: 8px;
 }
 
 
-.form-group {
+.loklik .form-group {
   display: flex;
   align-items: center;  /* 垂直居中对齐 */
   margin-bottom: 10px;  /* 每组之间的间距 */
 }
 
-label {
+.loklik label {
   margin-right: 10px;  /* 标签与下拉框之间的间距 */
   width: 160px;         /* 设置标签的宽度以保持一致 */
 }
 
-.fixed-width-select {
+.loklik .fixed-width-select {
   width: 150px;        /* 设置下拉框的固定宽度 */
 }
 
-.nav {
-  background-color: #f8f9fa; /* 背景颜色 */
-  padding: 10px;
-  border-bottom: 1px solid #dee2e6;
-}
 
-.nav-list {
+
+/* .loklik .nav-item {
+  margin-right: 20px;
+} */
+
+
+/* .loklik .nav-link:hover {
+  text-decoration: underline;
+} */
+
+
+ .loklik .container {
+   display: flex; /* 仍然使用 flex 布局 */
+ }
+
+/* .loklik .sidebar {
+  width: 200px;
+  min-width: 200px;
+  background-color: #282828;
+  padding: 10px;
+  border-right: 1px solid #dee2e6;
+  display: flex;
+  flex-direction: column;
+} */
+
+/* .nav-list {
   list-style: none;
   padding: 0;
   margin: 0;
   display: flex;
-}
+  flex-wrap: wrap;
+} */
 
-.nav-item {
-  margin-right: 20px; /* 菜单项之间的间距 */
-}
+/* .nav-item {
+  flex: 1 0 48%;
+  margin-bottom: 10px;
+} */
 
-
-.nav-link:hover {
-  text-decoration: underline; /* 悬停效果 */
-}
-
-
- .container {
-   display: flex; /* 仍然使用 flex 布局 */
- }
-
-.sidebar {
-  width: 200px; /* 左侧菜单栏的宽度 */
-  min-width: 200px; /* 左侧菜单栏的最小宽度 */
-  background-color: #f8f9fa; /* 背景颜色 */
-  padding: 10px;
-  border-right: 1px solid #dee2e6; /* 右边框 */
-  display: flex; /* 使用flex布局 */
-  flex-direction: column; /* 垂直排列 */
-}
-
-.nav-list {
+.loklik .nav-list {
   list-style: none;
   padding: 0;
   margin: 0;
-  display: flex; /* 使用flex布局 */
-  flex-wrap: wrap; /* 允许换行 */
+  display: flex;
+  padding: 10px 10px 0 10px;
 }
 
-.nav-item {
-  flex: 1 0 48%; /* 每个菜单项占据48%宽度，留出间距 */
-  margin-bottom: 10px; /* 菜单项之间的间距 */
-}
-
-.nav-link {
+.loklik .nav-link {
   display: block; /* 使链接块级展示 */
-  padding: 10px;
-  background-color: #e9ecef; /* 默认背景颜色 */
-  color: #007bff; /* 默认链接颜色 */
+  margin: 6px;
+  padding: 8px 10px; /* 给链接添加内边距 */
+  background-color: transparent; /* 默认背景颜色 */
+  color: #a6a6a6; /* 默认链接颜色 */
   border-radius: 4px; /* 圆角 */
   text-decoration: none; /* 去掉下划线 */
   transition: background-color 0.2s; /* 背景颜色过渡效果 */
   text-align: center; /* 文字居中 */
 }
 
-.nav-link:hover {
-  background-color: #ced4da; /* 悬停效果 */
+.loklik .nav-link:hover {
+  background-color: #313131; /* 悬停效果 */
+  color: #a6a6a6;
 }
 
-.nav-link.active {
-  background-color: #007bff; /* 选中时的背景颜色 */
-  color: white; /* 选中时的文字颜色 */
+.loklik .nav-link.active {
+  background-color: #052e3d; /* 选中时的背景颜色 */
+  color: #a6a6a6; /* 选中时的文字颜色 */
 }
 
-.content {
+.loklik .content {
   flex: 1; /* 内容区域 */
   padding: 20px;
 }

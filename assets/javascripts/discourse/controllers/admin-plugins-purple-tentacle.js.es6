@@ -18,6 +18,13 @@ export default class AdminPluginsPurpleTentacleController extends Controller {
   @tracked showingCuratedPosts = true;
   @tracked showingConfig = false;
 
+  @tracked curatedoptions = [
+    // { name: "请选择", id: "" },
+    { name: "是", id: "1" },
+    { name: "否", id: "0" },
+  ];
+
+
   constructor() {
     super();
     this.filteredItems = [];
@@ -34,39 +41,39 @@ export default class AdminPluginsPurpleTentacleController extends Controller {
 
   @action
   showCuratedPosts() {
-    this.showingCuratedPosts = true
-    this.showingConfig = false
+    this.showingCuratedPosts = true;
+    this.showingConfig = false;
   }
 
   @action
   showConfig() {
-    this.showingCuratedPosts = false
-    this.showingConfig = true
+    this.showingCuratedPosts = false;
+    this.showingConfig = true;
   }
 
   loadPosts() {
-    const params= {
+    const params = {
       search: this.titleSearch,
       is_curated: this.isCurated,
-      page: this.current
+      page: this.current,
     };
     const paramsStr = new URLSearchParams(params).toString();
     fetch(`/loklik/admin/index.json?${paramsStr}`) // 调用后端 API
-      .then(response => {
+      .then((response) => {
         if (!response.ok) {
-          throw new Error('Network response was not ok');
+          throw new Error("Network response was not ok");
         }
         return response.json();
       })
-      .then(res => {
+      .then((res) => {
         this.filteredItems = res.data.records;
         this.total = res.data.total;
         this.current = res.data.current;
         this.size = res.data.size;
-        this.totalPage = Math.ceil(this.total/this.size);
+        this.totalPage = Math.ceil(this.total / this.size);
       })
-      .catch(error => {
-        console.error('Error loading items:', error);
+      .catch((error) => {
+        console.error("Error loading items:", error);
       });
   }
 
@@ -79,32 +86,34 @@ export default class AdminPluginsPurpleTentacleController extends Controller {
   @action
   reset() {
     this.titleSearch = "";
-    this.isCurated =  "";
+    this.isCurated = "";
     this.loadPosts();
   }
 
   @action
   curated(item, new_is_curated) {
-    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    const csrfToken = document
+      .querySelector('meta[name="csrf-token"]')
+      .getAttribute("content");
     fetch(`/loklik/admin/curated/${item.id}.json`, {
-      method: 'PUT',
+      method: "PUT",
       headers: {
-        'Content-Type': 'application/json',
-        'X-CSRF-Token': csrfToken // 添加 CSRF Token
+        "Content-Type": "application/json",
+        "X-CSRF-Token": csrfToken, // 添加 CSRF Token
       },
       body: JSON.stringify({
         is_curated: new_is_curated,
-        topic_id: item.id
-      })
+        topic_id: item.id,
+      }),
     })
-      .then(response => {
+      .then((response) => {
         if (!response.ok) {
-          throw new Error('Network response was not ok');
+          throw new Error("Network response was not ok");
         }
         this.loadPosts();
       })
-      .catch(error => {
-        console.error('Error curating item:', error);
+      .catch((error) => {
+        console.error("Error curating item:", error);
       });
   }
 
@@ -116,62 +125,67 @@ export default class AdminPluginsPurpleTentacleController extends Controller {
 
   @action
   goNextPage(page) {
-    this.current = Math.min(this.current + 1, Math.ceil(this.total/this.size));
+    this.current = Math.min(
+      this.current + 1,
+      Math.ceil(this.total / this.size)
+    );
     this.loadPosts();
   }
 
   loadCategoryList() {
     fetch(`/loklik/admin/categories.json`) // 调用后端 API
-      .then(response => {
+      .then((response) => {
         if (!response.ok) {
-          throw new Error('Network response was not ok');
+          throw new Error("Network response was not ok");
         }
         return response.json();
       })
-      .then(res => {
+      .then((res) => {
         this.categoryList = res.data;
         this.loadSelectedCategoryList(); // 先加载分类列表，再加载已选分类列表
       })
-      .catch(error => {
-        console.error('Error loading items:', error);
+      .catch((error) => {
+        console.error("Error loading items:", error);
       });
   }
 
   loadSelectedCategoryList() {
     fetch(`/loklik/admin/select_categories.json`) // 调用后端 API
-      .then(response => {
+      .then((response) => {
         if (!response.ok) {
-          throw new Error('Network response was not ok');
+          throw new Error("Network response was not ok");
         }
         return response.json();
       })
-      .then(res => {
+      .then((res) => {
         this.selectedCategoryList = res.data;
-        this.selectedIdList = this.selectedCategoryList.map(item => item.categories_id);
+        this.selectedIdList = this.selectedCategoryList.map(
+          (item) => item.categories_id
+        );
       })
-      .catch(error => {
-        console.error('Error loading items:', error);
+      .catch((error) => {
+        console.error("Error loading items:", error);
       });
   }
 
   @action
-  updateSelectedCategory0(value){
+  updateSelectedCategory0(value) {
     this.selectedIdList[0] = +value;
   }
 
   @action
-  updateSelectedCategory1(value){
+  updateSelectedCategory1(value) {
     this.selectedIdList[1] = +value;
   }
 
   @action
-  updateSelectedCategory2(value){
+  updateSelectedCategory2(value) {
     this.selectedIdList[2] = +value;
   }
 
   @action
   setSelectedCategories() {
-    let len = [...new Set(this.selectedIdList)].length
+    let len = [...new Set(this.selectedIdList)].length;
     if (len !== 3) {
       alert("请确保三个分类不同");
       return;
@@ -181,24 +195,26 @@ export default class AdminPluginsPurpleTentacleController extends Controller {
     this.selectedCategoryList[1].categories_id = this.selectedIdList[1];
     this.selectedCategoryList[2].categories_id = this.selectedIdList[2];
 
-    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    const csrfToken = document
+      .querySelector('meta[name="csrf-token"]')
+      .getAttribute("content");
     fetch(`/loklik/admin/set_select_categories.json`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
-        'X-CSRF-Token': csrfToken // 添加 CSRF Token
+        "Content-Type": "application/json",
+        "X-CSRF-Token": csrfToken, // 添加 CSRF Token
       },
-      body: JSON.stringify(this.selectedCategoryList)
+      body: JSON.stringify(this.selectedCategoryList),
     })
-      .then(response => {
+      .then((response) => {
         if (!response.ok) {
-          throw new Error('Network response was not ok');
+          throw new Error("Network response was not ok");
         }
         alert("保存成功");
         this.loadSelectedCategoryList();
       })
-      .catch(error => {
-        console.error('Error curating item:', error);
-      })
+      .catch((error) => {
+        console.error("Error curating item:", error);
+      });
   }
 }

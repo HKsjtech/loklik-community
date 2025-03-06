@@ -1,6 +1,6 @@
-<div class="container">
-  <div class="sidebar">
-    <nav class="nav">
+<div class="loklik container">
+  {{!-- <div class="sidebar"> --}}
+    {{!-- <nav class="nav"> --}}
       <ul class="nav-list">
         <li class="nav-item">
           <a href="#" class="nav-link {{if this.showingCuratedPosts "active"}}" onclick={{action "showCuratedPosts"}}>精选帖子管理</a>
@@ -9,25 +9,36 @@
           <a href="#" class="nav-link {{if this.showingConfig "active"}}" onclick={{action "showConfig"}}>金刚区配置</a>
         </li>
       </ul>
-    </nav>
-  </div>
+    {{!-- </nav> --}}
+  {{!-- </div> --}}
 
   <div class="content">
     <div id="curated-posts" class="content-section" style={{if this.showingCuratedPosts "display: block" "display: none"}}>
       <h2>精选帖子管理</h2>
       <div class="search-controls">
-        <label>标题</label>
-        <input type="text" class="form-control" placeholder="标题" value={{this.titleSearch}} oninput={{action (mut this.titleSearch) value="target.value"}} />
+        <div class="items">
+          <TextField @value={{this.titleSearch}} @oninput={{action (mut this.titleSearch) value="target.value" }}
+            @placeholderKey={{"标题"}} />
+        </div>
+        <div class="items">
+          <label>精选</label>
+          <ComboBox @content={{this.curatedoptions}} @value={{this.isCurated}} @onChange={{action (mut this.isCurated)
+            id="target.id" }} />
+        </div>
+        <div class="items">
+          <button class="btn btn-primary" {{action "search" }}>搜索</button>
+          <button class="btn btn-secondary" {{action "reset" }}>重置</button>
+        </div>
+        {{!-- <label>标题</label> --}}
+        {{!-- <input type="text" class="form-control" placeholder="标题" value={{this.titleSearch}} oninput={{action (mut this.titleSearch) value="target.value"}} /> --}}
 
-        <label>精选</label>
+        {{!-- <label>精选</label>
         <select class="form-control" value={{this.isCurated}} onchange={{action (mut this.isCurated) value="target.value"}}>
           <option value="">请选择</option>
           <option value="1">是</option>
           <option value="0">否</option>
-        </select>
+        </select> --}}
 
-        <button class="btn btn-primary" {{action "search"}}>搜索</button>
-        <button class="btn btn-secondary" {{action "reset"}}>重置</button>
       </div>
 
       <table class="table">
