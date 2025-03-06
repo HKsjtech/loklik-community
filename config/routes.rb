@@ -63,6 +63,8 @@ HelloModule::Engine.routes.draw do
   get "/admin/categories" => "admin#categories"
   get "/admin/select_categories" => "admin#select_categories"
   post "/admin/set_select_categories" => "admin#set_select_categories"
+  get "/admin/banner/list" => "admin_banner#list"
+  post "/admin/banner/list" => "admin_banner#create"
 
   get "/notifications/un-read-count" => "notifications#unread_count"
   get "/notifications/message-list" => "notifications#message_list"
