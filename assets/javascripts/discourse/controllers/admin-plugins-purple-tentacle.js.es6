@@ -14,6 +14,9 @@ export default class AdminPluginsPurpleTentacleController extends Controller {
   @tracked categoryList = [];
   @tracked selectedCategoryList = [];
   @tracked selectedIdList = [];
+  @tracked selectedId0 = 0;
+  @tracked selectedId1 = 0;
+  @tracked selectedId2 = 0;
 
   @tracked showingCuratedPosts = true;
   @tracked showingConfig = false;
@@ -24,13 +27,11 @@ export default class AdminPluginsPurpleTentacleController extends Controller {
     { name: "否", id: "0" },
   ];
 
-
   constructor() {
     super();
     this.filteredItems = [];
     this.categoryList = [];
     this.selectedCategoryList = [];
-    this.selectedIdList = [];
 
     this.loadPosts();
     this.loadCategoryList();
@@ -159,9 +160,12 @@ export default class AdminPluginsPurpleTentacleController extends Controller {
       })
       .then((res) => {
         this.selectedCategoryList = res.data;
-        this.selectedIdList = this.selectedCategoryList.map(
-          (item) => item.categories_id
+        const selectedIdList = this.selectedCategoryList.map(
+          (item) => +item.categories_id
         );
+        this.selectedId0 = selectedIdList[0];
+        this.selectedId1 = selectedIdList[1];
+        this.selectedId2 = selectedIdList[2];
       })
       .catch((error) => {
         console.error("Error loading items:", error);
@@ -170,30 +174,30 @@ export default class AdminPluginsPurpleTentacleController extends Controller {
 
   @action
   updateSelectedCategory0(value) {
-    this.selectedIdList[0] = +value;
+    this.selectedId0 = +value;
   }
 
   @action
   updateSelectedCategory1(value) {
-    this.selectedIdList[1] = +value;
+    this.selectedId1 = +value;
   }
 
   @action
   updateSelectedCategory2(value) {
-    this.selectedIdList[2] = +value;
+    this.selectedId2 = +value;
   }
 
   @action
   setSelectedCategories() {
-    let len = [...new Set(this.selectedIdList)].length;
+    let len = [...new Set([this.selectedId0, this.selectedId1, this.selectedId2])].length;
     if (len !== 3) {
       alert("请确保三个分类不同");
       return;
     }
 
-    this.selectedCategoryList[0].categories_id = this.selectedIdList[0];
-    this.selectedCategoryList[1].categories_id = this.selectedIdList[1];
-    this.selectedCategoryList[2].categories_id = this.selectedIdList[2];
+    this.selectedCategoryList[0].categories_id = this.selectedId0;
+    this.selectedCategoryList[1].categories_id = this.selectedId1;
+    this.selectedCategoryList[2].categories_id = this.selectedId2;
 
     const csrfToken = document
       .querySelector('meta[name="csrf-token"]')
