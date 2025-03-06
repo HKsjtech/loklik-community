@@ -15,3 +15,5 @@ pt_PT:
     cannot_follow_yourself: "Você não pode seguir a si mesmo."
     please_follow_user: "Por favor, siga o usuário primeiro."
     operation_success: "Operação bem-sucedida."
+    file_too_large: "O arquivo é muito grande. O tamanho máximo permitido é %{size}."
+    upload_images_limit: "Você atingiu o número máximo de imagens que pode carregar por dia. O limite diário é de %{limit} vezes."

@@ -15,3 +15,5 @@ es_MX:
     cannot_follow_yourself: "No puedes seguirte a ti mismo."
     please_follow_user: "Por favor, sigue al usuario primero."
     operation_success: "Operación exitosa."
+    file_too_large: "El tamaño del archivo es mayor que el límite permitido. Por favor, sube un archivo menor a %{size}MB."
+    upload_images_limit: "Has alcanzado el límite de videos que puedes subir por día. El límite diario es de %{limit} veces."

@@ -15,3 +15,5 @@ fr_BE:
     cannot_follow_yourself: "Vous ne pouvez pas vous suivre vous-même."
     please_follow_user: "Veuillez d'abord suivre cet utilisateur."
     operation_success: "Opération réussie."
+    file_too_large: "Le fichier est trop volumineux. Veuillez télécharger un fichier inférieur à %{size}MB."
+    upload_images_limit: "Vous avez atteint le nombre maximum de vidéos que vous pouvez télécharger par jour. La limite est de %{limit} fois par jour."

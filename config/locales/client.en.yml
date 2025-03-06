@@ -18,3 +18,5 @@ en:
     plugin_discourse_api_secret_key: "plugin discourse api secret key. "
     max_upload_videos_user_per_day: "max upload videos user per day"
     max_upload_video_size: "max upload video size in MB"
+    max_upload_image_size: "max upload image size in MB"
+    max_upload_image_user_per_day: "max upload image user per day"

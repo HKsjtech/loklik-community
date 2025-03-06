@@ -15,3 +15,5 @@ ko_KR:
     cannot_follow_yourself: "자신을 팔로우할 수 없습니다."
     please_follow_user: "먼저 해당 사용자를 팔로우하세요."
     operation_success: "작업이 성공했습니다."
+    file_too_large: "파일 크기가 너무 큽니다. (최대 %{size}MB)"
+    upload_images_limit: "하루에 업로드할 수 있는 이미지의 최대 수에 도달했습니다. 일일 제한은 %{limit}회입니다."

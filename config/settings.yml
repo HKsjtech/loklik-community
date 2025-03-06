@@ -16,3 +16,12 @@ TODO_plugin_name:
     default: 50
     client: false
     max: 50
+  max_upload_image_size:
+    default: 5
+    client: false
+    max: 5
+  max_upload_image_user_per_day:
+    default: 50
+    client: false
+    max: 100
+

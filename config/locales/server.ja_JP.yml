@@ -15,3 +15,5 @@ ja_JP:
     cannot_follow_yourself: "自分自身をフォローすることはできません。"
     please_follow_user: "まず、そのユーザーをフォローしてください。"
     operation_success: "操作が成功しました。"
+    file_too_large: "ファイルサイズが制限を超えています。 %{size}MB 以下のファイルをアップロードしてください。"
+    upload_images_limit: "今日は、最大 %{limit} 回まで動画をアップロードすることができました。"

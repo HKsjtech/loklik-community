@@ -15,3 +15,5 @@ de_CH:
     cannot_follow_yourself: "Sie können sich nicht selbst folgen."
     please_follow_user: "Bitte folgen Sie zuerst dem Benutzer."
     operation_success: "Operation erfolgreich."
+    file_too_large: "Datei ist zu groß. Bitte laden Sie eine Datei kleiner als %{size}MB hoch."
+    upload_images_limit: "Sie haben das tägliche Limit an hochgeladenen Videos erreicht. Tägliches Limit beträgt %{limit} Mal."

@@ -1,6 +1,7 @@
 en_US:
   loklik:
     upload_video_limit: "You have reached the maximum number of videos you can upload per day. %{limit} times per day."
+    upload_image_limit: "You have reached the maximum number of images you can upload per day. %{limit} times per day."
     upload_video_s3_disabled: "S3 upload not enabled. Please contact the admin."
     operation_failed: "Operation failed. Please try again later."
     auth_failed: "Authentication failed."
@@ -15,3 +16,4 @@ en_US:
     cannot_follow_yourself: "You cannot follow yourself."
     please_follow_user: "Please follow the user first."
     operation_success: "Operation success."
+    file_too_large: "File too large. Maximum file size is %{size} MB."

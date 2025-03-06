@@ -15,3 +15,5 @@ nl_NL:
     cannot_follow_yourself: "U kunt uzelf niet volgen."
     please_follow_user: "Volg deze gebruiker eerst."
     operation_success: "Operatie is succesvol."
+    file_too_large: "Bestand te groot. Maximaal %{size} is toegestaan."
+    upload_images_limit: "U heeft de maximale hoeveelheid afbeeldingen bereikt die u per dag kunt uploaden. De dagelijkse limiet is %{limit} keer."

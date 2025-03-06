@@ -15,3 +15,5 @@ tr_TR:
     cannot_follow_yourself: "Kendinizi takip edemezsiniz."
     please_follow_user: "Lütfen önce bu kullanıcıyı takip edin."
     operation_success: "İşlem başarılı."
+    file_too_large: "Dosya çok büyük. Maksimum dosya boyutu %{size} olmalıdır."
+    upload_images_limit: "Günlük yükleyebileceğiniz resim sayısının maksimumuna ulaştınız. Günlük limit %{limit} kezdir."

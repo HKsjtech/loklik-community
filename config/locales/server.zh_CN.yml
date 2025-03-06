@@ -15,3 +15,5 @@ zh_CN:
     cannot_follow_yourself: "您不能关注自己。"
     please_follow_user: "请先关注该用户。"
     operation_success: "操作成功。"
+    file_too_large: "文件大小超过限制。 请上传小于 %{size}MB 的文件。"
+    upload_images_limit: "您已达到每天可上传视频的最大次数。每日限制为 %{limit} 次。"
