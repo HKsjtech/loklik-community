@@ -72,7 +72,7 @@ module ::HelloModule
           return render_response(data: nil, code: 400, success: false, msg: I18n.t("loklik.file_too_large", size: SiteSetting.max_upload_image_size))
         end
         unless check_upload_image_limit
-          return render_response(data: nil, success: false, msg: I18n.t("loklik.upload_image_limit", limit: SiteSetting.max_upload_videos_user_per_day), code: 400)
+          return render_response(data: nil, success: false, msg: I18n.t("loklik.upload_image_limit", limit: SiteSetting.max_upload_image_user_per_day), code: 400)
         end
 
         upload_image(file, me)
@@ -207,7 +207,7 @@ module ::HelloModule
       today = Time.now.strftime('%Y-%m-%d')
       redis_key = "loklik_plugin:upload_images:#{get_current_user_id}-#{today}"
       puts redis_key
-      max_upload_videos_user_per_day = SiteSetting.max_upload_videos_user_per_day
+      max_upload_videos_user_per_day = SiteSetting.max_upload_image_user_per_day
       res = Redis.current.get(redis_key)
       puts "res: #{res}, max_upload_videos_user_per_day: #{max_upload_videos_user_per_day}"
       if res && res.to_i >= max_upload_videos_user_per_day
