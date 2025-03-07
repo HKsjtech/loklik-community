@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module ::HelloModule
-  class TopicController < ::ApplicationController
+  class TopicController < CommonController
     include MyHelper
     include PostHelper
     include DiscourseHelper
@@ -12,19 +12,19 @@ module ::HelloModule
     before_action :fetch_current_user
 
     def create_topic
-      min_topic_title_length = SiteSetting.min_topic_title_length || 8
-      min_post_length = SiteSetting.min_post_length || 8
+      # min_topic_title_length = SiteSetting.min_topic_title_length || 8
+      # min_post_length = SiteSetting.min_post_length || 8
 
-      title = params[:title]
+      # title = params[:title]
       raw = params[:raw]
 
-      if title.length < min_topic_title_length
-        return render_response(code: 400, success: false, msg: "标题长度不能少于#{min_topic_title_length}个字符")
-      end
-
-      if raw.length < min_post_length
-        return render_response(code: 400, success: false, msg: "内容长度不能少于#{min_post_length}个字符")
-      end
+      # if title.length < min_topic_title_length
+      #   return render_response(code: 400, success: false, msg: "标题长度不能少于#{min_topic_title_length}个字符")
+      # end
+      #
+      # if raw.length < min_post_length
+      #   return render_response(code: 400, success: false, msg: "内容长度不能少于#{min_post_length}个字符")
+      # end
 
       raw += PostService.cal_new_post_raw(params[:image], params[:video]) if params[:image] || params[:video]
 
@@ -37,26 +37,24 @@ module ::HelloModule
       manager_params[:ip_address] = request.remote_ip
       manager_params[:user_agent] = request.user_agent
 
-      begin
-        manager = NewPostManager.new(@current_user, manager_params)
-        res = serialize_data(manager.perform, NewPostResultSerializer, root: false)
+      manager = NewPostManager.new(@current_user, manager_params)
+      res = serialize_data(manager.perform, NewPostResultSerializer, root: false)
 
-        if res && res[:errors] && res[:errors].any?
-          return render_response(code: 400, success: false, msg: res[:errors].join(", "))
-        end
-
-        new_post_id = res[:post][:id]
-        app_post_record = AppPostRecord.create(post_id: new_post_id, is_deleted: 0)
-
-        unless app_post_record.save
-          return render_response(code: 500, success: false, msg: "创建帖子失败")
-        end
-
-        render_response(data: res[:post][:topic_id], success: true, msg: "发帖成功")
-
-      rescue => e
-        render_response(code: 400, success: false, msg: e.message)
+      if res && res[:errors] && res[:errors].any?
+        return render_response(code: 400, success: false, msg: res[:errors].join(", "))
       end
+
+      new_post_id = res[:post][:id]
+      app_post_record = AppPostRecord.create(post_id: new_post_id, is_deleted: 0)
+
+      unless app_post_record.save
+        return render_response(code: 500, success: false, msg: I18n.t("loklik.operation_failed"))
+      end
+
+      render_response(data: res[:post][:topic_id], success: true, msg: "success")
+    rescue RateLimiter::LimitExceeded => e
+      LoggerHelper.warn(e)
+      render_response(code: 429, success: false, msg: I18n.t("loklik.rate_limit_exceeded"))
     end
 
     def edit_topic
@@ -71,13 +69,13 @@ module ::HelloModule
       end
 
       if changes.none?
-        return render_response(code: 400, success: false, msg: "没有任何修改")
+        return render_response(code: 400, success: false, msg: I18n.t("loklik.params_error", params: "raw"))
       end
 
       topic = Topic.find_by(id: params[:topicId].to_i)
 
       unless topic
-        return render_response(code: 400, success: false, msg: "帖子不存在")
+        return render_response(code: 400, success: false, msg: I18n.t("loklik.topic_not_found"))
       end
 
       first_post = topic.ordered_posts.first
@@ -97,14 +95,15 @@ module ::HelloModule
     end
 
     def destroy_topic
-      topic = Topic.with_deleted.find_by(id: params[:topic_id])
+      topic_id = params[:topic_id].to_i
 
+      topic = Topic.find_by(id: topic_id)
       unless topic
-        return render_response(code: 400, success: false, msg: "帖子不存在")
+        return render_response(msg: I18n.t("loklik.topic_not_found"), code: 404)
       end
 
       if topic.user_id != @current_user.id
-        return render_response(code: 400, success: false, msg: "只能删除自己的帖子")
+        return render_response(code: 400, success: false, msg: I18n.t("loklik.resource_not_belong_to_you"))
       end
 
       # 删除 Topic 会有权限问题，先用系统用户删除
@@ -127,18 +126,18 @@ module ::HelloModule
 
       render_response
     rescue Discourse::InvalidAccess
-      render_response(code: 400, success: false, msg: I18n.t("delete_topic_failed"))
+      render_response(code: 400, success: false, msg: I18n.t("loklik.operation_failed"))
     end
 
     def show
       topic_id = (params.require(:topic_id)).to_i
 
-      topic = Topic.find(topic_id)
+      topic = Topic.find_by(id: topic_id)
       unless topic
-        return render_response(msg: "帖子不存在", code: 404)
+        return render_response(msg: I18n.t("loklik.topic_not_found"), code: 404)
       end
 
-      posts = PostService.cal_topics_by_topic_ids([topic_id])
+      posts = PostService.cal_topics_by_topic_ids([topic_id], @current_user.id)
       res = posts[0]
 
       is_care = AppUserFollow.where(user_id: @current_user.id, target_user_id: topic.user_id, is_deleted: false).present?
@@ -205,7 +204,7 @@ module ::HelloModule
       render_response(data: create_page_list(res, total, current_page, page_size ))
     end
 
-    # 评论的回复列表
+    # 评论的评论列表
     def comment_comment_list
       topic_id = (params.require(:topic_id)).to_i
       post_number = (params.require(:post_number)).to_i
@@ -232,17 +231,10 @@ module ::HelloModule
                   .where(topic_id: topic_id, post_number: post_number)
                   .first
       unless post
-        return render_response(msg: "帖子不存在", code: 404)
+        return render_response(msg: I18n.t("loklik.post_not_found"), code: 404)
       end
 
-      all_posts = []
-      tmp_posts = find_reply_post_number_ids(topic_id, [post_number])
-      # 如果 posts 不为空， 则循环调用  find_reply_post_number_ids， 直到 posts 为空
-      while tmp_posts.present? && tmp_posts.length > 0
-        all_posts.concat(tmp_posts)
-        post_number_ids = tmp_posts.map(&:post_number)
-        tmp_posts = find_reply_post_number_ids(topic_id, post_number_ids)
-      end
+      all_posts = PostService.find_all_sub_post(topic_id, post_number)
 
       post_action_type_id = get_action_type_id("like")
 
@@ -254,7 +246,12 @@ module ::HelloModule
     end
 
     def topic_collect
-      topic = Topic.find(params[:topic_id].to_i)
+      topic_id = params[:topic_id].to_i
+
+      topic = Topic.find_by(id: topic_id)
+      unless topic
+        return render_response(msg: I18n.t("loklik.topic_not_found"), code: 404)
+      end
 
       bookmark_manager = BookmarkManager.new(@current_user)
       bookmark_manager.create_for(bookmarkable_id: topic.id, bookmarkable_type: "Topic")
@@ -265,39 +262,19 @@ module ::HelloModule
     end
 
     def topic_collect_cancel
-      params.require(:topic_id)
+      topic_id = params[:topic_id].to_i
 
-      topic = Topic.find(params[:topic_id].to_i)
+      topic = Topic.find_by(id: topic_id)
+      unless topic
+        return render_response(msg: I18n.t("loklik.topic_not_found"), code: 404)
+      end
+
       BookmarkManager.new(@current_user).destroy_for_topic(topic)
 
       render_response
     end
 
     private
-
-    def find_reply_post_number_ids(topic_id, post_number_ids)
-      select_fields = [
-        'posts.id',
-        'posts.topic_id',
-        'posts.like_count',
-        'posts.created_at',
-        'posts.reply_count',
-        'posts.user_id',
-        'posts.raw',
-        'posts.created_at',
-        'posts.updated_at',
-        'posts.post_number',
-        'posts.reply_to_post_number',
-        'posts.reply_to_user_id',
-        'app_user_external_info.surname',
-        'app_user_external_info.name',
-        'app_user_external_info.avatar_url',
-      ]
-      Post.select(select_fields)
-                 .where(topic_id: topic_id, reply_to_post_number: post_number_ids)
-                 .joins('LEFT JOIN app_user_external_info ON posts.user_id = app_user_external_info.user_id')
-          .order(created_at: :asc)
-    end
 
     def cal_post(post, post_action_type_id)
       new_raw, videos, images = PostService.cal_post_videos_and_images(post.id, post.raw)

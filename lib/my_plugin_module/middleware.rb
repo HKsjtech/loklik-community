@@ -27,6 +27,8 @@ module ::HelloModule
       end
 
       begin
+        set_language(request) # 设置语言, 这里设置主要是中间件中要用，后续不生效
+
         # 获取 HTTP_SJTOKEN
         token = request.get_header("HTTP_SJTOKEN")
 
@@ -49,6 +51,9 @@ module ::HelloModule
         # 设置当前用户 ID
         env['current_user_id'] = user_id
         @app.call(env)
+      rescue RateLimiter::LimitExceeded => e
+        LoggerHelper.warn(e)
+        [200, { "Content-Type" => "application/json" }, [response_format(code: 400, success: false, msg: I18n.t('loklik.rate_limit_exceeded'), error: e.message).to_json]]
       rescue StandardError => e
         LoggerHelper.error(e)
         [200, { "Content-Type" => "application/json" }, [response_format(code: 500, success: false, msg: 'Internal Server Error', error: e.message).to_json]]
@@ -67,7 +72,7 @@ module ::HelloModule
       # 去掉 "Bearer " 前缀 得到 JWT
       token = token.sub("Bearer ", "") if token.start_with?("Bearer ")
 
-      redis_key = "jwt_token:#{token}"
+      redis_key = "loklik_plugin:jwt_token:#{token}"
 
       user_id = Redis.current.get(redis_key)
       if user_id
@@ -94,6 +99,22 @@ module ::HelloModule
       [true, external_info.user_id]
     end
 
+    def set_language(request)
+      # 设置语言
+      I18n.locale = SiteSetting.default_locale
+      accept_language_orig = request.get_header("HTTP_ACCEPT_LANGUAGE")
+
+      # 判断当前语言是否支持
+      if accept_language_orig.present?
+        # accept_language eg：zh-CN to zh_CN
+        accept_language = accept_language_orig.tr('-', '_')
+        if I18n.available_locales.include?(accept_language.to_sym)
+          I18n.locale = accept_language
+        else
+          LoggerHelper.error("unsupported accept_language: #{accept_language_orig}")
+        end
+      end
+    end
 
   end
 end

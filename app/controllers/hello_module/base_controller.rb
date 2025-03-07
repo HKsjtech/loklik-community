@@ -2,7 +2,7 @@
 require 'aws-sdk-s3'
 
 module ::HelloModule
-  class BaseController < ::ApplicationController
+  class BaseController < CommonController
     include MyHelper
     include MyS3Helper
     include PostHelper
@@ -15,13 +15,13 @@ module ::HelloModule
       theme = Theme.find_by(name: banner_plugin_name)
 
       if theme.nil?
-        render json: { msg: 'theme not found. theme: ' + banner_plugin_name}
+        render_response(data: nil, code: 404, success: false, msg: 'theme not install. theme: ' + banner_plugin_name)
         return
       end
 
       theme_setting = ThemeSetting.find_by(theme_id: theme.id)
       if theme_setting.nil?
-        render json: { msg: 'theme setting not found. theme: ' + banner_plugin_name}
+        render_response(data: nil, code: 404, success: false, msg: 'theme not found.')
         return
       end
 
@@ -35,6 +35,7 @@ module ::HelloModule
     end
 
     def search
+      user_id = get_current_user_id
       current_page = (params[:currentPage] || 1).to_i
       page_size = (params[:pageSize] || 10).to_i
       search_key = params.require(:q)
@@ -49,13 +50,14 @@ module ::HelloModule
       topics = query.limit(page_size).offset(current_page * page_size - page_size)
       total = query.count
 
-      res = PostService.cal_topics_by_topic_ids(topics.map(&:id))
+      res = PostService.cal_topics_by_topic_ids(topics.map(&:id), user_id)
 
       render_response(data: create_page_list(res, total, current_page, page_size ))
     end
 
     def upload
       user_id = get_current_user_id
+
       me = User.find_by_id(user_id) # 验证用户是否存在
       type = params[:type] # 0-图片 1-视频 2-封面图
       cover_img = params[:coverImg] # 封面图 当上传视频时，必传
@@ -66,19 +68,36 @@ module ::HelloModule
 
       case type
       when "0", "2"
+        if file.size > SiteSetting.max_upload_image_size * 1024 * 1024
+          return render_response(data: nil, code: 400, success: false, msg: I18n.t("loklik.file_too_large", size: SiteSetting.max_upload_image_size))
+        end
+        unless check_upload_image_limit
+          return render_response(data: nil, success: false, msg: I18n.t("loklik.upload_image_limit", limit: SiteSetting.max_upload_image_user_per_day), code: 400)
+        end
+
         upload_image(file, me)
+
+        incr_upload_images_count
         nil
       when "1"
         # 处理上传的文件
         enable_s3_uploads = SiteSetting.enable_s3_uploads
         unless enable_s3_uploads
-          render_response(data: { success: false, message: 'S3 上传未开启' }, code: 400)
+          render_response(data: nil, code: 400, msg: I18n.t("loklik.upload_video_s3_disabled"), success: false)
           return
         end
         unless cover_img && thumbnail_width && thumbnail_height
-          render_response(data: { success: false, message: '缺少必要参数' }, code: 400)
+          render_response(data: { success: false, message: I18n.t("loklik.params_error", params: "coverImg, thumbnailWidth, thumbnailHeight") }, code: 400)
           return
         end
+        unless check_upload_video_limit
+          return render_response(data: nil, success: false, msg: I18n.t("loklik.upload_video_limit", limit: SiteSetting.max_upload_videos_user_per_day), code: 400)
+        end
+
+        if file.size > SiteSetting.max_upload_video_size * 1024 * 1024
+          return render_response(data: nil, code: 400, success: false, msg: I18n.t("loklik.file_too_large", size: SiteSetting.max_upload_video_size))
+        end
+
         public_url = upload_file(file)
         app_video_upload = AppVideoUpload.new(
           url: public_url,
@@ -90,10 +109,12 @@ module ::HelloModule
           cover_img: cover_img,
           )
         unless app_video_upload.save
-          render_response(data: nil, msg: '上传失败', code: 500)
+          render_response(data: nil, msg: I18n.t("loklik.operation_failed"), code: 500)
           return
         end
-       render_response(data: {
+
+        incr_upload_videos_count
+        render_response(data: {
           "id": app_video_upload.id,
           "url": app_video_upload.url,
           "originalName": app_video_upload.original_name,
@@ -103,17 +124,29 @@ module ::HelloModule
           "extension": app_video_upload.extension,
           "shortUrl": "",
         })
+
         nil
       else
-        render_response(data: nil, code: 400, success: false, msg: '上传类型错误')
+        render_response(data: nil, code: 400, success: false, msg: I18n.t("loklik.params_error", params: "type"))
       end
     rescue => e
       LoggerHelper.error("upload error: #{e.message}")
-      render_response(data: nil, msg: '上传失败', code: 500)
+      render_response(data: nil, msg: I18n.t("loklik.operation_failed"), code: 500)
     end
 
     def discourse_host
       render_response(data: { discourseHost: Discourse.base_url })
+    end
+
+    def settings
+      settings = {
+        "max_upload_videos_user_per_day": SiteSetting.max_upload_videos_user_per_day,
+        "max_upload_video_size":  SiteSetting.max_upload_video_size,
+        "max_upload_image_size":  SiteSetting.max_upload_image_size,
+        "max_upload_image_user_per_day": SiteSetting.max_upload_image_user_per_day,
+      }
+
+      render_response(data: settings)
     end
 
     private
@@ -167,6 +200,49 @@ module ::HelloModule
         "extension": result["extension"],
         "shortUrl": result["short_url"],
       })
+    end
+
+    def check_upload_image_limit
+      # 当天日期
+      today = Time.now.strftime('%Y-%m-%d')
+      redis_key = "loklik_plugin:upload_images:#{get_current_user_id}-#{today}"
+      puts redis_key
+      max_upload_videos_user_per_day = SiteSetting.max_upload_image_user_per_day
+      res = Redis.current.get(redis_key)
+      puts "res: #{res}, max_upload_videos_user_per_day: #{max_upload_videos_user_per_day}"
+      if res && res.to_i >= max_upload_videos_user_per_day
+        false
+      else
+        true
+      end
+    end
+
+    def incr_upload_images_count
+      today = Time.now.strftime('%Y-%m-%d')
+      redis_key = "loklik_plugin:upload_images:#{get_current_user_id}-#{today}"
+      Redis.current.incr(redis_key)
+    end
+
+
+    def check_upload_video_limit
+      # 当天日期
+      today = Time.now.strftime('%Y-%m-%d')
+      redis_key = "loklik_plugin:upload_videos:#{get_current_user_id}-#{today}"
+      puts redis_key
+      max_upload_videos_user_per_day = SiteSetting.max_upload_videos_user_per_day
+      res = Redis.current.get(redis_key)
+      puts "res: #{res}, max_upload_videos_user_per_day: #{max_upload_videos_user_per_day}"
+      if res && res.to_i >= max_upload_videos_user_per_day
+        false
+      else
+        true
+      end
+    end
+
+    def incr_upload_videos_count
+      today = Time.now.strftime('%Y-%m-%d')
+      redis_key = "loklik_plugin:upload_videos:#{get_current_user_id}-#{today}"
+      Redis.current.incr(redis_key)
     end
 
   end

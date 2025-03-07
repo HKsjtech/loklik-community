@@ -62,7 +62,9 @@ from topics
 where category_id = #{category_id} and deleted_by_id is null group by category_id;"
 
     raw = ActiveRecord::Base.connection.execute(sql)
-
+    if raw.ntuples.zero? # 代表分类没有任何文章
+      return 0
+    end
     count = raw[0]["topic_count"].to_i + raw[0]["comment_count"].to_i + raw[0]["like_count"].to_i
 
     bookmarks_sql = "
@@ -72,12 +74,10 @@ where t.category_id = #{category_id} and t.deleted_by_id is null and t.archetype
 and p.deleted_by_id is null and p.hidden = false);
 "
     bookmarks_raw = ActiveRecord::Base.connection.execute(bookmarks_sql)
-
     bookmarks_count = bookmarks_raw[0]["count"].to_i
 
     count += bookmarks_count
 
-    return count
-
+    count
   end
 end

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module ::HelloModule
-  class NotificationsController < ::ApplicationController
+  class NotificationsController < CommonController
     include MyHelper
     include DiscourseHelper
     include PostHelper
@@ -30,6 +30,8 @@ module ::HelloModule
 
       res = nos.map do |n|
         json_data = JSON.parse(n.data)
+
+        user_id = nil
         if n.notification_type == 2
           original_post = Post.find_by(id: json_data["original_post_id"])
           if original_post
@@ -42,20 +44,24 @@ module ::HelloModule
             user_id = pa.user_id
           end
         end
+
         user_info = UserService.cal_user_info_by_id(user_id)
         {
           "id": n.id,
-          "userId": n.user_id,
+          "userId": user_id,
           "name": user_info.name,
           "avatarUrl": user_info.avatar_url,
           "notificationType": n.notification_type,
           "content": post_content,
           "topicId": n.topic_id,
-          "title": n.topic.title,
+          "title": json_data["topic_title"],
           "read": n.read,
-          "sendTime": n.created_at
+          "sendTime": n.created_at,
+          "user_is_blank": user_id.blank?
         }
       end
+
+      res.filter! { |n| n.present? } # 去掉 nil
 
       render_response(data: create_page_list(res, total, current_page, page_size ))
     end

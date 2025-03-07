@@ -3,6 +3,7 @@
 HelloModule::Engine.routes.draw do
   get "/hello" => "examples#index"
   get "/examples/test_amqp" => "examples#test_amqp"
+  get "/examples/language" => "examples#language"
   post "/examples/test_post" => "examples#test_post"
 
   # base routes
@@ -10,6 +11,7 @@ HelloModule::Engine.routes.draw do
   get "/base/search" => "base#search"
   post "/base/upload" => "base#upload"
   get "/base/discourse-host" => "base#discourse_host"
+  get  "/base/settings" => "base#settings"
 
   # auth routes
   get "/auth/is-sync" => "auth#is_sync"
@@ -61,6 +63,8 @@ HelloModule::Engine.routes.draw do
   get "/admin/categories" => "admin#categories"
   get "/admin/select_categories" => "admin#select_categories"
   post "/admin/set_select_categories" => "admin#set_select_categories"
+  get "/admin/banner/list" => "admin_banner#list"
+  post "/admin/banner/list" => "admin_banner#create"
 
   get "/notifications/un-read-count" => "notifications#unread_count"
   get "/notifications/message-list" => "notifications#message_list"

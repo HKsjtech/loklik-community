@@ -1,4 +1,4 @@
-en:
+en_US:
   loklik:
     upload_video_limit: "You have reached the maximum number of videos you can upload per day. %{limit} times per day."
     upload_image_limit: "You have reached the maximum number of images you can upload per day. %{limit} times per day."

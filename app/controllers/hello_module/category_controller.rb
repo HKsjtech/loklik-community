@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module ::HelloModule
-  class CategoryController < ::ApplicationController
+  class CategoryController < CommonController
     include MyHelper
     include AuthHelper
     include PostHelper
@@ -14,7 +14,9 @@ module ::HelloModule
       categories_selected_ids = categories_selected.map { |c| c.categories_id }
 
       cate_srv = CategoryService.all(get_request_host)
-      cas = cate_srv.filter { |category| categories_selected_ids.include?(category[:id]) }
+      cas = categories_selected_ids.map do |category_id|
+        cate_srv.find {|ca| ca[:id] == category_id}
+      end
 
       render_response(data: cas)
     end
@@ -34,7 +36,8 @@ module ::HelloModule
 
       # 这里需要 user_categories_ids 的排序，所以使用 user_categories_ids 去查找分类
       mine = user_categories_ids.map { |id| cate_srv.find {|ca| ca[:id] == id} }
-      all = cate_srv.filter { |category| !user_categories_ids.include?(category[:id]) }
+      all = cate_srv # 产品修改了需求， 不需要排除已添加的分类了
+              # .filter { |category| !user_categories_ids.include?(category[:id]) } # 去掉已添加的分类
       all.sort! { |a, b| b[:id] <=> a[:id] }
 
       render_response(data: {
@@ -45,9 +48,8 @@ module ::HelloModule
 
     def show
       category_id = (params.require(:category_id)).to_i
-      puts all_category_ids
       if all_category_ids.exclude?(category_id)
-        return render_response(success: false, code: 400, msg: "category not found")
+        return render_response(success: false, code: 400, msg: I18n.t("loklik.params_error", params: "category_id"))
       end
 
       category = Category.find(category_id)
@@ -58,7 +60,7 @@ module ::HelloModule
     private
 
     def serialize_category(category)
-      add_category_count = AppUserCategories.where(categories_id: category.id, is_deleted: 0, user_id: @current_user.id).count
+      add_category_count = AppUserCategories.where(categories_id: category.id, is_deleted: 0).count
       is_add_category = AppUserCategories.find_by(categories_id: category.id, user_id: @current_user.id, is_deleted: 0).present?
       urs = UploadReference
         .select("uploads.url as url")

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module ::HelloModule
-  class UserController < ::ApplicationController
+  class UserController < CommonController
     include MyHelper
     include DiscourseHelper
     include PostHelper
@@ -13,15 +13,15 @@ module ::HelloModule
 
     def join_category
       user_id = get_current_user_id
-
+      puts "current_user: #{@current_user.id}"
       categories_id = params[:categoriesId]
       # 校验id是否存在
       unless Category.exists?(id: categories_id)
-        return render_response(code: 400, success: false, msg: "论坛不存在")
+        return render_response(code: 400, success: false, msg: I18n.t("loklik.category_not_found"))
       end
 
       unless AppUserCategories.upsert({ user_id: user_id, categories_id: categories_id, is_deleted: 0 }, unique_by: [:user_id, :categories_id])
-        return render_response(code: 400, success: false, msg: "加入失败")
+        return render_response(code: 400, success: false, msg: I18n.t("loklik.operation_failed"))
       end
 
       render_response
@@ -33,17 +33,17 @@ module ::HelloModule
 
       # 校验id是否存在
       unless Category.exists?(id: categories_id)
-        return render_response(code: 400, success: false, msg: "论坛不存在")
+        return render_response(code: 400, success: false, msg: I18n.t("loklik.category_not_found"))
       end
 
       user_categories = AppUserCategories.find_by(user_id: user_id, categories_id: categories_id)
       unless  user_categories
-        return render_response(code: 400, success: false, msg: "未加入论坛")
+        return render_response(code: 400, success: false, msg: I18n.t("loklik.category_not_join"))
       end
 
       user_categories.is_deleted = 1
       unless user_categories.save
-        return render_response(code: 500, success: false, msg: "退出失败")
+        return render_response(code: 500, success: false, msg: I18n.t("loklik.operation_failed"))
       end
 
       render_response
@@ -55,16 +55,16 @@ module ::HelloModule
 
       ex_user = User.find_by_id(follow_user_id)
       unless ex_user
-        return render_response(code: 400, success: false, msg: "用户不存在")
+        return render_response(code: 400, success: false, msg: I18n.t("loklik.user_not_found"))
       end
 
       if user_id == follow_user_id
-        return render_response(code: 400, success: false, msg: "不能关注自己")
+        return render_response(code: 400, success: false, msg: I18n.t("loklik.cannot_follow_yourself"))
       end
 
       # 校验id是否存在
       unless AppUserFollow.upsert({ user_id: user_id, target_user_id: follow_user_id, is_deleted: 0 }, unique_by: [:user_id, :target_user_id])
-        return render_response(code: 400, success: false, msg: "关注失败")
+        return render_response(code: 400, success: false, msg: I18n.t("loklik.operation_failed"))
       end
 
       render_response
@@ -76,22 +76,22 @@ module ::HelloModule
 
       ex_user = User.find_by_id(follow_user_id)
       unless ex_user
-        return render_response(code: 400, success: false, msg: "用户不存在")
+        return render_response(code: 400, success: false, msg: I18n.t("loklik.user_not_found"))
       end
 
       if user_id == ex_user.id
-        return render_response(code: 400, success: false, msg: "不能关注自己")
+        return render_response(code: 400, success: false, msg: I18n.t("loklik.cannot_follow_yourself"))
       end
 
       # 校验id是否存在
       user_follow = AppUserFollow.find_by(user_id: user_id, target_user_id: ex_user.id)
       unless user_follow
-        return render_response(code: 400, success: false, msg: "未关注用户")
+        return render_response(code: 400, success: false, msg: I18n.t("loklik.please_follow_user"))
       end
 
       user_follow.is_deleted = 1
       unless user_follow.save
-        return render_response(code: 500, success: false, msg: "取消关注失败")
+        return render_response(code: 500, success: false, msg: I18n.t("loklik.operation_failed"))
       end
 
       render_response
@@ -106,7 +106,7 @@ module ::HelloModule
       # 校验id是否存在
       user = User.find_by(id: user_id)
       unless user
-        return render_response(code: 400, success: false, msg: "用户不存在")
+        return render_response(code: 400, success: false, msg: I18n.t("loklik.user_not_found"))
       end
 
       query = AppUserFollow.where(target_user_id: user_id, is_deleted: 0).order(updated_at: :desc)
@@ -114,19 +114,11 @@ module ::HelloModule
       fans_users = query.limit(page_size).offset(current_page * page_size - page_size)
       total = query.count
 
-      fans_user_ids = fans_users.pluck(:user_id)
-
       follow_users = AppUserFollow.where(user_id: user_id, is_deleted: 0)
       follow_user_ids = follow_users.pluck(:target_user_id)
 
-      fans_external_infos = AppUserExternalInfo.where(user_id: fans_user_ids, is_deleted: 0)
-
       res = fans_users.map do |fans_user|
-        user_external_info = fans_external_infos.find_by(user_id: fans_user.user_id)
-        unless user_external_info # 用户信息不存在
-          next
-        end
-        user_info = cal_post_user_info(fans_user.user_id, user_external_info)
+        user_info = UserService.cal_user_info_by_id(fans_user.user_id)
         {
           "userId": user_info.user_id, #用户id
           "name": user_info.name, #用户名称
@@ -148,7 +140,7 @@ module ::HelloModule
       # 校验id是否存在
       user = User.find_by(id: user_id)
       unless user
-        return render_response(code: 400, success: false, msg: "用户不存在")
+        return render_response(code: 400, success: false, msg: I18n.t("loklik.user_not_found"))
       end
 
       query = AppUserFollow.where(user_id: user_id, is_deleted: 0).order(updated_at: :desc)
@@ -156,20 +148,11 @@ module ::HelloModule
       care_users = query.limit(page_size).offset(current_page * page_size - page_size)
       total = query.count
 
-      care_user_ids = care_users.pluck(:target_user_id)
-
       fans_users = AppUserFollow.where(target_user_id: user_id, is_deleted: 0)
       fans_user_ids = fans_users.pluck(:user_id)
 
-      app_user_external_infos = AppUserExternalInfo.where(user_id: care_user_ids, is_deleted: 0)
-
       res = care_users.to_a.map do |care_user|
-        user_external = app_user_external_infos.find_by(user_id: care_user.target_user_id)
-        unless user_external
-          next
-        end
-
-        user_info = cal_post_user_info(user_external.user_id, user_external)
+        user_info = UserService.cal_user_info_by_id(care_user.target_user_id)
         {
           "userId": user_info.user_id, #用户id
           "name": user_info.name, #用户名称
@@ -185,34 +168,30 @@ module ::HelloModule
     def destroy_post
       post = Post.with_deleted.find_by(id: params[:post_id])
       unless post
-        return render_response(code: 400, success: false, msg: "帖子不存在")
+        return render_response(code: 400, success: false, msg: I18n.t("loklik.post_not_found"))
       end
       if post.user_id != @current_user.id
-        return render_response(code: 400, success: false, msg: "只能删除自己的帖子")
+        return render_response(code: 400, success: false, msg: I18n.t("loklik.resource_not_belong_to_you"))
       end
-      # 删除 Topic 会有权限问题，先用系统用户删除
-      system_user = User.find_by(id: -1)
-      guardian = Guardian.new(system_user, request)
-      guardian.ensure_can_delete!(post)
-      PostDestroyer.new(
-        system_user,
-        post,
-        context: params[:context],
-        force_destroy: false,
-        ).destroy
-      return render_response(code: 400, success: false, msg: post.errors.full_messages.join(", ")) if post.errors.any?
-      AppPostRecord.where(post_id: post.id).update_all(is_deleted: 1)
+
+      all_posts = PostService.find_all_sub_post(post.topic_id, post.post_number)
+      all_posts.concat([post]) # 包含本帖子
+
+      all_posts.each do |p|
+        err_msg = PostService.remove_post(p)
+        return render_response(code: 400, success: false, msg: err_msg)  if err_msg != nil
+      end
 
       render_response
     end
 
     def comment
-      min_post_length = SiteSetting.min_post_length || 8
+      # min_post_length = SiteSetting.min_post_length || 8
       raw = params[:raw]
 
-      if raw.length < min_post_length
-        return render_response(code: 400, success: false, msg: "内容长度不能少于#{min_post_length}个字符")
-      end
+      # if raw.length < min_post_length
+      #   return render_response(code: 400, success: false, msg: "内容长度不能少于#{min_post_length}个字符")
+      # end
 
       raw += PostService.cal_new_post_raw(params[:image], params[:video]) if params[:image] || params[:video]
 
@@ -243,10 +222,10 @@ module ::HelloModule
         app_post_record = AppPostRecord.create(post_id: res[:post][:id], is_deleted: 0)
 
         unless app_post_record.save
-          return render_response(code: 500, success: false, msg: "创建帖子失败")
+          return render_response(code: 500, success: false, msg: I18n.t("loklik.operation_failed"))
         end
 
-        render_response(data: res[:post][:topic_id], success: true, msg: "发帖成功")
+        render_response(data: res[:post][:topic_id])
       rescue => e
         render_response(code: 400, success: false, msg: e.message)
       end
@@ -260,12 +239,12 @@ module ::HelloModule
       if is_comment
         post = Post.find_by_id(post_or_topic_id)
         if post.nil?
-          return render_response(code: 404, msg: "帖子不存在", success: false)
+          return render_response(code: 404, msg: I18n.t("loklik.post_not_found"), success: false)
         end
       else
         topic = Topic.find_by_id(post_or_topic_id)
         if topic.nil?
-          return render_response(code: 404, msg: "主题不存在", success: false)
+          return render_response(code: 404, msg: I18n.t("loklik.topic_not_found"), success: false)
         end
         post = topic.ordered_posts.first
       end
@@ -294,7 +273,7 @@ module ::HelloModule
       else
         user = User.find_by_id(user_id)
         if user.blank?
-          return render_response(code: 404, msg: "用户不存在", success: false)
+          return render_response(code: 404, msg: I18n.t("loklik.user_not_found"), success: false)
         end
       end
 
@@ -312,7 +291,7 @@ module ::HelloModule
       else
         user = User.find_by_id(user_id)
         if user.blank?
-          return render_response(code: 404, msg: "用户不存在", success: false)
+          return render_response(code: 404, msg: I18n.t("loklik.user_not_found"), success: false)
         end
       end
 
@@ -330,7 +309,7 @@ module ::HelloModule
       topics = query.limit(page_size).offset(current_page * page_size - page_size)
       total = query.count
 
-      res = PostService.cal_topics_by_topic_ids(topics.map(&:id))
+      res = PostService.cal_topics_by_topic_ids(topics.map(&:id), @current_user.id)
 
       render_response(data: create_page_list(res, total, current_page, page_size ))
     end
@@ -346,7 +325,7 @@ module ::HelloModule
       else
         user = User.find_by_id(user_id)
         if user.blank?
-          return render_response(code: 404, msg: "用户不存在", success: false)
+          return render_response(code: 404, msg: I18n.t("loklik.user_not_found"), success: false)
         end
       end
 
@@ -367,7 +346,7 @@ module ::HelloModule
                 .select('topics.id')
                 .joins('LEFT JOIN posts ON posts.topic_id = topics.id')
                 .joins('LEFT JOIN post_actions ON post_actions.post_id = posts.id')
-                .where("post_actions.user_id = ? and post_actions.post_action_type_id = ?", user.id, 2)
+                .where("post_actions.deleted_at IS NULL and post_actions.user_id = ? and post_actions.post_action_type_id = ?", user.id, 2)
                 .where("posts.post_number = ?", 1)
                 .where(deleted_by_id: nil, archetype: 'regular',visible: true, closed: false, category_id: all_category_ids)
                 .order("post_actions.updated_at DESC")
@@ -375,7 +354,7 @@ module ::HelloModule
       topics = query.limit(page_size).offset(current_page * page_size - page_size)
       total = query.count
 
-      res = PostService.cal_topics_by_topic_ids(topics.map(&:id))
+      res = PostService.cal_topics_by_topic_ids(topics.map(&:id), @current_user.id)
 
       render_response(data: create_page_list(res, total, current_page, page_size ))
     end
@@ -390,7 +369,7 @@ module ::HelloModule
         topic["id"]
       end
 
-      res = PostService.cal_topics_by_topic_ids(topic_ids)
+      res = PostService.cal_topics_by_topic_ids(topic_ids, @current_user.id)
 
       render_response(data: create_page_list(res, total, current_page, page_size ))
     end
@@ -405,7 +384,7 @@ module ::HelloModule
         topic["id"]
       end
 
-      res = PostService.cal_topics_by_topic_ids(topic_ids)
+      res = PostService.cal_topics_by_topic_ids(topic_ids, @current_user.id)
 
       render_response(data: create_page_list(res, total, current_page, page_size ))
     end
@@ -440,7 +419,6 @@ module ::HelloModule
       user_id = get_current_user_id
       @current_user = User.find_by_id(user_id)
     end
-
 
   end
 end

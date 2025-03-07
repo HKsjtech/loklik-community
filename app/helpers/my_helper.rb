@@ -1,5 +1,5 @@
 module MyHelper
-  def render_response(data: nil, code: 200, success: true, msg: "操作成功")
+  def render_response(data: nil, code: 200, success: true, msg: I18n.t('loklik.operation_success'))
     if data.is_a?(String)
       begin
         parsed_data = JSON.parse(data)

@@ -3,16 +3,20 @@ zh_CN:
     admin:
       site_settings:
         categories:
-          TODO_plugin_name: "Loklik 社区插件"
+          TODO_plugin_name: "Loklik 社区APP插件"
   js:
     discourse_plugin_name:
       placeholder: placeholder
 
     purple_tentacle:
-      title: "帖子管理"
-      show: "Show Purple Tentacle"
+      title: "Loklik 社区APP"
+      show: "Loklik 社区APP"
 
   site_settings:
     app_auth_host: "app认证地址. 例如: https://app.example.com"
     amqp_connect_string: "消息队列连接字符串. 例如: amqp://guest:guest@localhost:5672/dev"
     plugin_discourse_api_secret_key: "Discourse API密钥，没有的话需要管理员创建。"
+    max_upload_videos_user_per_day: "每天最大上传视频数量"
+    max_upload_video_size: "最大上传视频大小，单位为MB"
+    max_upload_image_size: "最大上传图片大小，单位为MB"
+    max_upload_image_user_per_day: "每天最大上传图片数量"

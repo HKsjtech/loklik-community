@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module ::HelloModule
-  class PostController < ::ApplicationController
+  class PostController < CommonController
     include MyHelper
     include PostHelper
     include DiscourseHelper
@@ -9,7 +9,7 @@ module ::HelloModule
     requires_plugin PLUGIN_NAME
     skip_before_action :verify_authenticity_token # 跳过认证
 
-    before_action :fetch_current_user, only: [:post_like, :post_like_cancel, :topic_collect, :topic_collect_cancel]
+    before_action :fetch_current_user
 
     def curated_list
       current_page = (params[:currentPage] || 1).to_i
@@ -21,7 +21,7 @@ module ::HelloModule
       total = query.count
 
       topic_ids = app_curated_topics.map(&:topic_id)
-      res = PostService.cal_topics_by_topic_ids(topic_ids)
+      res = PostService.cal_topics_by_topic_ids(topic_ids, @current_user.id)
 
       render_response(data: create_page_list(res, total, current_page, page_size ))
     end
@@ -43,7 +43,7 @@ module ::HelloModule
       topics = query.limit(page_size).offset(current_page * page_size - page_size)
       total = query.count
 
-      res = PostService.cal_topics_by_topic_ids(topics.map(&:id))
+      res = PostService.cal_topics_by_topic_ids(topics.map(&:id), @current_user.id)
 
       render_response(data: create_page_list(res, total, current_page, page_size ))
     end
@@ -69,11 +69,10 @@ module ::HelloModule
       topics = query.limit(page_size).offset(current_page * page_size - page_size)
       total = query.count
 
-      res = PostService.cal_topics_by_topic_ids(topics.map(&:id))
+      res = PostService.cal_topics_by_topic_ids(topics.map(&:id), @current_user.id)
 
       render_response(data: create_page_list(res, total, current_page, page_size ))
     end
-
 
     def post_like
       user_id = get_current_user_id
@@ -81,7 +80,7 @@ module ::HelloModule
 
       post = Post.find_by_id(post_id)
       if post.nil?
-        render_response(code: 404, msg: "帖子不存在", success: false)
+        render_response(code: 404, msg: I18n.t("loklik.post_not_found"), success: false)
         return
       end
 

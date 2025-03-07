@@ -1,12 +1,11 @@
 # frozen_string_literal: true
 
-require "bunny"
-
 module ::HelloModule
-  class ExamplesController < ::ApplicationController
+  class ExamplesController < CommonController
     requires_plugin PLUGIN_NAME
     include MyHelper
     skip_before_action :verify_authenticity_token # 跳过认证
+
     def index
       # 获取请求中的所有 headers
       headers = request.headers.env.select { |k, _| k.start_with?('HTTP_') }
@@ -19,11 +18,19 @@ module ::HelloModule
       res = {
         hello: "world",
         token: token,
-        headers: formatted_headers
+        headers: formatted_headers,
+        msg: I18n.t("plugin.upload_video_limit", limit: SiteSetting.max_upload_videos_user_per_day)
       }
       render_response(data: res)
     end
 
+    def language
+      res = {
+        language: I18n.locale.to_s,
+        msg: I18n.t("loklik.upload_video_limit", limit: SiteSetting.max_upload_videos_user_per_day)
+      }
+      render_response(data: res)
+    end
     def test_sync_user
       msg = '{
     "avatarUrl": "http://s3.amazonaws.com/loklik-idea-studio-public-dev/avatar/1831162626387005440.png",
@@ -61,5 +68,6 @@ module ::HelloModule
       LoggerHelper.error("AMQP connection error: #{e.message}")
       render_response(msg: e.message)
     end
+
   end
 end

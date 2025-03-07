@@ -9,10 +9,14 @@ en:
       placeholder: placeholder
 
     purple_tentacle:
-      title: "Purple Tentacle"
+      title: "Loklik Community APP"
       show: "Show Purple Tentacle"
 
   site_settings:
     app_auth_host: "app auth host. eg: https://app.example.com"
     amqp_connect_string: "amqp connect string. eg:amqp://guest:guest@localhost:5672/dev"
     plugin_discourse_api_secret_key: "plugin discourse api secret key. "
+    max_upload_videos_user_per_day: "max upload videos user per day"
+    max_upload_video_size: "max upload video size in MB"
+    max_upload_image_size: "max upload image size in MB"
+    max_upload_image_user_per_day: "max upload image user per day"
