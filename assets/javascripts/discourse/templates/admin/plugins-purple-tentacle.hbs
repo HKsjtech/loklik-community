@@ -40,7 +40,7 @@
           {{#each this.filteredItems as |item|}}
             <tr>
               <td>{{item.id}}</td>
-              <td><a href="/t/topic/{{item.id}}">{{item.title}}</a></td>
+              <td><a href="/t/topic/{{item.id}}">{{item.show_title}}</a></td>
               <td>{{item.author}}</td>
               <td>
                 {{#if (eq item.is_curated 1)}}

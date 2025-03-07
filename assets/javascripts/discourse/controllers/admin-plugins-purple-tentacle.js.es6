@@ -67,7 +67,10 @@ export default class AdminPluginsPurpleTentacleController extends Controller {
         return response.json();
       })
       .then((res) => {
-        this.filteredItems = res.data.records;
+        this.filteredItems = res.data.records.map((item) => {
+          item.show_title = this.splitTitle(item.title);
+          return item
+        });
         this.total = res.data.total;
         this.current = res.data.current;
         this.size = res.data.size;
@@ -220,5 +223,14 @@ export default class AdminPluginsPurpleTentacleController extends Controller {
       .catch((error) => {
         console.error("Error curating item:", error);
       });
+  }
+
+
+  splitTitle(title) {
+    const maxLength = 20;
+    if (title.length > maxLength) {
+      return title.substring(0, maxLength) + '...';
+    }
+    return title;
   }
 }
