@@ -52,9 +52,6 @@ module ::HelloModule
       end
 
       render_response(data: res[:post][:topic_id], success: true, msg: "success")
-    rescue RateLimiter::LimitExceeded => e
-      LoggerHelper.warn(e)
-      render_response(code: 429, success: false, msg: I18n.t("loklik.rate_limit_exceeded"))
     end
 
     def edit_topic
