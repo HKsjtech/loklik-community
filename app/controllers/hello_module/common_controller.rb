@@ -5,6 +5,7 @@ module ::HelloModule
     requires_plugin PLUGIN_NAME
     include MyHelper
     before_action :set_language
+    rescue_from StandardError, with: :handle_error
 
     def set_language
       # 设置语言
@@ -23,5 +24,15 @@ module ::HelloModule
       end
     end
 
+    def handle_error(exception)
+      case exception
+      when RateLimiter::LimitExceeded
+        LoggerHelper.warn(exception.message)
+        render_response(success: false, code: 400, msg: I18n.t('loklik.rate_limit_exceeded'))
+      else
+        LoggerHelper.error(exception.message)
+        render_response(success: false, code: 400, msg: I18n.t('loklik.operation_failed'))
+      end
+    end
   end
 end

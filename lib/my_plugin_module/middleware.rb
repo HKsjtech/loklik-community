@@ -52,7 +52,7 @@ module ::HelloModule
         env['current_user_id'] = user_id
         @app.call(env)
       rescue RateLimiter::LimitExceeded => e
-        LoggerHelper.warn(e)
+        LoggerHelper.warn(e.message)
         [200, { "Content-Type" => "application/json" }, [response_format(code: 400, success: false, msg: I18n.t('loklik.rate_limit_exceeded'), error: e.message).to_json]]
       rescue StandardError => e
         LoggerHelper.error(e)
