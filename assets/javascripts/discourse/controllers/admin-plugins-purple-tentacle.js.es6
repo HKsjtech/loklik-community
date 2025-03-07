@@ -3,6 +3,12 @@ import { action } from "@ember/object";
 import { tracked } from "@glimmer/tracking";
 
 export default class AdminPluginsPurpleTentacleController extends Controller {
+  @tracked menu = {
+    showingCuratedPosts: true,
+    showingConfig: false,
+    showingBanner: false,
+  }
+
   @tracked filteredItems = null;
   @tracked titleSearch = "";
   @tracked isCurated = "";
@@ -10,6 +16,7 @@ export default class AdminPluginsPurpleTentacleController extends Controller {
   @tracked total = 0;
   @tracked size = 10;
   @tracked totalPage = 0;
+
   // 金刚区配置相关内容
   @tracked categoryList = [];
   @tracked selectedCategoryList = [];
@@ -18,8 +25,9 @@ export default class AdminPluginsPurpleTentacleController extends Controller {
   @tracked selectedId1 = 0;
   @tracked selectedId2 = 0;
 
-  @tracked showingCuratedPosts = true;
-  @tracked showingConfig = false;
+  // banner 相关内容
+  @tracked bannerList = 0;
+
 
   @tracked curatedoptions = [
     // { name: "请选择", id: "" },
@@ -35,21 +43,16 @@ export default class AdminPluginsPurpleTentacleController extends Controller {
 
     this.loadPosts();
     this.loadCategoryList();
-    // this.loadSelectedCategoryList();
-
-    this.showCuratedPosts();
+    this.loadBannerList();
   }
 
-  @action
-  showCuratedPosts() {
-    this.showingCuratedPosts = true;
-    this.showingConfig = false;
-  }
 
   @action
-  showConfig() {
-    this.showingCuratedPosts = false;
-    this.showingConfig = true;
+  changeMenu(value) {
+    Object.keys(this.menu).forEach(key => {
+      this.set(`menu.${key}`, false);
+    });
+    this.set(`menu.${value}`, true);
   }
 
   loadPosts() {
@@ -83,7 +86,6 @@ export default class AdminPluginsPurpleTentacleController extends Controller {
 
   @action
   search() {
-    console.log("searching...", this.titleSearch);
     this.loadPosts();
   }
 
@@ -147,6 +149,22 @@ export default class AdminPluginsPurpleTentacleController extends Controller {
       .then((res) => {
         this.categoryList = res.data;
         this.loadSelectedCategoryList(); // 先加载分类列表，再加载已选分类列表
+      })
+      .catch((error) => {
+        console.error("Error loading items:", error);
+      });
+  }
+
+  loadBannerList() {
+    fetch(`/loklik/admin/banner/list.json`) // 调用后端 API
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.json();
+      })
+      .then((res) => {
+        this.bannerList = res.data;
       })
       .catch((error) => {
         console.error("Error loading items:", error);

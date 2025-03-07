@@ -7,8 +7,15 @@ module ::HelloModule
     before_action :set_current_user
 
     def list
-      banners = AppBanner.all.order(sort: :desc)
-      res = banners.to_json(only: [:id, :name, :image_url, :link_url, :sort])
+      name = params[:name]
+      status = params[:status]
+
+      banners = AppBanner
+      banners = banners.where('name LIKE ?', "%#{name}%") if name.present?
+      banners = banners.where(status: status) if status.present?
+      banners = banners.order(sort: :desc)
+
+      res = banners.to_json(only: [:id, :name, :app_image_url, :paid_app_image_url, :update_user_name, :link_url, :sort, :status, :created_at, :updated_at])
       render_response(data: res)
     end
 
