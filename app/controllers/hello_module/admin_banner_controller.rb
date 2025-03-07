@@ -20,9 +20,9 @@ module ::HelloModule
         sort: params[:sort],
       )
       if banner.save
-        render_response(success: true, msg: I18n.t('loklik.operation_success'))
+        render_response
       else
-        render_response(success: false, msg: I18n.t('loklik.operation_failed'))
+        render_response
       end
     end
 
@@ -33,9 +33,9 @@ module ::HelloModule
       banner.link_url = params[:link_url]
       banner.sort = params[:sort]
       if banner.save
-        render_response(success: true, msg: I18n.t('loklik.operation_success'))
+        render_response
       else
-        render_response(success: false, msg: I18n.t('loklik.operation_failed'))
+        render_response
       end
     end
 
