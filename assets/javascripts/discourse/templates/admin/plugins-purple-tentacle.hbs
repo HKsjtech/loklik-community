@@ -1,33 +1,30 @@
-<div class="container">
-  <div class="sidebar">
-    <nav class="nav">
-      <ul class="nav-list">
-        <li class="nav-item">
-          <a href="#" class="nav-link {{if this.showingCuratedPosts "active"}}" onclick={{action "showCuratedPosts"}}>精选帖子管理</a>
-        </li>
-        <li class="nav-item">
-          <a href="#" class="nav-link {{if this.showingConfig "active"}}" onclick={{action "showConfig"}}>金刚区配置</a>
-        </li>
-      </ul>
-    </nav>
-  </div>
+<div class="loklik container">
+  <ul class="nav-list">
+    <li class="nav-item">
+      <a href="#" class="nav-link {{if this.showingCuratedPosts "active"}}" onclick={{action "showCuratedPosts"}}>精选帖子管理</a>
+    </li>
+    <li class="nav-item">
+      <a href="#" class="nav-link {{if this.showingConfig "active"}}" onclick={{action "showConfig"}}>金刚区配置</a>
+    </li>
+  </ul>
 
   <div class="content">
     <div id="curated-posts" class="content-section" style={{if this.showingCuratedPosts "display: block" "display: none"}}>
-      <h2>精选帖子管理</h2>
+      {{!-- <h3>精选帖子管理</h3> --}}
       <div class="search-controls">
-        <label>标题</label>
-        <input type="text" class="form-control" placeholder="标题" value={{this.titleSearch}} oninput={{action (mut this.titleSearch) value="target.value"}} />
-
-        <label>精选</label>
-        <select class="form-control" value={{this.isCurated}} onchange={{action (mut this.isCurated) value="target.value"}}>
-          <option value="">请选择</option>
-          <option value="1">是</option>
-          <option value="0">否</option>
-        </select>
-
-        <button class="btn btn-primary" {{action "search"}}>搜索</button>
-        <button class="btn btn-secondary" {{action "reset"}}>重置</button>
+        <div class="items">
+          <label>标题</label>
+          <TextField @value={{this.titleSearch}} @oninput={{action (mut this.titleSearch) value="target.value" }} />
+        </div>
+        <div class="items">
+          <label>精选</label>
+          <ComboBox @content={{this.curatedoptions}} @value={{this.isCurated}} @onChange={{action (mut this.isCurated)
+            id="target.id" }} />
+        </div>
+        <div class="items">
+          <button class="btn btn-primary" {{action "search" }}>搜索</button>
+          <button class="btn btn-secondary" {{action "reset" }}>重置</button>
+        </div>
       </div>
 
       <table class="table">
@@ -47,9 +44,9 @@
               <td>{{item.author}}</td>
               <td>
                 {{#if (eq item.is_curated 1)}}
-                  <button class="btn btn-warning" {{action "curated" item 0}}>取消精选</button>
+                  <button class="btn btn-primary" {{action "curated" item 0}}>取消精选</button>
                 {{else}}
-                  <button class="btn btn-success" {{action "curated" item 1}}>加精选</button>
+                  <button class="btn btn-success" {{action "curated" item 1}}>加入精选</button>
                 {{/if}}
               </td>
             </tr>
@@ -65,37 +62,24 @@
     </div>
 
     <div id="config" class="content-section" style={{if this.showingConfig "display: block" "display: none"}}>
-      <h2>金刚区配置</h2>
+      {{!-- <h3>金刚区配置</h3> --}}
 
       <form id="your-plugin-settings-form">
         <div class="form-group">
           <label for="label1">论坛1:</label>
-          <select class="form-control" value={{this.selectedCategoryList.[0].categories_id}} onchange={{action "updateSelectedCategory0" value="target.value"}}>
-            <option value="0">未配置</option>
-            {{#each this.categoryList as |category|}}
-              <option value="{{category.id}}">{{category.name}}</option>
-            {{/each}}
-          </select>
+          <ComboBox class="fixed-width-select" @content={{this.categoryList}} @value={{this.selectedId0}} @onChange={{this.updateSelectedCategory0}} />
         </div>
 
         <div class="form-group">
           <label for="label2">论坛2:</label>
-          <select class="form-control" value={{this.selectedCategoryList.[1].categories_id}} onchange={{action "updateSelectedCategory1" value="target.value"}}>
-            <option value="0">未配置</option>
-            {{#each categoryList as |category|}}
-              <option value="{{category.id}}">{{category.name}}</option>
-            {{/each}}
-          </select>
+          <ComboBox class="fixed-width-select" @content={{this.categoryList}} @value={{this.selectedId1}}
+            @onChange={{this.updateSelectedCategory1}} />
         </div>
 
         <div class="form-group">
           <label for="label3">论坛3:</label>
-          <select class="form-control" value={{this.selectedCategoryList.[2].categories_id}} onchange={{action "updateSelectedCategory2" value="target.value"}}>
-            <option value="0">未配置</option>
-            {{#each categoryList as |category|}}
-              <option value="{{category.id}}">{{category.name}}</option>
-            {{/each}}
-          </select>
+          <ComboBox class="fixed-width-select" @content={{this.categoryList}} @value={{this.selectedId2}}
+            @onChange={{this.updateSelectedCategory2}} />
         </div>
 
         <button type="button" class="btn btn-primary" {{action "setSelectedCategories"}}>保存</button>
