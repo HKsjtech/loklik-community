@@ -15,7 +15,7 @@ module ::HelloModule
       if !external_info.nil?
         userinfo = OpenStruct.new(
           user_id: user_id,
-          name: "#{external_info.surname}#{external_info.name}",
+          name: "#{external_info.name}#{external_info.surname}",
           avatar_url: external_info.avatar_url,
           is_upgrade: external_info.is_upgrade,
         )

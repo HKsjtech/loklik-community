@@ -75,7 +75,6 @@ module ::HelloModule
     end
 
     def post_like
-      raise RateLimiter::LimitExceeded.new(100, @type, @error_code)
       user_id = get_current_user_id
       post_id = (params.require(:post_id)).to_i
 

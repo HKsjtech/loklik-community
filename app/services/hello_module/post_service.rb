@@ -132,7 +132,7 @@ module ::HelloModule
                  .order('topics.id DESC')
 
       topics.map do |topic|
-        user_info = cal_post_user_info(topic.user_id, topic)
+        user_info = UserService.cal_user_info_by_id(topic.user_id)
 
         {
           id: topic.id, # 主题id

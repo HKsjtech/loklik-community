@@ -139,6 +139,9 @@ module ::HelloModule
 
       posts = PostService.cal_topics_by_topic_ids([topic_id], @current_user.id)
       res = posts[0]
+      if res.nil?
+        return render_response(msg: I18n.t("loklik.topic_not_found"), code: 404)
+      end
 
       is_care = AppUserFollow.where(user_id: @current_user.id, target_user_id: topic.user_id, is_deleted: false).present?
       is_add_category = AppUserCategories.where(user_id: @current_user.id, categories_id: topic.category_id, is_deleted: false).present?
