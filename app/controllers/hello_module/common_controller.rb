@@ -27,10 +27,10 @@ module ::HelloModule
     def handle_error(exception)
       case exception
       when RateLimiter::LimitExceeded
-        LoggerHelper.warn(exception.message)
+        LoggerHelper.warn(exception.full_message)
         render_response(success: false, code: 400, msg: I18n.t('loklik.rate_limit_exceeded'))
       else
-        LoggerHelper.error(exception.message)
+        LoggerHelper.error(exception.full_message)
         render_response(success: false, code: 400, msg: I18n.t('loklik.operation_failed'))
       end
     end
