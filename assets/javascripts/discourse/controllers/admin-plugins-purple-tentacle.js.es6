@@ -69,6 +69,7 @@ export default class AdminPluginsPurpleTentacleController extends Controller {
       .then((res) => {
         this.filteredItems = res.data.records.map((item) => {
           item.show_title = this.splitTitle(item.title);
+          item.show_updated_at = item.updated_at.substring(0, 10);
           return item
         });
         this.total = res.data.total;

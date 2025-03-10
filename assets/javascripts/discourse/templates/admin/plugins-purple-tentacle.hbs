@@ -33,6 +33,7 @@
             <th>ID</th>
             <th>标题</th>
             <th>作者</th>
+            <th>精选时间</th>
             <th>操作</th>
           </tr>
         </thead>
@@ -42,6 +43,7 @@
               <td>{{item.id}}</td>
               <td><a href="/t/topic/{{item.id}}">{{item.show_title}}</a></td>
               <td>{{item.author}}</td>
+               <td>{{item.show_updated_at}}</td>
               <td>
                 {{#if (eq item.is_curated 1)}}
                   <button class="btn btn-primary" {{action "curated" item 0}}>取消精选</button>
