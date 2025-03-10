@@ -113,7 +113,7 @@ class ConsumerService
 
     headers = {
       'Api-Key' => SiteSetting.plugin_discourse_api_secret,
-      'Api-Username' => "discobot"
+      'Api-Username' => "system"
     }
 
     openapi_client = OpenApiHelper.new(Discourse.base_url)
