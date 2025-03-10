@@ -26,6 +26,8 @@ module ::HelloModule
       end
 
       theme_settings = JSON.parse(theme_setting.value)
+      puts "theme_settings: #{theme_settings}"
+
       res = []
       theme_settings.each do |item|
         res.push(serialize_theme_setting(item))
