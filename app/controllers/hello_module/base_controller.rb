@@ -18,15 +18,12 @@ module ::HelloModule
         render_response(data: nil, code: 404, success: false, msg: 'theme not install. theme: ' + banner_plugin_name)
         return
       end
-      LoggerHelper.info("theme_id: #{theme.id}")
 
-      theme_setting = ThemeSetting.find_by(theme_id: theme.id)
+      theme_setting = ThemeSetting.find_by(theme_id: theme.id, data_type: 2)
       if theme_setting.nil?
         render_response(data: nil, code: 404, success: false, msg: 'theme not found.')
         return
       end
-      LoggerHelper.info("theme_name: #{theme_setting.name}")
-      LoggerHelper.info("theme_value: #{theme_setting.value}")
       theme_settings = JSON.parse(theme_setting.value)
 
       res = []
