@@ -78,6 +78,7 @@ module PostHelper
     if url == "" || url.nil?
       return ""
     end
+    url = Discourse.store.cdn_url(url)
     if url.start_with?('http')
       url
     elsif url.start_with?('//')

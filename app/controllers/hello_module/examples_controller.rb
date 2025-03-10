@@ -15,11 +15,14 @@ module ::HelloModule
 
       token = request.get_header("HTTP_SJTOKEN")
 
+      cdn_url = Discourse.store.cdn_url("//loklik-community-dev.s3.dualstack.us-east-1.amazonaws.com/original/1X/c3250ce5bc9578533f4f96eb61bb8697aaedca07.jpeg")
+
       res = {
         hello: "world",
         token: token,
         headers: formatted_headers,
-        msg: I18n.t("plugin.upload_video_limit", limit: SiteSetting.max_upload_videos_user_per_day)
+        msg: I18n.t("plugin.upload_video_limit", limit: SiteSetting.max_upload_videos_user_per_day),
+        cdn_url: cdn_url
       }
       render_response(data: res)
     end
