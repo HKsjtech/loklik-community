@@ -1,6 +1,7 @@
 zh_CN:
   loklik:
     upload_video_limit: "您已达到每天可上传视频的最大次数。每日限制为 %{limit} 次。"
+    upload_image_limit: "您已达到每天可上传图片的最大次数。每日限制为 %{limit} 次。"
     upload_video_s3_disabled: "未启用 S3 上传功能。请联系管理员。"
     operation_failed: "操作失败。请稍后再试。"
     auth_failed: "身份验证失败。"
