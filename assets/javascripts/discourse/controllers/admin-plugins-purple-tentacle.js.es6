@@ -7,7 +7,8 @@ export default class AdminPluginsPurpleTentacleController extends Controller {
     showingCuratedPosts: true,
     showingConfig: false,
     showingBanner: false,
-  }
+    showingBanner2: false,
+  };
 
   @tracked filteredItems = null;
   @tracked titleSearch = "";
@@ -28,12 +29,13 @@ export default class AdminPluginsPurpleTentacleController extends Controller {
   // banner 相关内容
   @tracked bannerList = 0;
 
-
   @tracked curatedoptions = [
     // { name: "请选择", id: "" },
     { name: "是", id: "1" },
     { name: "否", id: "0" },
   ];
+
+  @tracked bannerName;
 
   constructor() {
     super();
@@ -41,15 +43,16 @@ export default class AdminPluginsPurpleTentacleController extends Controller {
     this.categoryList = [];
     this.selectedCategoryList = [];
 
+    this.bannerName = "bannerName";
+
     this.loadPosts();
     this.loadCategoryList();
     this.loadBannerList();
   }
 
-
   @action
   changeMenu(value) {
-    Object.keys(this.menu).forEach(key => {
+    Object.keys(this.menu).forEach((key) => {
       this.set(`menu.${key}`, false);
     });
     this.set(`menu.${value}`, true);
@@ -72,7 +75,7 @@ export default class AdminPluginsPurpleTentacleController extends Controller {
       .then((res) => {
         this.filteredItems = res.data.records.map((item) => {
           item.show_title = this.splitTitle(item.title);
-          return item
+          return item;
         });
         this.total = res.data.total;
         this.current = res.data.current;
@@ -210,7 +213,9 @@ export default class AdminPluginsPurpleTentacleController extends Controller {
 
   @action
   setSelectedCategories() {
-    let len = [...new Set([this.selectedId0, this.selectedId1, this.selectedId2])].length;
+    let len = [
+      ...new Set([this.selectedId0, this.selectedId1, this.selectedId2]),
+    ].length;
     if (len !== 3) {
       alert("请确保三个分类不同");
       return;
@@ -243,12 +248,17 @@ export default class AdminPluginsPurpleTentacleController extends Controller {
       });
   }
 
-
   splitTitle(title) {
     const maxLength = 20;
     if (title.length > maxLength) {
-      return title.substring(0, maxLength) + '...';
+      return title.substring(0, maxLength) + "...";
     }
     return title;
   }
+
+  @tracked bannerStatus = [
+    // { name: "请选择", id: "" },
+    { name: "未上架", id: "1" },
+    { name: "已上架", id: "0" },
+  ];
 }

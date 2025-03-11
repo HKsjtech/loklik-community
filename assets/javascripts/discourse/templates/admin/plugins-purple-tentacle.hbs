@@ -104,7 +104,7 @@
         </div>
         <div class="items">
           <button class="btn btn-primary" {{action "search" }}>搜索</button>
-          <button class="btn btn-secondary" {{action "reset" }}>添加</button>
+          <button class="btn btn-secondary" {{action "changeMenu" "showingBanner2"}}>添加</button>
         </div>
       </div>
       <table class="table">
@@ -153,38 +153,35 @@
         </tbody>
       </table>
     </div>
-{{!--
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">添加数据</h5>
-          <button type="button" class="close" aria-label="Close" {{action "cancel" }}>
-            <span aria-hidden="true">&times;</span>
-          </button>
+
+    <div id="config" class="content-section" style={{if this.menu.showingBanner2 "display: block" "display: none" }}>
+      <div class="create-banner-form">
+        <div class="form-group">
+          <label for="bannerName">名称</label>
+          <TextField @value={{this.bannerName}} @oninput={{action (mut this.bannerName) value="target.value"}} />
         </div>
-        <div class="modal-body">
-          <form>
-            <div class="form-group">
-              <label for="name">名称</label>
-              <input type="text" class="form-control" id="name" placeholder="输入名称" required>
-            </div>
-            <div class="form-group">
-              <label for="image">上传图片</label>
-              <input type="file" class="form-control-file" id="image" accept="image/*" required>
-            </div>
-            <div class="form-group">
-              <label for="url">跳转地址</label>
-              <input type="url" class="form-control" id="url" placeholder="输入跳转地址" required>
-            </div>
-          </form>
+        <div class="form-group">
+          <label for="bannerImageUrl">banner图</label>
+          <TextField @value={{this.bannerImageUrl}} @oninput={{action (mut this.bannerImageUrl) value="target.value"}} />
         </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" {{action "cancel" }}>取消</button>
-          <button type="button" class="btn btn-primary" {{action "saveData" }}>保存</button>
+        <div class="form-group">
+          <label for="bannerLinkUrl">跳转地址</label>
+          <TextField @value={{this.bannerLinkUrl}} @oninput={{action (mut this.bannerLinkUrl) value="target.value"}} />
+        </div>
+        <div class="form-group">
+          <label for="bannerStatus">状态</label>
+          <ComboBox @content={{this.bannerStatus}} @value={{this.formBannerStatus}} @onChange={{action (mut this.bannerStatus)}} @id="bannerStatus" @class="form-control" />
+        </div>
+        <div class="form-group">
+          <label for="bannerSort">排序</label>
+          <input id="bannerSort" type="number" class="form-control" value={{this.bannerSort}} oninput={{action (mut this.bannerSort) value="target.value"}} />
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-primary" {{action "saveBanner"}}>保存</button>
+          <button class="btn btn-secondary" {{action "closeModal"}}>取消</button>
         </div>
       </div>
-    </div> --}}
-
+    </div>
 
   </div>
 
