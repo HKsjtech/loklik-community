@@ -122,8 +122,6 @@ module ::HelloModule
       AppPostRecord.where(post_id: post.id).update_all(is_deleted: 1)
 
       render_response
-    rescue Discourse::InvalidAccess
-      render_response(code: 400, success: false, msg: I18n.t("loklik.operation_failed"))
     end
 
     def show

@@ -53,9 +53,11 @@ module ::HelloModule
         @app.call(env)
       rescue RateLimiter::LimitExceeded => e
         LoggerHelper.warn(e.message)
+        LoggerHelper.error(e.full_message)
         [200, { "Content-Type" => "application/json" }, [response_format(code: 400, success: false, msg: I18n.t('loklik.rate_limit_exceeded'), error: e.message).to_json]]
       rescue StandardError => e
         LoggerHelper.error(e)
+        LoggerHelper.error(e.full_message)
         [200, { "Content-Type" => "application/json" }, [response_format(code: 500, success: false, msg: 'Internal Server Error', error: e.message).to_json]]
       end
     end
