@@ -3,7 +3,7 @@ zh_CN:
     admin:
       site_settings:
         categories:
-          TODO_plugin_name: "Loklik 社区APP插件"
+          loklik_community: "Loklik 社区APP插件"
   js:
     discourse_plugin_name:
       placeholder: placeholder
