@@ -44,9 +44,8 @@ module ::HelloModule
 
 
     def categories
-      categories = Category.where(read_restricted: false).all
-      data = categories.as_json(only: [:id, :name])
-      render_response(data: data)
+      res = CategoryService.all(get_request_host)
+      render_response(data: res)
     end
 
     def select_categories
