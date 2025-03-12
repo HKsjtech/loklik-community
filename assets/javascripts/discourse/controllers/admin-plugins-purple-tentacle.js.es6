@@ -269,7 +269,6 @@ export default class AdminPluginsPurpleTentacleController extends Controller {
     paidImageUrl: "",
     linkUrl: "",
     sort: "",
-    status: "",
   };
 
   @action
@@ -323,7 +322,7 @@ export default class AdminPluginsPurpleTentacleController extends Controller {
     const formData = {
       name: this.bannerForm.name,
       app_image_url: this.bannerForm.appImageUrl,
-      paid_image_url: this.bannerForm.paidImageUrl,
+      pad_image_url: this.bannerForm.paidImageUrl,
       link_url: this.bannerForm.linkUrl,
       sort: this.bannerForm.sort,
       status: this.bannerForm.status,

@@ -68,6 +68,7 @@ HelloModule::Engine.routes.draw do
 
   get "/admin/banner/list" => "admin_banner#list"
   post "/admin/banner/create" => "admin_banner#create"
+  put "/admin/banner/update" => "admin_banner#update"
 
   get "/notifications/un-read-count" => "notifications#unread_count"
   get "/notifications/message-list" => "notifications#message_list"

@@ -35,8 +35,8 @@ module ::HelloModule
     end
 
     def app_banner
-      res = AppBanner.where(status: 1).order(sort: :asc)
-      res = res.to_json(only: [:id, :name, :app_image_url, :paid_image_url, :link_url, :sort, :status])
+      res = AppBanner.where(status: 1).order(sort: :desc)
+      res = res.to_json(only: [:id, :name, :app_image_url, :pad_image_url, :link_url, :sort, :status])
 
       render_response(data: res)
     end

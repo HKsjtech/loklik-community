@@ -181,10 +181,6 @@
           <TextField @value={{this.bannerForm.linkUrl}} @oninput={{action (mut this.bannerForm.linkUrl) value="target.value"}} />
         </div>
         <div class="form-group">
-          <label class="banner-label" for="bannerStatus">状态</label>
-          <ComboBox @content={{this.bannerStatus}} @value={{this.bannerForm.status}} @onChange={{action (mut this.bannerForm.status)}} @id="bannerStatus" @class="form-control" />
-        </div>
-        <div class="form-group">
           <label class="banner-label" for="bannerSort">排序</label>
           <input id="bannerSort" type="number" class="form-control" value={{this.bannerForm.sort}} oninput={{action (mut this.bannerForm.sort) value="target.value"}} />
         </div>
