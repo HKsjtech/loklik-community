@@ -26,9 +26,6 @@ export default class AdminPluginsPurpleTentacleController extends Controller {
   @tracked selectedId1 = 0;
   @tracked selectedId2 = 0;
 
-  // banner 相关内容
-  @tracked bannerList = 0;
-
   @tracked curatedoptions = [
     // { name: "请选择", id: "" },
     { name: "是", id: "1" },
@@ -261,4 +258,79 @@ export default class AdminPluginsPurpleTentacleController extends Controller {
     { name: "未上架", id: "1" },
     { name: "已上架", id: "0" },
   ];
+
+  // banner 相关内容
+  @tracked bannerList = 0;
+
+  @tracked bannerForm = {
+    name: "111",
+    appImageUrl: "",
+    paidImageUrl: "",
+    linkUrl: "",
+    sort: "",
+    status: ""
+  };
+
+  @action
+  uploadBannerImage(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    console.log("上传文件:");
+  }
+
+  @action
+  saveBanner() {
+    // 获取CSRF令牌
+    const csrfToken = document.querySelector("meta[name='csrf-token']").content;
+
+    // 构建请求数据
+    const formData = {
+      name: this.bannerForm.name,
+      app_image_url: this.bannerForm.appImageUrl,
+      paid_image_url: this.bannerForm.paidImageUrl,
+      link_url: this.bannerForm.linkUrl,
+      sort: this.bannerForm.sort,
+      status: this.bannerForm.status
+    };
+
+    console.log(formData)
+
+    // 发送保存请求
+    fetch("/loklik/admin/banner/save", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRF-Token": csrfToken
+      },
+      body: JSON.stringify(formData)
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error("保存失败");
+      }
+      return response.json();
+    })
+    .then(data => {
+      alert("保存成功");
+      // 重置表单
+      this.bannerForm = {
+        name: "",
+        appImageUrl: "",
+        paidImageUrl: "",
+        linkUrl: "",
+        sort: "",
+        status: ""
+      };
+      // 返回列表页
+      this.changeMenu("showingBanner");
+      // 重新加载列表
+      this.loadBannerList();
+    })
+    .catch(error => {
+      console.error("保存失败:", error);
+      alert("保存失败");
+    });
+  }
+
 }

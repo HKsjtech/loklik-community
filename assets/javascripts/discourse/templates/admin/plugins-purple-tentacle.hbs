@@ -157,28 +157,38 @@
     <div id="config" class="content-section" style={{if this.menu.showingBanner2 "display: block" "display: none" }}>
       <div class="create-banner-form">
         <div class="form-group">
-          <label for="bannerName">名称</label>
-          <TextField @value={{this.bannerName}} @oninput={{action (mut this.bannerName) value="target.value"}} />
+          <label class="banner-label" for="bannerName">名称</label>
+          <TextField @value={{this.bannerForm.name}} @oninput={{action (mut this.bannerForm.name) value="target.value"}} />
         </div>
         <div class="form-group">
-          <label for="bannerImageUrl">banner图</label>
-          <TextField @value={{this.bannerImageUrl}} @oninput={{action (mut this.bannerImageUrl) value="target.value"}} />
+          <label class="banner-label" for="appImageUrl">app banner 图</label>
+          <input type="file" accept="image/*" id="appImageUrl" onchange={{action "uploadBannerImage"}} />
+          {{#if this.bannerForm.appImageUrl}}
+            <img src={{this.bannerForm.appImageUrl}} alt="预览" width="300px" height="100px" />
+          {{/if}}
         </div>
         <div class="form-group">
-          <label for="bannerLinkUrl">跳转地址</label>
-          <TextField @value={{this.bannerLinkUrl}} @oninput={{action (mut this.bannerLinkUrl) value="target.value"}} />
+          <label class="banner-label" for="bannerImageUrl">paid banner 图</label>
+          <input type="file" accept="image/*" id="bannerImageUrl" onchange={{action "uploadBannerImage"}} />
+          {{#if this.bannerImageUrl}}
+            <img src={{this.bannerForm.bannerImageUrl}} alt="预览" width="300px" height="100px" />
+          {{/if}}
         </div>
         <div class="form-group">
-          <label for="bannerStatus">状态</label>
-          <ComboBox @content={{this.bannerStatus}} @value={{this.formBannerStatus}} @onChange={{action (mut this.bannerStatus)}} @id="bannerStatus" @class="form-control" />
+          <label class="banner-label" for="bannerLinkUrl">跳转地址</label>
+          <TextField @value={{this.bannerForm.linkUrl}} @oninput={{action (mut this.bannerForm.linkUrl) value="target.value"}} />
         </div>
         <div class="form-group">
-          <label for="bannerSort">排序</label>
-          <input id="bannerSort" type="number" class="form-control" value={{this.bannerSort}} oninput={{action (mut this.bannerSort) value="target.value"}} />
+          <label class="banner-label" for="bannerStatus">状态</label>
+          <ComboBox @content={{this.bannerStatus}} @value={{this.bannerForm.status}} @onChange={{action (mut this.bannerForm.status)}} @id="bannerStatus" @class="form-control" />
+        </div>
+        <div class="form-group">
+          <label class="banner-label" for="bannerSort">排序</label>
+          <input id="bannerSort" type="number" class="form-control" value={{this.bannerForm.sort}} oninput={{action (mut this.bannerForm.sort) value="target.value"}} />
         </div>
         <div class="form-actions">
           <button class="btn btn-primary" {{action "saveBanner"}}>保存</button>
-          <button class="btn btn-secondary" {{action "closeModal"}}>取消</button>
+          <button class="btn btn-secondary" {{action "changeMenu" "showingBanner"}}>取消</button>
         </div>
       </div>
     </div>
