@@ -35,7 +35,7 @@ module ::HelloModule
       cate_srv = CategoryService.all(get_request_host)
 
       # 这里需要 user_categories_ids 的排序，所以使用 user_categories_ids 去查找分类
-      mine = user_categories_ids.map { |id| cate_srv.find {|ca| ca[:id] == id} }
+      mine = user_categories_ids.map { |id| cate_srv.find {|ca| ca[:id] == id} }.filter { |category| !category.nil? }
       all = cate_srv # 产品修改了需求， 不需要排除已添加的分类了
               # .filter { |category| !user_categories_ids.include?(category[:id]) } # 去掉已添加的分类
       all.sort! { |a, b| b[:id] <=> a[:id] }
