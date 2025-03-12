@@ -19,7 +19,6 @@ module ::HelloModule
       render_response(data: data)
     end
 
-
     def curated
       topic_id = params[:topic_id]
       is_curated = params[:is_curated]

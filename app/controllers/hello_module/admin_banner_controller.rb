@@ -20,6 +20,10 @@ module ::HelloModule
     end
 
     def create
+      if current_user.blank?
+        return render_response(msg: 'Please login', code: 401)
+      end
+
       banner = AppBanner.new(
         name: params[:name],
         app_image_url: params[:app_image_url],
@@ -37,6 +41,9 @@ module ::HelloModule
       else
         render_response(msg: banner.errors.full_messages, code: 400)
       end
+    rescue => e
+      LoggerHelper.error(e.full_message)
+      render_response(msg: e.full_message, code: 400)
     end
 
     def update
