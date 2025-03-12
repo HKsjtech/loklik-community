@@ -145,7 +145,7 @@
               {{#if (eq item.status 1)}}
               <a href="#" {{action "offlineBanner" item}}>下架</a>
               {{else}}
-              <a href="#">上架</a>
+              <a href="#" {{action "onlineBanner" item}}>上架</a>
               {{/if}}
             </td>
             <td>{{item.update_user_name}}</td>

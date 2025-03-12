@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module ::HelloModule
-  class AdminBannerController < ::ApplicationController
+  class AdminBannerController < AdminCommonController
     include MyHelper
     requires_plugin PLUGIN_NAME
     before_action :set_current_user
@@ -32,7 +32,7 @@ module ::HelloModule
         sort: params[:sort],
         status: 1, # 保存直接上架
         update_user_id: @current_user.id,
-        update_user_name: @current_user.name,
+        update_user_name: @current_user.username,
         operate_time: Time.now,
         )
 
@@ -48,35 +48,36 @@ module ::HelloModule
 
     def update
       id = params.require(:id).to_i
-      banner = AppBanner.find_by(id)
+      banner = AppBanner.find_by(id: id)
       if banner.nil?
         return render_response(msg: 'Banner not found', code: 404)
       end
 
-      if params[:status] == '0' || params[:status] == '1'
+      puts "params: #{params}"
+      if params[:status] == 0 || params[:status] == 1
         banner.status = params[:status]
         banner.update_user_id = @current_user.id
-        banner.update_user_name = @current_user.name
+        banner.update_user_name = @current_user.username
         banner.operate_time = Time.now
       end
 
-      if params[:name]
+      if params[:name].present?
         banner.name = params[:name]
       end
 
-      if params[:app_image_url]
+      if params[:app_image_url].present?
         banner.app_image_url = params[:app_image_url]
       end
 
-      if params[:pad_image_url]
+      if params[:pad_image_url].present?
         banner.pad_image_url = params[:pad_image_url]
       end
 
-      if params[:link_url]
+      if params[:link_url].present?
         banner.link_url = params[:link_url]
       end
 
-      if params[:sort]
+      if params[:sort].present?
         banner.sort = params[:sort]
       end
 

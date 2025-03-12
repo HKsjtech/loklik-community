@@ -373,6 +373,53 @@ export default class AdminPluginsPurpleTentacleController extends Controller {
 
   @action
   offlineBanner(item){
-    console.log("===offlineBanner", item);
+    console.log("===offlineBanner===", item);
+    this.updateBanner(item.id, {status: 0});
   }
+
+  @action
+  onlineBanner(item){
+    this.updateBanner(item.id, {status: 1});
+  }
+
+  updateBanner(id, update_obj) {
+    // 获取CSRF令牌
+    const csrfToken = document.querySelector("meta[name='csrf-token']").content;
+
+    // 构建请求数据
+    const formData = {
+     id: id,
+     ...update_obj,
+    };
+
+    // 发送保存请求
+    fetch("/loklik/admin/banner/update.json", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRF-Token": csrfToken,
+      },
+      body: JSON.stringify(formData),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("保存失败");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        alert("保存成功");
+        // 重置表单
+        this.initBannerForm();
+        // 返回列表页
+        this.changeMenu("showingBanner");
+        // 重新加载列表
+        this.loadBannerList();
+      })
+      .catch((error) => {
+        console.error("保存失败:", error);
+        alert("保存失败");
+      });
+  }
+
 }

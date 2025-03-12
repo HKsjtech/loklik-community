@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module ::HelloModule
-  class AdminController < ::ApplicationController
+  class AdminController < AdminCommonController
     include MyHelper
     include PostHelper
     include MyS3Helper
