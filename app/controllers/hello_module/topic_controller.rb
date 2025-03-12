@@ -52,9 +52,6 @@ module ::HelloModule
       end
 
       render_response(data: res[:post][:topic_id], success: true, msg: "success")
-    rescue RateLimiter::LimitExceeded => e
-      LoggerHelper.warn(e)
-      render_response(code: 429, success: false, msg: I18n.t("loklik.rate_limit_exceeded"))
     end
 
     def edit_topic
@@ -125,8 +122,6 @@ module ::HelloModule
       AppPostRecord.where(post_id: post.id).update_all(is_deleted: 1)
 
       render_response
-    rescue Discourse::InvalidAccess
-      render_response(code: 400, success: false, msg: I18n.t("loklik.operation_failed"))
     end
 
     def show
@@ -139,6 +134,9 @@ module ::HelloModule
 
       posts = PostService.cal_topics_by_topic_ids([topic_id], @current_user.id)
       res = posts[0]
+      if res.nil?
+        return render_response(msg: I18n.t("loklik.topic_not_found"), code: 404)
+      end
 
       is_care = AppUserFollow.where(user_id: @current_user.id, target_user_id: topic.user_id, is_deleted: false).present?
       is_add_category = AppUserCategories.where(user_id: @current_user.id, categories_id: topic.category_id, is_deleted: false).present?
