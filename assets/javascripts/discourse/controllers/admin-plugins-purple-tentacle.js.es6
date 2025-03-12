@@ -348,7 +348,7 @@ export default class AdminPluginsPurpleTentacleController extends Controller {
       .then((data) => {
         alert("保存成功");
         // 重置表单
-        this.initBannerForm()
+        this.initBannerForm();
         // 返回列表页
         this.changeMenu("showingBanner");
         // 重新加载列表
@@ -368,6 +368,11 @@ export default class AdminPluginsPurpleTentacleController extends Controller {
       linkUrl: "",
       sort: "",
       status: "",
-    }
+    };
+  }
+
+  @action
+  offlineBanner(item){
+    console.log("===offlineBanner", item);
   }
 }

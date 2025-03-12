@@ -20,14 +20,14 @@ module ::HelloModule
     end
 
     def create
-      if current_user.blank?
+      if @current_user.blank?
         return render_response(msg: 'Please login', code: 401)
       end
 
       banner = AppBanner.new(
         name: params[:name],
-        app_image_url: params[:app_image_url],
-        pad_image_url: params[:pad_image_url],
+        app_image_url: params[:app_image_url] || "",
+        pad_image_url: params[:pad_image_url] || "",
         link_url: params[:link_url],
         sort: params[:sort],
         status: 1, # 保存直接上架
