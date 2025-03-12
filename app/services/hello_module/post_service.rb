@@ -48,7 +48,16 @@ module ::HelloModule
       # 计算 video
       app_video_uploads = AppVideoUpload.where(url: video_links)
       ordered_videos = video_links.map { |link| app_video_uploads.find { |video| video.url == link } }
-      #
+
+      # 找到在 video_links 中但不在 app_video_uploads 中的链接
+      white_links = video_links.filter do |link|
+        !app_video_uploads.any? { |video| video.url == link }
+      end
+
+      if white_links.length > 0
+        new_raw = gen_new_row(post_row, white_links) # 如果链接不是app上传的视频就不要去掉
+      end
+
       videos = ordered_videos
                  .filter { |video| video.present? } # http连接可能找不到上传记录  需要过滤掉
                  .map do |video|
