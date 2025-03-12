@@ -53,6 +53,7 @@ export default class AdminPluginsPurpleTentacleController extends Controller {
       this.set(`menu.${key}`, false);
     });
     this.set(`menu.${value}`, true);
+    this.initBannerForm();
   }
 
   loadPosts() {
@@ -156,22 +157,6 @@ export default class AdminPluginsPurpleTentacleController extends Controller {
       });
   }
 
-  loadBannerList() {
-    fetch(`/loklik/admin/banner/list.json`) // 调用后端 API
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-        return response.json();
-      })
-      .then((res) => {
-        this.bannerList = res.data;
-      })
-      .catch((error) => {
-        console.error("Error loading items:", error);
-      });
-  }
-
   loadSelectedCategoryList() {
     fetch(`/loklik/admin/select_categories.json`) // 调用后端 API
       .then((response) => {
@@ -262,14 +247,44 @@ export default class AdminPluginsPurpleTentacleController extends Controller {
 
   // banner 相关内容
   @tracked bannerList = 0;
+  @tracked bannerSearch = {
+    name: undefined,
+    status: undefined,
+  }
 
   @tracked bannerForm = {
+    id: 0,
     name: "",
     appImageUrl: "",
-    paidImageUrl: "",
+    padImageUrl: "",
     linkUrl: "",
     sort: "",
   };
+
+  loadBannerList() {
+    const params = {}
+    if (this.bannerSearch.name) {
+      params.name = this.bannerSearch.name;
+    }
+    if (this.bannerSearch.status) {
+      params.status = this.bannerSearch.status;
+    }
+    console.log(params)
+    const paramsStr = new URLSearchParams(params).toString();
+    fetch(`/loklik/admin/banner/list.json?${paramsStr}`) // 调用后端 API
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.json();
+      })
+      .then((res) => {
+        this.bannerList = res.data;
+      })
+      .catch((error) => {
+        console.error("Error loading items:", error);
+      });
+  }
 
   @action
   uploadBannerImage(event) {
@@ -328,58 +343,82 @@ export default class AdminPluginsPurpleTentacleController extends Controller {
       status: this.bannerForm.status,
     };
 
-    console.log(formData);
-
-    // 发送保存请求
-    fetch("/loklik/admin/banner/create.json", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-CSRF-Token": csrfToken,
-      },
-      body: JSON.stringify(formData),
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("保存失败");
-        }
-        return response.json();
+    if (this.bannerForm.id) {
+      this.updateBanner(this.bannerForm.id, formData);
+    } else {
+      // 发送保存请求
+      fetch("/loklik/admin/banner/create.json", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRF-Token": csrfToken,
+        },
+        body: JSON.stringify(formData),
       })
-      .then((data) => {
-        alert("保存成功");
-        // 重置表单
-        this.initBannerForm();
-        // 返回列表页
-        this.changeMenu("showingBanner");
-        // 重新加载列表
-        this.loadBannerList();
-      })
-      .catch((error) => {
-        console.error("保存失败:", error);
-        alert("保存失败");
-      });
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("保存失败");
+          }
+          return response.json();
+        })
+        .then((data) => {
+          alert("保存成功");
+          // 重置表单
+          this.initBannerForm();
+          // 返回列表页
+          this.changeMenu("showingBanner");
+          // 重新加载列表
+          this.loadBannerList();
+        })
+        .catch((error) => {
+          console.error("保存失败:", error);
+          alert("保存失败");
+        });
+    }
   }
 
   initBannerForm(banner) {
-    this.bannerForm = {
-      name: "",
-      appImageUrl: "",
-      paidImageUrl: "",
-      linkUrl: "",
-      sort: "",
-      status: "",
-    };
+    if (banner) {
+      this.bannerForm = {
+        id: banner.id,
+        name: banner.name,
+        appImageUrl: banner.app_image_url,
+        padImageUrl: banner.pad_image_url,
+        linkUrl: banner.link_url,
+        sort: banner.sort,
+        status: banner.status,
+      };
+    } else {
+      this.bannerForm = {
+        name: "",
+        appImageUrl: "",
+        padImageUrl: "",
+        linkUrl: "",
+        sort: "",
+        status: "",
+      };
+    }
   }
 
   @action
   offlineBanner(item){
-    console.log("===offlineBanner===", item);
     this.updateBanner(item.id, {status: 0});
   }
 
   @action
   onlineBanner(item){
     this.updateBanner(item.id, {status: 1});
+  }
+
+  @action
+  searchBanner() {
+    this.loadBannerList()
+  }
+
+  @action
+  showUpdateBannerForm(item) {
+    this.changeMenu("showingBanner2");
+    this.initBannerForm(item);
   }
 
   updateBanner(id, update_obj) {

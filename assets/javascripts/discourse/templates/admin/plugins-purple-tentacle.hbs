@@ -97,15 +97,15 @@
       <div class="search-controls">
         <div class="items">
           <label>名称</label>
-          <TextField @value={{this.titleSearch}} @oninput={{action (mut this.titleSearch) value="target.value" }} />
+          <TextField @value={{this.bannerSearch.name}} @oninput={{action (mut this.bannerSearch.name) value="target.value" }} />
         </div>
         <div class="items">
           <label>上架</label>
-          <ComboBox @content={{this.curatedoptions}} @value={{this.isCurated}} @onChange={{action (mut this.isCurated)
+          <ComboBox @content={{this.bannerStatus}} @value={{this.bannerSearch.status}} @onChange={{action (mut this.bannerSearch.status)
             id="target.id" }} />
         </div>
         <div class="items">
-          <button class="btn btn-primary" {{action "search" }}>搜索</button>
+          <button class="btn btn-primary" {{action "searchBanner" }}>搜索</button>
           <button class="btn btn-secondary" {{action "changeMenu" "showingBanner2"}}>添加</button>
         </div>
       </div>
@@ -141,7 +141,7 @@
             </td>
             <td>{{item.sort}}</td>
             <td width="80px">
-              <a href="#">编辑</a>
+              <a href="#" {{action "showUpdateBannerForm" item}}>编辑</a>
               {{#if (eq item.status 1)}}
               <a href="#" {{action "offlineBanner" item}}>下架</a>
               {{else}}
@@ -157,6 +157,7 @@
     </div>
 
     <div id="config" class="content-section" style={{if this.menu.showingBanner2 "display: block" "display: none" }}>
+{{!--       <h3>创建 Banner</h3> --}}
       <div class="create-banner-form">
         <div class="form-group">
           <label class="banner-label" for="bannerName">名称</label>
@@ -165,16 +166,16 @@
         <div class="form-group">
           <label class="banner-label" for="appImageUrl">app banner 图</label>
           <input type="file" accept="image/*" id="appImageUrl" onchange={{action "uploadBannerImage"}} />
-{{!--           {{#if this.bannerForm.appImageUrl}} --}}
-{{!--             <img src={{this.bannerForm.appImageUrl}} alt="预览" width="300px" height="100px" /> --}}
-{{!--           {{/if}} --}}
+          {{#if this.bannerForm.appImageUrl}}
+            <img src={{this.bannerForm.appImageUrl}} alt="预览" width="300px" height="100px" />
+          {{/if}}
         </div>
         <div class="form-group">
-          <label class="banner-label" for="bannerImageUrl">paid banner 图</label>
+          <label class="banner-label" for="bannerImageUrl">pad banner 图</label>
           <input type="file" accept="image/*" id="paidImageUrl" onchange={{action "uploadBannerImage"}} />
-{{!--           {{#if this.bannerForm.paidImageUrl}} --}}
-{{!--             <img src={{this.bannerForm.paidImageUrl}} alt="预览" width="300px" height="100px" /> --}}
-{{!--           {{/if}} --}}
+          {{#if this.bannerForm.padImageUrl}}
+            <img src={{this.bannerForm.padImageUrl}} alt="预览" width="300px" height="100px" />
+          {{/if}}
         </div>
         <div class="form-group">
           <label class="banner-label" for="bannerLinkUrl">跳转地址</label>
