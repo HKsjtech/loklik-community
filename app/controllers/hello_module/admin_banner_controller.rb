@@ -22,14 +22,20 @@ module ::HelloModule
     def create
       banner = AppBanner.new(
         name: params[:name],
-        image_url: params[:image_url],
+        app_image_url: params[:app_image_url],
+        paid_image_url: params[:paid_image_url],
         link_url: params[:link_url],
         sort: params[:sort],
-      )
+        status: params[:status],
+        update_user_id: @current_user.id,
+        update_user_name: @current_user.name,
+        operate_time: Time.now,
+        )
+
       if banner.save
         render_response
       else
-        render_response
+        render_response(msg: banner.errors.full_messages, code: 400)
       end
     end
 

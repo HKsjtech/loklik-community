@@ -10,6 +10,7 @@ class CreateAppBanner < ActiveRecord::Migration[7.1]
       t.integer :sort, comment: '排序'
       t.integer :update_user_id, comment: '修改人名字'
       t.string :update_user_name, comment: '修改人名字'
+      t.datetime :operate_time, comment: '操作时间'
 
       t.timestamps default: -> { 'CURRENT_TIMESTAMP' }
     end

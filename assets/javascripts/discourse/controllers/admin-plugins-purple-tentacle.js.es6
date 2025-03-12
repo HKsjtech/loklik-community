@@ -73,7 +73,7 @@ export default class AdminPluginsPurpleTentacleController extends Controller {
         this.filteredItems = res.data.records.map((item) => {
           item.show_title = this.splitTitle(item.title);
           item.show_updated_at = item.updated_at.substring(0, 10);
-          return item
+          return item;
         });
         this.total = res.data.total;
         this.current = res.data.current;
@@ -256,20 +256,20 @@ export default class AdminPluginsPurpleTentacleController extends Controller {
 
   @tracked bannerStatus = [
     // { name: "请选择", id: "" },
-    { name: "未上架", id: "1" },
-    { name: "已上架", id: "0" },
+    { name: "未上架", id: "0" },
+    { name: "已上架", id: "1" },
   ];
 
   // banner 相关内容
   @tracked bannerList = 0;
 
   @tracked bannerForm = {
-    name: "111",
+    name: "",
     appImageUrl: "",
     paidImageUrl: "",
     linkUrl: "",
     sort: "",
-    status: ""
+    status: "",
   };
 
   @action
@@ -277,7 +277,41 @@ export default class AdminPluginsPurpleTentacleController extends Controller {
     const file = event.target.files[0];
     if (!file) return;
 
-    console.log("上传文件:");
+    const csrfToken = document
+      .querySelector('meta[name="csrf-token"]')
+      .getAttribute("content");
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    fetch("/loklik/admin/upload_image.json", {
+      method: "POST",
+      headers: {
+        "X-CSRF-Token": csrfToken,
+      },
+      body: formData,
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("上传失败");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        const imageUrl = data.data.url;
+        // 根据input的id判断是app还是paid图片
+        if (event.target.id === "appImageUrl") {
+          this.bannerForm.appImageUrl = imageUrl;
+          this.set("bannerForm.appImageUrl", imageUrl);
+        } else if (event.target.id === "paidImageUrl") {
+          this.bannerForm.paidImageUrl = imageUrl;
+          this.set("bannerForm.paidImageUrl", imageUrl);
+        }
+      })
+      .catch((error) => {
+        console.error("上传失败:", error);
+        alert("上传失败");
+      });
   }
 
   @action
@@ -292,46 +326,49 @@ export default class AdminPluginsPurpleTentacleController extends Controller {
       paid_image_url: this.bannerForm.paidImageUrl,
       link_url: this.bannerForm.linkUrl,
       sort: this.bannerForm.sort,
-      status: this.bannerForm.status
+      status: this.bannerForm.status,
     };
 
-    console.log(formData)
+    console.log(formData);
 
     // 发送保存请求
-    fetch("/loklik/admin/banner/save", {
+    fetch("/loklik/admin/banner/create.json", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "X-CSRF-Token": csrfToken
+        "X-CSRF-Token": csrfToken,
       },
-      body: JSON.stringify(formData)
+      body: JSON.stringify(formData),
     })
-    .then(response => {
-      if (!response.ok) {
-        throw new Error("保存失败");
-      }
-      return response.json();
-    })
-    .then(data => {
-      alert("保存成功");
-      // 重置表单
-      this.bannerForm = {
-        name: "",
-        appImageUrl: "",
-        paidImageUrl: "",
-        linkUrl: "",
-        sort: "",
-        status: ""
-      };
-      // 返回列表页
-      this.changeMenu("showingBanner");
-      // 重新加载列表
-      this.loadBannerList();
-    })
-    .catch(error => {
-      console.error("保存失败:", error);
-      alert("保存失败");
-    });
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("保存失败");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        alert("保存成功");
+        // 重置表单
+        this.initBannerForm()
+        // 返回列表页
+        this.changeMenu("showingBanner");
+        // 重新加载列表
+        this.loadBannerList();
+      })
+      .catch((error) => {
+        console.error("保存失败:", error);
+        alert("保存失败");
+      });
   }
 
+  initBannerForm(banner) {
+    this.bannerForm = {
+      name: "",
+      appImageUrl: "",
+      paidImageUrl: "",
+      linkUrl: "",
+      sort: "",
+      status: "",
+    }
+  }
 }

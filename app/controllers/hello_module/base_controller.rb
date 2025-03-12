@@ -34,6 +34,13 @@ module ::HelloModule
       render_response(data: res)
     end
 
+    def app_banner
+      res = AppBanner.where(status: 1).order(sort: :asc)
+      res = res.to_json(only: [:id, :name, :app_image_url, :paid_image_url, :link_url, :sort, :status])
+
+      render_response(data: res)
+    end
+
     def search
       user_id = get_current_user_id
       current_page = (params[:currentPage] || 1).to_i

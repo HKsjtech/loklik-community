@@ -4,6 +4,7 @@ module ::HelloModule
   class AdminController < ::ApplicationController
     include MyHelper
     include PostHelper
+    include MyS3Helper
     requires_plugin PLUGIN_NAME
     before_action :set_current_user
 
@@ -43,7 +44,6 @@ module ::HelloModule
       @current_user = current_user
     end
 
-
     def categories
       res = CategoryService.all(get_request_host)
       render_response(data: res)
@@ -82,24 +82,16 @@ module ::HelloModule
     def upload_image
       # 检查是否有文件上传
       file = params[:file]
-      raise "没有上传文件" if file.blank?
+      return render_response(msg: '缺少文件', code: 400) if file.blank?
 
       # 检查文件类型
-      raise "不支持的文件类型" unless FileHelper.is_supported_image?(file.original_filename)
+      return render_response(msg: '文件类型不支持', code: 400)  unless FileHelper.is_supported_image?(file.original_filename)
 
-      result = UploadService.upload_image(file, @current_user, params)
+      url = upload_file(file)
       render_response(data: {
-        "id": result["id"],
-        "url": format_url(result["url"]),
-        "originalName": result["original_filename"],
-        "fileSize": result["filesize"],
-        "thumbnailWidth": result["thumbnail_width"],
-        "thumbnailHeight": result["thumbnail_height"],
-        "extension": result["extension"],
-        "shortUrl": result["short_url"],
+        url: url,
       })
     end
-
 
   end
 end

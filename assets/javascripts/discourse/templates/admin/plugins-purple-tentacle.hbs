@@ -165,16 +165,16 @@
         <div class="form-group">
           <label class="banner-label" for="appImageUrl">app banner 图</label>
           <input type="file" accept="image/*" id="appImageUrl" onchange={{action "uploadBannerImage"}} />
-          {{#if this.bannerForm.appImageUrl}}
-            <img src={{this.bannerForm.appImageUrl}} alt="预览" width="300px" height="100px" />
-          {{/if}}
+{{!--           {{#if this.bannerForm.appImageUrl}} --}}
+{{!--             <img src={{this.bannerForm.appImageUrl}} alt="预览" width="300px" height="100px" /> --}}
+{{!--           {{/if}} --}}
         </div>
         <div class="form-group">
           <label class="banner-label" for="bannerImageUrl">paid banner 图</label>
-          <input type="file" accept="image/*" id="bannerImageUrl" onchange={{action "uploadBannerImage"}} />
-          {{#if this.bannerImageUrl}}
-            <img src={{this.bannerForm.bannerImageUrl}} alt="预览" width="300px" height="100px" />
-          {{/if}}
+          <input type="file" accept="image/*" id="paidImageUrl" onchange={{action "uploadBannerImage"}} />
+{{!--           {{#if this.bannerForm.paidImageUrl}} --}}
+{{!--             <img src={{this.bannerForm.paidImageUrl}} alt="预览" width="300px" height="100px" /> --}}
+{{!--           {{/if}} --}}
         </div>
         <div class="form-group">
           <label class="banner-label" for="bannerLinkUrl">跳转地址</label>
