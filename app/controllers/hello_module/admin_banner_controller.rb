@@ -15,7 +15,7 @@ module ::HelloModule
       banners = banners.where(status: status) if status.present?
       banners = banners.order(sort: :desc).order(status: :desc)
 
-      res = banners.to_json(only: [:id, :name, :app_image_url, :paid_app_image_url, :update_user_name, :link_url, :sort, :status, :created_at, :updated_at])
+      res = banners.to_json(only: [:id, :name, :app_image_url, :pad_image_url, :update_user_name, :link_url, :sort, :status, :created_at, :updated_at])
       render_response(data: res)
     end
 
