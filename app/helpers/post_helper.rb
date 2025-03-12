@@ -27,6 +27,26 @@ module PostHelper
     [remove_markdown(text), video_link_lines, images_lines]
   end
 
+   def gen_new_row(input_text, white_links)
+    # 按行分割文本
+    lines = input_text.split("\n")
+
+    lines = lines.filter do |line|
+      # 如果是视频链接行，检查是否在白名单中
+      if line.strip.start_with?('http:', 'https:')
+        white_links.include?(line.strip)
+      else
+        # 去掉图片行
+        !line.match?(/!\[.*\]\(.*\)/)
+      end
+    end
+
+    # 返回处理后的文本，按行连接
+    text = lines.join("\n")
+
+    remove_markdown(text)
+  end
+
   def remove_markdown(text)
     # 去掉多行代码块（```)
     text.gsub!(/```.*?```/m, '')  # ```code```

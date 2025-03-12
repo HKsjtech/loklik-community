@@ -10,13 +10,14 @@
 }
 
 /* 给输入框、下拉框和按钮添加右边距 */
+
 /* .search-controls input,
 .search-controls select,
 .search-controls button {
   margin-right: 8px;
 } */
 
-.loklik .search-controls input[type=text]{
+.loklik .search-controls input[type="text"]{
   margin-bottom: 0;
 }
 
@@ -24,9 +25,11 @@
   display: flex;
   align-items: center;
 }
+
 .loklik .search-controls .items:first-child{
   margin-right: 24px;
 }
+
 .loklik .search-controls .items:last-child{
   margin-left: auto;
 }
@@ -44,7 +47,7 @@
   display: flex;
   align-items: center;  /* 垂直居中对齐 */
   margin-bottom: 10px;  /* 每组之间的间距 */
-  margin-top: 0px;
+  margin-top: 0;
 }
 
 .loklik label {
@@ -96,7 +99,6 @@
 
 .loklik .nav-list {
   list-style: none;
-  padding: 0;
   margin: 0;
   display: flex;
   padding: 10px 10px 0 10px;
@@ -132,4 +134,9 @@
 
 .loklik .pagination {
   margin-top: 10px;
+}
+
+.loklik .banner-label {
+  width: 120px;
+  margin-right: 8px;
 }

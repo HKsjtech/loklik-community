@@ -3,7 +3,7 @@ en:
     admin:
       site_settings:
         categories:
-          TODO_plugin_name: "Loklik Community"
+          loklik_community: "Loklik Community"
   js:
     discourse_plugin_name:
       placeholder: placeholder

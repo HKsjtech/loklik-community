@@ -8,6 +8,7 @@ HelloModule::Engine.routes.draw do
 
   # base routes
   get "/base/banner-list" => "base#banner_list"
+  get "/base/app-banner" => "base#app_banner"
   get "/base/search" => "base#search"
   post "/base/upload" => "base#upload"
   get "/base/discourse-host" => "base#discourse_host"
@@ -63,8 +64,11 @@ HelloModule::Engine.routes.draw do
   get "/admin/categories" => "admin#categories"
   get "/admin/select_categories" => "admin#select_categories"
   post "/admin/set_select_categories" => "admin#set_select_categories"
+  post "/admin/upload_image" => "admin#upload_image"
+
   get "/admin/banner/list" => "admin_banner#list"
-  post "/admin/banner/list" => "admin_banner#create"
+  post "/admin/banner/create" => "admin_banner#create"
+  put "/admin/banner/update" => "admin_banner#update"
 
   get "/notifications/un-read-count" => "notifications#unread_count"
   get "/notifications/message-list" => "notifications#message_list"

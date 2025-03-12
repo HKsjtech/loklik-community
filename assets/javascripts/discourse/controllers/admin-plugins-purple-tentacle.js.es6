@@ -3,6 +3,13 @@ import { action } from "@ember/object";
 import { tracked } from "@glimmer/tracking";
 
 export default class AdminPluginsPurpleTentacleController extends Controller {
+  @tracked menu = {
+    showingCuratedPosts: true,
+    showingConfig: false,
+    showingBanner: false,
+    showingBanner2: false,
+  };
+
   @tracked filteredItems = null;
   @tracked titleSearch = "";
   @tracked isCurated = "";
@@ -10,6 +17,7 @@ export default class AdminPluginsPurpleTentacleController extends Controller {
   @tracked total = 0;
   @tracked size = 10;
   @tracked totalPage = 0;
+
   // 金刚区配置相关内容
   @tracked categoryList = [];
   @tracked selectedCategoryList = [];
@@ -18,14 +26,13 @@ export default class AdminPluginsPurpleTentacleController extends Controller {
   @tracked selectedId1 = 0;
   @tracked selectedId2 = 0;
 
-  @tracked showingCuratedPosts = true;
-  @tracked showingConfig = false;
-
   @tracked curatedoptions = [
     // { name: "请选择", id: "" },
     { name: "是", id: "1" },
     { name: "否", id: "0" },
   ];
+
+  @tracked bannerName;
 
   constructor() {
     super();
@@ -33,23 +40,19 @@ export default class AdminPluginsPurpleTentacleController extends Controller {
     this.categoryList = [];
     this.selectedCategoryList = [];
 
+    this.bannerName = "bannerName";
+
     this.loadPosts();
     this.loadCategoryList();
-    // this.loadSelectedCategoryList();
-
-    this.showCuratedPosts();
+    this.loadBannerList();
   }
 
   @action
-  showCuratedPosts() {
-    this.showingCuratedPosts = true;
-    this.showingConfig = false;
-  }
-
-  @action
-  showConfig() {
-    this.showingCuratedPosts = false;
-    this.showingConfig = true;
+  changeMenu(value) {
+    Object.keys(this.menu).forEach((key) => {
+      this.set(`menu.${key}`, false);
+    });
+    this.set(`menu.${value}`, true);
   }
 
   loadPosts() {
@@ -70,7 +73,7 @@ export default class AdminPluginsPurpleTentacleController extends Controller {
         this.filteredItems = res.data.records.map((item) => {
           item.show_title = this.splitTitle(item.title);
           item.show_updated_at = item.updated_at.substring(0, 10);
-          return item
+          return item;
         });
         this.total = res.data.total;
         this.current = res.data.current;
@@ -84,7 +87,6 @@ export default class AdminPluginsPurpleTentacleController extends Controller {
 
   @action
   search() {
-    console.log("searching...", this.titleSearch);
     this.loadPosts();
   }
 
@@ -154,6 +156,22 @@ export default class AdminPluginsPurpleTentacleController extends Controller {
       });
   }
 
+  loadBannerList() {
+    fetch(`/loklik/admin/banner/list.json`) // 调用后端 API
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.json();
+      })
+      .then((res) => {
+        this.bannerList = res.data;
+      })
+      .catch((error) => {
+        console.error("Error loading items:", error);
+      });
+  }
+
   loadSelectedCategoryList() {
     fetch(`/loklik/admin/select_categories.json`) // 调用后端 API
       .then((response) => {
@@ -193,7 +211,9 @@ export default class AdminPluginsPurpleTentacleController extends Controller {
 
   @action
   setSelectedCategories() {
-    let len = [...new Set([this.selectedId0, this.selectedId1, this.selectedId2])].length;
+    let len = [
+      ...new Set([this.selectedId0, this.selectedId1, this.selectedId2]),
+    ].length;
     if (len !== 3) {
       alert("请确保三个分类不同");
       return;
@@ -226,12 +246,128 @@ export default class AdminPluginsPurpleTentacleController extends Controller {
       });
   }
 
-
   splitTitle(title) {
     const maxLength = 20;
     if (title.length > maxLength) {
-      return title.substring(0, maxLength) + '...';
+      return title.substring(0, maxLength) + "...";
     }
     return title;
+  }
+
+  @tracked bannerStatus = [
+    // { name: "请选择", id: "" },
+    { name: "未上架", id: "0" },
+    { name: "已上架", id: "1" },
+  ];
+
+  // banner 相关内容
+  @tracked bannerList = 0;
+
+  @tracked bannerForm = {
+    name: "",
+    appImageUrl: "",
+    paidImageUrl: "",
+    linkUrl: "",
+    sort: "",
+  };
+
+  @action
+  uploadBannerImage(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const csrfToken = document
+      .querySelector('meta[name="csrf-token"]')
+      .getAttribute("content");
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    fetch("/loklik/admin/upload_image.json", {
+      method: "POST",
+      headers: {
+        "X-CSRF-Token": csrfToken,
+      },
+      body: formData,
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("上传失败");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        const imageUrl = data.data.url;
+        // 根据input的id判断是app还是paid图片
+        if (event.target.id === "appImageUrl") {
+          this.bannerForm.appImageUrl = imageUrl;
+          this.set("bannerForm.appImageUrl", imageUrl);
+        } else if (event.target.id === "paidImageUrl") {
+          this.bannerForm.paidImageUrl = imageUrl;
+          this.set("bannerForm.paidImageUrl", imageUrl);
+        }
+      })
+      .catch((error) => {
+        console.error("上传失败:", error);
+        alert("上传失败");
+      });
+  }
+
+  @action
+  saveBanner() {
+    // 获取CSRF令牌
+    const csrfToken = document.querySelector("meta[name='csrf-token']").content;
+
+    // 构建请求数据
+    const formData = {
+      name: this.bannerForm.name,
+      app_image_url: this.bannerForm.appImageUrl,
+      pad_image_url: this.bannerForm.paidImageUrl,
+      link_url: this.bannerForm.linkUrl,
+      sort: this.bannerForm.sort,
+      status: this.bannerForm.status,
+    };
+
+    console.log(formData);
+
+    // 发送保存请求
+    fetch("/loklik/admin/banner/create.json", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRF-Token": csrfToken,
+      },
+      body: JSON.stringify(formData),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("保存失败");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        alert("保存成功");
+        // 重置表单
+        this.initBannerForm()
+        // 返回列表页
+        this.changeMenu("showingBanner");
+        // 重新加载列表
+        this.loadBannerList();
+      })
+      .catch((error) => {
+        console.error("保存失败:", error);
+        alert("保存失败");
+      });
+  }
+
+  initBannerForm(banner) {
+    this.bannerForm = {
+      name: "",
+      appImageUrl: "",
+      paidImageUrl: "",
+      linkUrl: "",
+      sort: "",
+      status: "",
+    }
   }
 }
