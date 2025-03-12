@@ -53,7 +53,6 @@ module ::HelloModule
       page_size = (params[:pageSize] || 10).to_i
 
       category_id = params.require(:category_id)
-
       query = Topic
                  .select('topics.id')
                  .joins('INNER JOIN categories ON topics.category_id = categories.id')

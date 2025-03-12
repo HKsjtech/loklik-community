@@ -94,6 +94,10 @@ module PostHelper
      Category.where(read_restricted: false).pluck(:id)
   end
 
+  def all_category_topic_ids
+    Category.all.pluck(:topic_id)
+  end
+
   def format_url(url)
     if url == "" || url.nil?
       return ""

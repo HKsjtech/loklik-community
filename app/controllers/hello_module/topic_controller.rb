@@ -188,6 +188,7 @@ module ::HelloModule
       query = Post
                   .where(topic_id: topic_id)
                   .where("posts.post_number > 1") # 过滤第一层评论
+                  .where("posts.user_id >0") # 过滤系统审核产生的评论
                   .where("posts.reply_to_post_number is null") # 只需要回复帖子的第一层评论
                   .joins('LEFT JOIN app_user_external_info ON posts.user_id = app_user_external_info.user_id')
                   .order(post_number: :desc)
