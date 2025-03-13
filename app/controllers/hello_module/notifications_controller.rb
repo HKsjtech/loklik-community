@@ -32,13 +32,13 @@ module ::HelloModule
         json_data = JSON.parse(n.data)
 
         user_id = nil
-        if n.notification_type == 2
+        if n.notification_type == 2   # 评论
           original_post = Post.find_by(id: json_data["original_post_id"])
           if original_post
             post_content = process_text(original_post.raw)[0]
             user_id = original_post.user_id
           end
-        elsif n.notification_type == 5
+        elsif n.notification_type == 5  # 点赞
           if n.post_action_id
             pa = PostAction.find_by(id: n.post_action_id)
             user_id = pa.user_id
@@ -57,7 +57,8 @@ module ::HelloModule
           "title": json_data["topic_title"],
           "read": n.read,
           "sendTime": n.created_at,
-          "user_is_blank": user_id.blank?
+          "userIsBlank": user_id.blank?,
+          "isLikeTopic": n.post_number == 1
         }
       end
 
