@@ -83,8 +83,8 @@ module ::HelloModule
       # 处理上传的文件
       file = params[:file]
 
-      case type
-      when "0", "2"
+      case type #0-图片 1-视频 2-封面图
+      when "0"
         if file.size > SiteSetting.max_upload_image_size * 1024 * 1024
           return render_response(data: nil, code: 400, success: false, msg: I18n.t("loklik.file_too_large", size: SiteSetting.max_upload_image_size))
         end
@@ -96,6 +96,26 @@ module ::HelloModule
 
         UploadService.incr_upload_images_count(user_id)
         nil
+      when "2"
+        enable_s3_uploads = SiteSetting.enable_s3_uploads
+        unless enable_s3_uploads
+          render_response(data: nil, code: 400, msg: I18n.t("loklik.upload_video_s3_disabled"), success: false)
+          return
+        end
+        if file.size > SiteSetting.max_upload_image_size * 1024 * 1024
+          return render_response(data: nil, code: 400, success: false, msg: I18n.t("loklik.file_too_large", size: SiteSetting.max_upload_image_size))
+        end
+        unless UploadService.check_upload_image_limit(user_id)
+          return render_response(data: nil, success: false, msg: I18n.t("loklik.upload_image_limit", limit: SiteSetting.max_upload_image_user_per_day), code: 400)
+        end
+
+        url = upload_file(file)
+
+        UploadService.incr_upload_images_count(user_id)
+
+        render_response(data: {
+          url: url,
+        })
       when "1"
         # 处理上传的文件
         enable_s3_uploads = SiteSetting.enable_s3_uploads
