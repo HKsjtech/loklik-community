@@ -35,8 +35,18 @@ module ::HelloModule
     end
 
     def app_banner
-      res = AppBanner.where(status: 1).order(sort: :desc)
-      res = res.to_json(only: [:id, :name, :app_image_url, :pad_image_url, :link_url, :sort, :status])
+      res = AppBanner.where(status: 1).order(sort: :desc).all
+      res = res.map do |banner|
+        {
+          id: banner.id,
+          name: banner.name,
+          appImageUrl: banner.app_image_url,
+          padImageUrl: banner.pad_image_url,
+          linkUrl: banner.link_url,
+          sort: banner.sort,
+          status: banner.status
+        }
+      end
 
       render_response(data: res)
     end
