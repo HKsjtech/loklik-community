@@ -95,7 +95,7 @@ module ::HelloModule
       end
 
       # JWT 有效，存入 Redis，3600 秒过期 1h
-      Redis.current.set(redis_key, external_info.user_id, ex: 8*3600)
+      Redis.current.set(redis_key, external_info.user_id, ex: 3600)
       LoggerHelper.info("redis set #{redis_key} #{external_info.user_id}")
 
       [true, external_info.user_id]
