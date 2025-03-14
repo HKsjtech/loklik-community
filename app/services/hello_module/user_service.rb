@@ -7,7 +7,7 @@ module ::HelloModule
         return OpenStruct.new(
           user_id: "",
           name: "",
-          avatar_url: "",
+          avatar_url: "default",
           is_upgrade: 0,
           )
       end
@@ -16,7 +16,7 @@ module ::HelloModule
         userinfo = OpenStruct.new(
           user_id: user_id,
           name: "#{external_info.name}#{external_info.surname}",
-          avatar_url: external_info.avatar_url,
+          avatar_url: external_info.avatar_url || "default",
           is_upgrade: external_info.is_upgrade,
         )
       else
@@ -26,7 +26,7 @@ module ::HelloModule
         userinfo = OpenStruct.new(
           user_id: user_id,
           name: "#{user.username}",
-          avatar_url: user.avatar_url,
+          avatar_url: user.avatar_url || "default",  # 这里的user.avatar_url是上传的头像，如果没有上传头像，则使用默认头像
           is_upgrade: 0,
         )
       end
