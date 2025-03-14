@@ -164,14 +164,14 @@
           <TextField @value={{this.bannerForm.name}} @oninput={{action (mut this.bannerForm.name) value="target.value"}} />
         </div>
         <div class="form-group">
-          <label class="banner-label" for="appImageUrl">app banner 图</label>
+          <label class="banner-label" for="appImageUrl">app banner 图 (1029*354)</label>
           <input type="file" accept="image/*" id="appImageUrl" onchange={{action "uploadBannerImage"}} />
           {{#if this.bannerForm.appImageUrl}}
             <img src={{this.bannerForm.appImageUrl}} alt="预览" width="300px" height="100px" />
           {{/if}}
         </div>
         <div class="form-group">
-          <label class="banner-label" for="bannerImageUrl">pad banner 图</label>
+          <label class="banner-label" for="bannerImageUrl">pad banner 图 (2292*554)</label>
           <input type="file" accept="image/*" id="paidImageUrl" onchange={{action "uploadBannerImage"}} />
           {{#if this.bannerForm.padImageUrl}}
             <img src={{this.bannerForm.padImageUrl}} alt="预览" width="300px" height="100px" />
