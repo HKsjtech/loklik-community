@@ -41,7 +41,7 @@ module ::HelloModule
         elsif n.notification_type == 5  # 点赞
           if n.post_action_id
             pa = PostAction.find_by(id: n.post_action_id)
-            user_id = pa.user_id
+            user_id = pa.user_id if pa.present?
           end
         end
 
