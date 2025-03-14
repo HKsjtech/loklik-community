@@ -142,7 +142,7 @@ module ::HelloModule
 
       topics.map do |topic|
         user_info = UserService.cal_user_info_by_id(topic.user_id)
-
+        first_post = Post.where(topic_id: topic.id, post_number: 1).first
         {
           id: topic.id, # 主题id
           userId: topic.user_id, # 用户id
@@ -155,6 +155,7 @@ module ::HelloModule
           likeCount: topic.like_count, # 点赞数量
           commentCount: topic.comment_count, # 评论数量
           likeStatus: cal_topic_like_status(user_id, topic.id), # 点赞状态 0-否 1-是
+          firstPostId: first_post&.id,
         }
       end
     end
