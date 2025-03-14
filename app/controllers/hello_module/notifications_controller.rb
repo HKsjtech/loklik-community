@@ -37,7 +37,7 @@ module ::HelloModule
           post_content = PostService.cal_post_videos_and_images(original_post.id, original_post.raw)[0]
         end
         if n.notification_type == 2   # 评论
-          user_id = original_post.user_id
+          user_id = original_post.user_id if original_post
         elsif n.notification_type == 5  # 点赞
           if n.post_action_id
             pa = PostAction.find_by(id: n.post_action_id)
