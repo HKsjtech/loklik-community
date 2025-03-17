@@ -299,7 +299,7 @@ module ::HelloModule
         userId: post.user_id,
         name: user_info.name,
         avatarUrl: user_info.avatar_url,
-        openDateTime: post.created_at,
+        openDateTime: post.updated_at,
         postNumber: post.post_number,
         context: post.raw,
         likeCount: post.like_count,

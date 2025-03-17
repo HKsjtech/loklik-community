@@ -121,7 +121,7 @@ module ::HelloModule
         'app_user_external_info.name',
         'app_user_external_info.surname',
         'app_user_external_info.avatar_url',
-        'topics.created_at as open_date_time',
+        'topics.updated_at as updated_at',
         'topics.title',
         'topics.excerpt as context',
         '(topics.posts_count - 1) as comment_count',
@@ -148,13 +148,14 @@ module ::HelloModule
                           .where("posts.post_number > 1") # 过滤第一层评论
                           .where("action_code is null") # 过滤系统审核产生的评论
                           .count
+        open_date_time = topic.updated_at > first_post.updated_at ? topic.updated_at : first_post.updated_at # 发布时间格式化
         {
           id: topic.id, # 主题id
           userId: topic.user_id, # 用户id
           name: user_info.name, # 用户名称
           avatarUrl: user_info.avatar_url, # 用户头像
           category: topic.category_id,
-          openDateTime: topic.open_date_time, # 发布时间格式化
+          openDateTime: open_date_time, # 发布时间格式化
           title: topic.title, # 标题
           context: topic.context, # 内容
           likeCount: topic.like_count, # 点赞数量
