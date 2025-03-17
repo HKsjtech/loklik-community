@@ -69,6 +69,9 @@ module ::HelloModule
 
       res = PostService.cal_topics_by_topic_ids(topics.map(&:id), user_id)
 
+      # 如果搜索的为链接里面的内容，会被额外搜索到，所以需要过滤掉
+      res = res.filter { |item| item["context"].include?(search_key) || item["title"].include?(search_key) }
+
       render_response(data: create_page_list(res, total, current_page, page_size ))
     end
 
