@@ -143,6 +143,11 @@ module ::HelloModule
       topics.map do |topic|
         user_info = UserService.cal_user_info_by_id(topic.user_id)
         first_post = Post.where(topic_id: topic.id, post_number: 1).first
+        comment_count = Post
+                          .where(topic_id: topic.id)
+                          .where("posts.post_number > 1") # 过滤第一层评论
+                          .where("action_code is null") # 过滤系统审核产生的评论
+                          .count
         {
           id: topic.id, # 主题id
           userId: topic.user_id, # 用户id
@@ -153,7 +158,7 @@ module ::HelloModule
           title: topic.title, # 标题
           context: topic.context, # 内容
           likeCount: topic.like_count, # 点赞数量
-          commentCount: topic.comment_count, # 评论数量
+          commentCount: comment_count, # 评论数量
           likeStatus: cal_topic_like_status(user_id, topic.id), # 点赞状态 0-否 1-是
           firstPostId: first_post&.id,
         }
