@@ -58,16 +58,36 @@ module ::HelloModule
         new_raw = gen_new_row(post_row, white_links) # 如果链接不是app上传的视频就不要去掉
       end
 
-      videos = ordered_videos
-                 .filter { |video| video.present? } # http连接可能找不到上传记录  需要过滤掉
-                 .map do |video|
-        {
-          "url": format_url(video["url"]),
-          "coverImg": format_url(video["cover_img"]),
-          "thumbnailWidth": video["thumbnail_width"],
-          "thumbnailHeight": video["thumbnail_height"],
-        }
+      videos = []
+      web_video_links = [] # 在网页上上传的视频链接
+      ordered_videos.each do |video|
+        next if video.blank?
+        if  video["thumbnail_width"].present? && video["thumbnail_height"].present?
+          videos << {
+            "url": format_url(video["url"]),
+            "coverImg": format_url(video["cover_img"]),
+            "thumbnailWidth": video["thumbnail_width"],
+            "thumbnailHeight": video["thumbnail_height"],
+          }
+        else
+          web_video_links << format_url(video["url"])
+        end
       end
+
+      if web_video_links.length > 0
+          new_raw += "\n\n#{web_video_links.join("\n")}"
+      end
+
+      # videos = ordered_videos
+      #            .filter { |video| video.present? } # http连接可能找不到上传记录  需要过滤掉
+      #            .map do |video|
+      #   {
+      #     "url": format_url(video["url"]),
+      #     "coverImg": format_url(video["cover_img"]),
+      #     "thumbnailWidth": video["thumbnail_width"],
+      #     "thumbnailHeight": video["thumbnail_height"],
+      #   }
+      # end
 
       select_fields2 = [
         'posts.topic_id as topic_id',
