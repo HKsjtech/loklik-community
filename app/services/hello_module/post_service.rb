@@ -58,36 +58,16 @@ module ::HelloModule
         new_raw = gen_new_row(post_row, white_links) # 如果链接不是app上传的视频就不要去掉
       end
 
-      videos = []
-      web_video_links = [] # 在网页上上传的视频链接
-      ordered_videos.each do |video|
-        next if video.blank?
-        if video["thumbnail_width"].nil? || video["thumbnail_height"].nil?
-          videos << {
-            "url": format_url(video["url"]),
-            "coverImg": format_url(video["cover_img"]),
-            "thumbnailWidth": video["thumbnail_width"],
-            "thumbnailHeight": video["thumbnail_height"],
-          }
-        else
-          web_video_links << format_url(video["url"])
-        end
+      videos = ordered_videos
+                 .filter { |video| video.present? } # http连接可能找不到上传记录  需要过滤掉
+                 .map do |video|
+        {
+          "url": format_url(video["url"]),
+          "coverImg": format_url(video["cover_img"]),
+          "thumbnailWidth": video["thumbnail_width"],
+          "thumbnailHeight": video["thumbnail_height"],
+        }
       end
-
-      if web_video_links.length > 0
-          new_raw += "\n\n#{web_video_links.join("\n")}"
-      end
-
-      # videos = ordered_videos
-      #            .filter { |video| video.present? } # http连接可能找不到上传记录  需要过滤掉
-      #            .map do |video|
-      #   {
-      #     "url": format_url(video["url"]),
-      #     "coverImg": format_url(video["cover_img"]),
-      #     "thumbnailWidth": video["thumbnail_width"],
-      #     "thumbnailHeight": video["thumbnail_height"],
-      #   }
-      # end
 
       select_fields2 = [
         'posts.topic_id as topic_id',
@@ -111,23 +91,30 @@ module ::HelloModule
         .filter { |upload| upload["url"].present? } # 没有上传时也会查询出一条空记录，需要过滤掉
 
       images = []
+      web_uploads = []
       image_lines.each do |line|
         real_filename = extract_identifier(line)
-        if real_filename == ""
-          next
-        end
+        next if real_filename == ""
         post_upload = post_uploads.find { |upload| remove_file_ext(upload["original_filename"]) == real_filename }
         if post_upload.present?
-          short_url = find_upload_url(image_lines, remove_file_ext(post_upload["original_filename"]))
-          images <<  {
-            id: post_upload["upload_id"],
-            url: format_url(post_upload["url"]),
-            originalName: post_upload["original_filename"],
-            thumbnailWidth: post_upload["thumbnail_width"],
-            thumbnailHeight: post_upload["thumbnail_height"],
-            shortUrl: short_url,
-          }
+          if post_upload["thumbnail_width"].present? && post_upload["thumbnail_height"].present?
+            short_url = find_upload_url(image_lines, remove_file_ext(post_upload["original_filename"]))
+            images <<  {
+              id: post_upload["upload_id"],
+              url: format_url(post_upload["url"]),
+              originalName: post_upload["original_filename"],
+              thumbnailWidth: post_upload["thumbnail_width"],
+              thumbnailHeight: post_upload["thumbnail_height"],
+              shortUrl: short_url,
+            }
+          else
+            web_uploads << format_url(post_upload["url"])
+          end
         end
+      end
+
+      if web_uploads.length > 0
+        new_raw += "\n\n#{web_uploads.join("\n")}"
       end
 
       [new_raw, videos, images]
