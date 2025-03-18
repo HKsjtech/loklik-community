@@ -62,7 +62,7 @@ module ::HelloModule
       web_video_links = [] # 在网页上上传的视频链接
       ordered_videos.each do |video|
         next if video.blank?
-        if  video["thumbnail_width"].present? && video["thumbnail_height"].present?
+        if video["thumbnail_width"].nil? || video["thumbnail_height"].nil?
           videos << {
             "url": format_url(video["url"]),
             "coverImg": format_url(video["cover_img"]),
