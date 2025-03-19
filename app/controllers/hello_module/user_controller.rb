@@ -186,12 +186,7 @@ module ::HelloModule
     end
 
     def comment
-      # min_post_length = SiteSetting.min_post_length || 8
       raw = params[:raw]
-
-      # if raw.length < min_post_length
-      #   return render_response(code: 400, success: false, msg: "内容长度不能少于#{min_post_length}个字符")
-      # end
 
       raw += PostService.cal_new_post_raw(params[:image], params[:video]) if params[:image] || params[:video]
 
@@ -210,25 +205,20 @@ module ::HelloModule
       manager_params[:first_post_checks] = true
       manager_params[:advance_draft] = true
 
+      manager = NewPostManager.new(@current_user, manager_params)
+      res = serialize_data(manager.perform, NewPostResultSerializer, root: false)
 
-      begin
-        manager = NewPostManager.new(@current_user, manager_params)
-        res = serialize_data(manager.perform, NewPostResultSerializer, root: false)
-
-        if res && res[:errors] && res[:errors].any?
-          return render_response(code: 400, success: false, msg: res[:errors].join(", "))
-        end
-
-        app_post_record = AppPostRecord.create(post_id: res[:post][:id], is_deleted: 0)
-
-        unless app_post_record.save
-          return render_response(code: 500, success: false, msg: I18n.t("loklik.operation_failed"))
-        end
-
-        render_response(data: res[:post][:topic_id])
-      rescue => e
-        render_response(code: 400, success: false, msg: e.message)
+      if res && res[:errors] && res[:errors].any?
+        return render_response(code: 400, success: false, msg: res[:errors].join(", "))
       end
+
+      app_post_record = AppPostRecord.create(post_id: res[:post][:id], is_deleted: 0)
+
+      unless app_post_record.save
+        return render_response(code: 500, success: false, msg: I18n.t("loklik.operation_failed"))
+      end
+
+      render_response(data: res[:post][:topic_id])
     end
 
     def report
