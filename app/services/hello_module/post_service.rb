@@ -282,13 +282,6 @@ module ::HelloModule
       end
 
       [text.strip, videos_info]
-      # # 输出提取的信息
-      # puts "提取到的视频信息："
-      # puts videos_info.inspect
-      #
-      # # 输出去掉 video 标签后的文本
-      # puts "去掉 video 标签后的文本："
-      # puts text.strip
     end
   end
 end

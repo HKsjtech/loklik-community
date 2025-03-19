@@ -13,7 +13,7 @@ module ::HelloModule
       categories_selected = AppCategoriesSelected.order(sort: :asc).all
       categories_selected_ids = categories_selected.map { |c| c.categories_id }
 
-      cate_srv = CategoryService.all(get_request_host)
+      cate_srv = CategoryService.all
       cas = categories_selected_ids.map do |category_id|
         cate_srv.find {|ca| ca[:id] == category_id}
       end
@@ -22,8 +22,8 @@ module ::HelloModule
     end
 
     def all
-      # 通过 openapi 获取分类列表
-      res = CategoryService.all(get_request_host)
+      res = CategoryService.all
+
       render_response(data: res)
     end
 
@@ -32,7 +32,7 @@ module ::HelloModule
       user_categories_list = AppUserCategories.where(is_deleted: 0, user_id: user_id).order(updated_at: :desc).all
       user_categories_ids = user_categories_list.pluck(:categories_id)
 
-      cate_srv = CategoryService.all(get_request_host)
+      cate_srv = CategoryService.all
 
       # 这里需要 user_categories_ids 的排序，所以使用 user_categories_ids 去查找分类
       mine = user_categories_ids.map { |id| cate_srv.find {|ca| ca[:id] == id} }.filter { |category| !category.nil? }
