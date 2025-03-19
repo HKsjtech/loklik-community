@@ -33,7 +33,7 @@ module AuthHelper
     end
     # 发起请求，获取用户信息
     url = "#{app_auth_host}?#{params}" # app_auth_host example: http://sso.example.com or https://sso.example.com/
-    LoggerHelper.info("get user external id from: #{url}")
+    # LoggerHelper.info("get user external id from: #{url}")
     openapi_client = OpenApiHelper.new(Discourse.base_url)
     result = openapi_client.get(url)
 
