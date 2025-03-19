@@ -113,9 +113,14 @@ module ::HelloModule
         end
       end
 
+      # 处理单独上传视频的场景（历史数据，后面会移除上传按钮）
       if web_uploads.length > 0
         new_raw += "\n\n#{web_uploads.join("\n")}"
       end
+
+      # 处理上传视频和封面图组件的场景
+      new_raw, handle_videos = handle_video_cover(new_raw)
+      videos.concat(handle_videos) # 视频合并在一起
 
       [new_raw, videos, images]
     end
@@ -251,6 +256,39 @@ module ::HelloModule
           .order(created_at: :asc)
     end
 
+    # 处理 video 标签的视频
+    def self.handle_video_cover(text)
+      # 用于存储提取出的链接
+      videos_info = []
 
+      # 匹配所有的 <video> 标签，处理可选的 poster 和 src 属性
+      text.gsub!(/<video.*?((poster="(.*?)"\s+)?)(.*?)>(.*?)<\/video>/m) do |match|
+        # 提取 poster 链接，如果存在的话
+        poster = match.match(/poster="(.*?)"/)&.[](1)
+
+        # 提取 src 链接，如果存在的话
+        src = match.match(/<source src="(.*?)"/)&.[](1)
+
+        # 将提取的信息存入数组
+        videos_info << {
+          "url": src,
+          "coverImg": poster,
+          "thumbnailWidth": nil,
+          "thumbnailHeight": nil
+        }
+
+        # 返回空字符串以去掉整个 video 标签
+        ''
+      end
+
+      [text.strip, videos_info]
+      # # 输出提取的信息
+      # puts "提取到的视频信息："
+      # puts videos_info.inspect
+      #
+      # # 输出去掉 video 标签后的文本
+      # puts "去掉 video 标签后的文本："
+      # puts text.strip
+    end
   end
 end
