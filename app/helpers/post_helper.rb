@@ -1,6 +1,7 @@
 require 'ostruct'
 module PostHelper
   def process_text(input_text)
+    return [input_text, [], []] if input_text.blank?
     # 按行分割文本
     lines = input_text.split("\n")
 
@@ -79,6 +80,11 @@ module PostHelper
 
     # 返回处理后的文本
     text.strip
+  end
+
+  def remove_html_tags(text)
+    return text if text.blank?
+    text.gsub(/<\/?[^>]*>/, '')
   end
 
   def get_action_type_id(name_key)
