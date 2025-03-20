@@ -16,6 +16,7 @@ module ::HelloModule
               .where(read_restricted: false)
               .where("topic_id IS NOT NULL") # 系统默认的分类不显示
               .where("parent_category_id IS NULL") # 子分类不显示
+              .order(id: :desc)
               .all
 
       res = res.map do |category|
