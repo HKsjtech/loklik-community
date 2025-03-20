@@ -43,7 +43,7 @@ register_locale("de_CH", name: "German (Switzerland)", nativeName: "Deutsch (Sch
 register_locale("es_MX", name: "Spanish (Mexico)", nativeName: "Español (México)", fallbackLocale: "es")
 register_locale("ja_JP", name: "Japanese (Japan)", nativeName: "日本語 (日本)", fallbackLocale: "ja")
 register_locale("pt_PT", name: "Portuguese (Portugal)", nativeName: "Português (Portugal)", fallbackLocale: "pt")
-register_locale("en_US", name: "English (United States)", nativeName: "English (United States)", fallbackLocale: "es")
+register_locale("en_US", name: "English (United States)", nativeName: "English (United States)", fallbackLocale: "en_GB")
 register_locale("fr_BE", name: "French (Belgium)", nativeName: "Français (Belgique)", fallbackLocale: "fr")
 register_locale("ko_KR", name: "Korean (South Korea)", nativeName: "한국어 (대한민국)", fallbackLocale: "ko")
 register_locale("ru_RU", name: "Russian (Russia)", nativeName: "Русский (Россия)", fallbackLocale: "ru")

@@ -30,7 +30,7 @@ module ::HelloModule
     def language
       res = {
         language: I18n.locale.to_s,
-        msg: I18n.t("loklik.upload_video_limit", limit: SiteSetting.max_upload_videos_user_per_day)
+        msg: I18n.t("errors.messages.is_invalid", limit: SiteSetting.max_upload_videos_user_per_day)
       }
       render_response(data: res)
     end
