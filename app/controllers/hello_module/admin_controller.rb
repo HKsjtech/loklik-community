@@ -44,7 +44,7 @@ module ::HelloModule
     end
 
     def categories
-      res = CategoryService.all(get_request_host)
+      res = CategoryService.all
       render_response(data: res)
     end
 
