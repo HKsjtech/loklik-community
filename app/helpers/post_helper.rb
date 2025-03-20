@@ -97,7 +97,10 @@ module PostHelper
   end
 
   def all_category_ids
-     Category.where(read_restricted: false).pluck(:id)
+    Category.where(read_restricted: false)
+      .where("topic_id IS NOT NULL") # 系统默认的分类不显示
+      .where("parent_category_id IS NULL") # 子分类不显示
+      .pluck(:id)
   end
 
   def all_category_topic_ids

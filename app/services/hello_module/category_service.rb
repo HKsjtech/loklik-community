@@ -14,7 +14,8 @@ module ::HelloModule
             uploads.height as height")
               .joins("LEFT JOIN uploads ON categories.uploaded_logo_id = uploads.id")
               .where(read_restricted: false)
-              .where("topic_id IS NOT NULL")
+              .where("topic_id IS NOT NULL") # 系统默认的分类不显示
+              .where("parent_category_id IS NULL") # 子分类不显示
               .all
 
       res = res.map do |category|
@@ -34,7 +35,7 @@ module ::HelloModule
     def self.cal_interact_count(category_id)
       sql = "select category_id, count(1) as topic_count,(sum(posts_count) - count(1)) as comment_count, sum(like_count) as like_count
   from topics
-  where category_id = #{category_id} and deleted_by_id is null group by category_id;"
+  where category_id = #{category_id} and visible = true and deleted_by_id is null group by category_id;"
 
       raw = ActiveRecord::Base.connection.execute(sql)
       if raw.ntuples.zero? # 代表分类没有任何文章
