@@ -75,8 +75,11 @@ module ::HelloModule
         return render_response(code: 400, success: false, msg: I18n.t("loklik.topic_not_found"))
       end
 
-      first_post = topic.ordered_posts.first
+      if  params[:categoryId].present?
+        changes[:category_id] = params[:categoryId].to_i
+      end
 
+      first_post = topic.ordered_posts.first
       success =
         PostRevisor.new(first_post, topic).revise!(
           @current_user,
