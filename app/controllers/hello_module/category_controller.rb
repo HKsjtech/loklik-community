@@ -71,7 +71,7 @@ module ::HelloModule
         "id": category.id,
         "name": category.name,
         "url": format_url(urs&.url),
-        "description": category.description,
+        "description": remove_html_tags(category.description),
         "isAddCategory": is_add_category,
         "addCategoryCount": add_category_count,
         "topicCount": category.topic_count,
