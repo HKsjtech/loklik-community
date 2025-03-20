@@ -76,7 +76,7 @@ module PostHelper
     text.gsub!(/`([^`]+)`/, '\1')       # `code`
 
     # 去掉换行符后多余的空格
-    text.gsub!(/\s+$/, '')
+    # text.gsub!(/\s+$/, '')
 
     # 返回处理后的文本
     text.strip
