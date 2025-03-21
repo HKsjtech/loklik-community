@@ -1,4 +1,27 @@
-TODO_plugin_name:
-  plugin_name_enabled:
-    default: false
-    client: true
+loklik_community:
+  app_auth_host:
+    default: ""
+    client: false
+  amqp_connect_string:
+    default: ""
+    client: false
+  plugin_discourse_api_secret:
+    default: ""
+    client: false
+  max_upload_videos_user_per_day:
+    default: 5
+    client: false
+    max: 5
+  max_upload_video_size:
+    default: 50
+    client: false
+    max: 50
+  max_upload_image_size:
+    default: 5
+    client: false
+    max: 5
+  max_upload_image_user_per_day:
+    default: 50
+    client: false
+    max: 100
+

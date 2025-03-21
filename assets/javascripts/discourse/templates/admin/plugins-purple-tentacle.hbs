@@ -1,55 +1,197 @@
-<h1>精选帖子管理</h1>
+<div class="loklik container">
+  <ul class="nav-list">
+    <li class="nav-item">
+      <a href="#" class="nav-link {{if this.menu.showingCuratedPosts "active"}}" onclick={{action "changeMenu" "showingCuratedPosts"}}>精选帖子管理</a>
+    </li>
+    <li class="nav-item">
+      <a href="#" class="nav-link {{if this.menu.showingConfig "active"}}" onclick={{action "changeMenu" "showingConfig"}}>金刚区配置</a>
+    </li>
+    <li class="nav-item">
+      <a href="#" class="nav-link {{if this.menu.showingBanner "active"}}" onclick={{action "changeMenu" "showingBanner"}}>Banner配置</a>
+    </li>
+  </ul>
 
-<div class="search-controls">
-  <label>标题</label>
-  <input type="text" placeholder="标题" value={{this.titleSearch}} oninput={{action (mut this.titleSearch) value="target.value"}} />
+  <div class="content">
 
-  <label>精选</label>
-  <select value={{this.isCurated}}  onchange={{action (mut this.isCurated) value="target.value"}}>
-    <option value="">请选择</option>
-    <option value="1">是</option>
-    <option value="0">否</option>
-  </select>
+    <div id="curated-posts" class="content-section" style={{if this.menu.showingCuratedPosts "display: block" "display: none"}}>
+      {{!-- <h3>精选帖子管理</h3> --}}
+      <div class="search-controls">
+        <div class="items">
+          <label>标题</label>
+          <TextField @value={{this.titleSearch}} @oninput={{action (mut this.titleSearch) value="target.value" }} />
+        </div>
+        <div class="items">
+          <label>精选</label>
+          <ComboBox @content={{this.curatedoptions}} @value={{this.isCurated}} @onChange={{action (mut this.isCurated)
+            id="target.id" }} />
+        </div>
+        <div class="items">
+          <button class="btn btn-primary" {{action "search" }}>搜索</button>
+          <button class="btn btn-secondary" {{action "reset" }}>重置</button>
+        </div>
+      </div>
 
-  <button {{action "search"}}>搜索</button>
-  <button {{action "reset"}}>重置</button>
-</div>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>标题</th>
+            <th>作者</th>
+            <th>精选时间</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each this.filteredItems as |item|}}
+            <tr>
+              <td>{{item.id}}</td>
+              <td><a href="/t/topic/{{item.id}}">{{item.show_title}}</a></td>
+              <td>{{item.author}}</td>
+               <td>{{item.show_updated_at}}</td>
+              <td>
+                {{#if (eq item.is_curated 1)}}
+                  <button class="btn btn-primary" {{action "curated" item 0}}>取消精选</button>
+                {{else}}
+                  <button class="btn btn-success" {{action "curated" item 1}}>加入精选</button>
+                {{/if}}
+              </td>
+            </tr>
+          {{/each}}
+        </tbody>
+      </table>
 
-<table>
-  <thead>
-    <tr>
-      <th>ID</th>
-      <th>标题</th>
-      <th>作者</th>
-      <th>创建时间</th>
-      <th>操作</th>
-      <th>操作人</th>
-      <th>操作时间</th>
-    </tr>
-  </thead>
-  <tbody>
-    {{#each this.filteredItems as |item|}}
-      <tr>
-        <td>{{item.id}}</td>
-        <td>{{item.title}}</td>
-        <td>{{item.author}}</td>
-        <td>{{item.created_at}}</td>
-        <td>
-          {{#if (eq item.is_curated 1)}}
-            <button {{action "curated" item 0}}>取消精选</button>
-          {{else}}
-            <button {{action "curated" item 1}}>加精选</button>
+      <div class="pagination">
+        <button class="btn btn-secondary" {{action "goPerPage" this.current}}>上一页</button>
+        <span>第 {{this.current}} 页 / 共 {{this.totalPage}} 页</span>
+        <button class="btn btn-secondary" {{action "goNextPage" this.current}}>下一页</button>
+      </div>
+    </div>
+
+    <div id="config" class="content-section" style={{if this.menu.showingConfig "display: block" "display: none"}}>
+      {{!-- <h3>金刚区配置</h3> --}}
+
+      <form id="your-plugin-settings-form">
+        <div class="form-group">
+          <label for="label1">论坛1:</label>
+          <ComboBox class="fixed-width-select" @content={{this.categoryList}} @value={{this.selectedId0}} @onChange={{this.updateSelectedCategory0}} />
+        </div>
+
+        <div class="form-group">
+          <label for="label2">论坛2:</label>
+          <ComboBox class="fixed-width-select" @content={{this.categoryList}} @value={{this.selectedId1}}
+            @onChange={{this.updateSelectedCategory1}} />
+        </div>
+
+        <div class="form-group">
+          <label for="label3">论坛3:</label>
+          <ComboBox class="fixed-width-select" @content={{this.categoryList}} @value={{this.selectedId2}}
+            @onChange={{this.updateSelectedCategory2}} />
+        </div>
+
+        <button type="button" class="btn btn-primary" {{action "setSelectedCategories"}}>保存</button>
+      </form>
+    </div>
+
+    <div id="config" class="content-section" style={{if this.menu.showingBanner "display: block" "display: none"}}>
+      {{!-- <h3>Banner配置</h3> --}}
+      <div class="search-controls">
+        <div class="items">
+          <label>名称</label>
+          <TextField @value={{this.bannerSearch.name}} @oninput={{action (mut this.bannerSearch.name) value="target.value" }} />
+        </div>
+        <div class="items">
+          <label>上架</label>
+          <ComboBox @content={{this.bannerStatus}} @value={{this.bannerSearch.status}} @onChange={{action (mut this.bannerSearch.status)
+            id="target.id" }} />
+        </div>
+        <div class="items">
+          <button class="btn btn-primary" {{action "searchBanner" }}>搜索</button>
+          <button class="btn btn-secondary" {{action "changeMenu" "showingBanner2"}}>添加</button>
+        </div>
+      </div>
+      <table class="table">
+        <thead>
+          <tr>
+            {{!-- <th>ID</th> --}}
+            <th>名称</th>
+            <th>banner图</th>
+            <th>跳转地址</th>
+            {{!-- <th>创建时间</th> --}}
+            <th>状态</th>
+            <th>排序</th>
+            <th>操作</th>
+            <th>操作人</th>
+            {{!-- <th>操作时间</th> --}}
+          </tr>
+        </thead>
+        <tbody>
+          {{#each this.bannerList as |item|}}
+          <tr>
+            {{!-- <td>{{item.id}}</td> --}}
+            <td>{{item.name}}</td>
+            <td><img src={{item.app_image_url}} alt={{item.name}} width="300px" height="100px" /></td>
+            <td width="200px" >{{item.link_url}}</td>
+            {{!-- <td>{{item.created_at}}</td> --}}
+            <td width="80px">
+              {{#if (eq item.status 1)}}
+              已上架
+              {{else}}
+              未上架
+              {{/if}}
+            </td>
+            <td>{{item.sort}}</td>
+            <td width="80px">
+              <a href="#" {{action "showUpdateBannerForm" item}}>编辑</a>
+              {{#if (eq item.status 1)}}
+              <a href="#" {{action "offlineBanner" item}}>下架</a>
+              {{else}}
+              <a href="#" {{action "onlineBanner" item}}>上架</a>
+              {{/if}}
+            </td>
+            <td>{{item.update_user_name}}</td>
+            {{!-- <td>{{item.updated_at}}</td> --}}
+          </tr>
+          {{/each}}
+        </tbody>
+      </table>
+    </div>
+
+    <div id="config" class="content-section" style={{if this.menu.showingBanner2 "display: block" "display: none" }}>
+{{!--       <h3>创建 Banner</h3> --}}
+      <div class="create-banner-form">
+        <div class="form-group">
+          <label class="banner-label" for="bannerName">名称</label>
+          <TextField @value={{this.bannerForm.name}} @oninput={{action (mut this.bannerForm.name) value="target.value"}} />
+        </div>
+        <div class="form-group">
+          <label class="banner-label" for="appImageUrl">app banner 图 (1029*354)</label>
+          <input type="file" accept="image/*" id="appImageUrl" onchange={{action "uploadBannerImage"}} />
+          {{#if this.bannerForm.appImageUrl}}
+            <img src={{this.bannerForm.appImageUrl}} alt="预览" width="300px" height="100px" />
           {{/if}}
-        </td>
-        <td>{{item.operator}}</td>
-        <td>{{item.updated_at}}</td>
-      </tr>
-    {{/each}}
-  </tbody>
-</table>
+        </div>
+        <div class="form-group">
+          <label class="banner-label" for="bannerImageUrl">pad banner 图 (2292*554)</label>
+          <input type="file" accept="image/*" id="paidImageUrl" onchange={{action "uploadBannerImage"}} />
+          {{#if this.bannerForm.padImageUrl}}
+            <img src={{this.bannerForm.padImageUrl}} alt="预览" width="300px" height="100px" />
+          {{/if}}
+        </div>
+        <div class="form-group">
+          <label class="banner-label" for="bannerLinkUrl">跳转地址</label>
+          <TextField @value={{this.bannerForm.linkUrl}} @oninput={{action (mut this.bannerForm.linkUrl) value="target.value"}} />
+        </div>
+        <div class="form-group">
+          <label class="banner-label" for="bannerSort">排序</label>
+          <input id="bannerSort" type="number" class="form-control" value={{this.bannerForm.sort}} oninput={{action (mut this.bannerForm.sort) value="target.value"}} />
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-primary" {{action "saveBanner"}}>保存</button>
+          <button class="btn btn-secondary" {{action "changeMenu" "showingBanner"}}>取消</button>
+        </div>
+      </div>
+    </div>
 
-<div class="pagination">
-  <button {{action "goPerPage" this.current}}>上一页</button>
-  <span>第 {{this.current}} 页 / 共 {{this.totalPage}} 页</span>
-  <button {{action "goNextPage" this.current}}>下一页</button>
+  </div>
+
 </div>

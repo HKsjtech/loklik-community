@@ -1,0 +1,20 @@
+ar_SA:
+  loklik:
+    upload_video_limit: "لقد وصلت إلى الحد الأقصى لعدد مقاطع الفيديو التي يمكنك تحميلها يوميًا. الحد اليومي هو %{limit} مرة."
+    upload_video_s3_disabled: "تحميل S3 غير مفعل. يرجى الاتصال بالمدير."
+    operation_failed: "فشلت العملية. يرجى المحاولة مرة أخرى لاحقًا."
+    auth_failed: "فشل في المصادقة."
+    params_error: "خطأ في المعلمات. تحقق من المعلمات الخاصة بك: %{params}"
+    post_not_found: "لم يتم العثور على المنشور."
+    topic_not_found: "لم يتم العثور على الموضوع."
+    user_not_found: "لم يتم العثور على المستخدم."
+    category_not_found: "لم يتم العثور على الفئة."
+    rate_limit_exceeded: "تم تجاوز حد المعدل. يرجى المحاولة مرة أخرى لاحقًا."
+    resource_not_belong_to_you: "المورد لا يخصك."
+    category_not_join: "لم تنضم إلى الفئة."
+    cannot_follow_yourself: "لا يمكنك متابعة نفسك."
+    please_follow_user: "يرجى متابعة المستخدم أولاً."
+    operation_success: "تمت العملية بنجاح."
+    file_too_large: "الحجم الكبير من الملف كبير جدا. يرجى إرفاق ملف أصغر من %{size} ميغابايت."
+    upload_images_limit: "لقد وصلت إلى الحد الأقصى لعدد مقاطع الصور التي يمكنك تحميلها يوميًا. الحد اليومي هو %{limit} مرة."
+

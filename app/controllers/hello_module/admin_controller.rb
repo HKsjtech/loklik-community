@@ -1,88 +1,22 @@
 # frozen_string_literal: true
 
 module ::HelloModule
-  class AdminController < ::ApplicationController
+  class AdminController < AdminCommonController
     include MyHelper
+    include PostHelper
+    include MyS3Helper
     requires_plugin PLUGIN_NAME
     before_action :set_current_user
 
     def index
       page = params[:page].to_i > 0 ? params[:page].to_i : 1
       size = params[:size].to_i > 0 ? params[:size].to_i : 10
-      is_curated = params[:is_curated]
-      offset = (page - 1) * size
-      # 获取搜索关键字
       search_term = params[:search].presence
+      is_curated = params[:is_curated]
 
-      # 构建查询
-      topics_query = Topic.order(created_at: :desc)
+      data = AppCuratedTopicService.page_list(search_term, is_curated, page, size)
 
-      # 如果有搜索关键字，添加模糊搜索条件
-      if search_term
-        topics_query = topics_query.where("title LIKE ?", "%#{search_term}%")
-      end
-
-
-
-      # 如果需要根据 is_curated 筛选
-      if is_curated == "0" || is_curated == "1"
-        # 使用 LEFT JOIN 来确保即使没有匹配的记录也会返回 topics
-        topics_query = topics_query.joins("LEFT JOIN app_curated_topic ON app_curated_topic.topic_id = topics.id")
-
-        if is_curated == "1"
-          topics_query = topics_query.where("app_curated_topic.is_curated = ?", is_curated)
-        else
-          # 如果没有筛选条件，确保返回的记录都算作 is_curated 为 false
-          topics_query = topics_query.where("app_curated_topic.is_curated IS NULL OR app_curated_topic.is_curated = ?", is_curated)
-        end
-
-
-
-        # print("==", is_curated)
-        # topics_query = topics_query.joins("INNER JOIN app_curated_topic ON app_curated_topic.topic_id = topics.id")
-        #                            .where(app_curated_topic: { is_curated: is_curated })
-      end
-
-      # 限制结果并进行分页
-      topics = topics_query.limit(size).offset(offset)
-      total = topics_query.count
-
-      # 查询精选主题数据
-      topic_ids = topics.map(&:id)
-      curated_topics = AppCuratedTopic.where(topic_id: topic_ids)
-
-      data = topics.map { |topic| serialize_topic(topic, curated_topics) }
-
-      render_response(data: create_page_list(data, total, page, size) )
-    end
-
-    def serialize_topic(topic, curated_topics)
-      # {
-      #    id: 3,
-      #    title: '我是标题',
-      #    author: 'hosea',
-      #    created_at: '2020-01-01 12:00:00',
-      #    operator: 'admin',
-      #    is_curated: false,
-      #    updated_at: '2020-01-01 12:00:00',
-      #}
-      current_curated_topic = curated_topics.find { |curated_topic| curated_topic.topic_id == topic.id }
-      res = {
-        id: topic.id,
-        title: topic.title,
-        author: topic.user.username,
-        created_at: topic.created_at,
-        is_curated: 0,
-        operator: '',
-        updated_at: '',
-      }
-      if current_curated_topic != nil
-        res[:is_curated] = current_curated_topic.is_curated
-        res[:operator] = current_curated_topic.update_name
-        res[:updated_at] = current_curated_topic.updated_at
-      end
-
-      res
+      render_response(data: data)
     end
 
     def curated
@@ -107,6 +41,55 @@ module ::HelloModule
 
     def set_current_user
       @current_user = current_user
+    end
+
+    def categories
+      res = CategoryService.all
+      render_response(data: res)
+    end
+
+    def select_categories
+      # limit 3
+      acs = AppCategoriesSelected.limit(3).order(sort: :asc)
+      data = acs.as_json(only: [:id, :categories_id, :sort])
+      render_response(data: data)
+    end
+
+    def set_select_categories
+      # 从请求中解析 JSON 数据
+      data = JSON.parse(request.body.read)
+
+      if data == nil || data.length != 3
+        render_response(data: nil, code: 400, msg: '数据不合法')
+        return
+      end
+
+      data.each do |item|
+        id = item['id']
+        categories_id = item['categories_id']
+        sort = item['sort']
+
+        # 更新 AppCategoriesSelected 模型
+        category = AppCategoriesSelected.find_by(id: id)
+        if category
+          category.update(categories_id: categories_id, sort: sort)
+        end
+      end
+
+    end
+
+    def upload_image
+      # 检查是否有文件上传
+      file = params[:file]
+      return render_response(msg: '缺少文件', code: 400) if file.blank?
+
+      # 检查文件类型
+      return render_response(msg: '文件类型不支持', code: 400)  unless FileHelper.is_supported_image?(file.original_filename)
+
+      url = upload_file(file)
+      render_response(data: {
+        url: url,
+      })
     end
 
   end
