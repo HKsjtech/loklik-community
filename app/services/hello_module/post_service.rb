@@ -198,18 +198,18 @@ module ::HelloModule
       end
     end
 
-    def self.extract_identifier(markdown_str)
-      # 使用正则表达式匹配 Markdown 图片的 alt 部分
-      # ![image_picker_3A9A59BC-8B84-4060-9502-3B19E9173891-19280-000A7E1ACB12E080|334x500](upload://k9KOfedX2rFargvxXzlxfTprIip.jpeg)
-      alt_part = markdown_str.match(/!\[([^\|\]]+)(?:\|.*?)?\]/x)&.captures&.first
-
-      unless alt_part
-        LoggerHelper.error("markdown_str: #{markdown_str}")
-      end
-
-      # 返回匹配结果或抛出异常
-      alt_part
-    end
+    # def self.extract_identifier(markdown_str)
+    #   # 使用正则表达式匹配 Markdown 图片的 alt 部分
+    #   # ![image_picker_3A9A59BC-8B84-4060-9502-3B19E9173891-19280-000A7E1ACB12E080|334x500](upload://k9KOfedX2rFargvxXzlxfTprIip.jpeg)
+    #   alt_part = markdown_str.match(/!\[([^\|\]]+)(?:\|.*?)?\]/x)&.captures&.first
+    #
+    #   unless alt_part
+    #     LoggerHelper.error("markdown_str: #{markdown_str}")
+    #   end
+    #
+    #   # 返回匹配结果或抛出异常
+    #   alt_part
+    # end
 
     def self.extract_image_short_link(text)
       # 正则表达式匹配 upload:// 开头的短链接
