@@ -129,16 +129,16 @@ module PostHelper
   end
 
   # 找到 Markdown 图片语法中的指定文件名对应的 URL
-  def find_upload_url(markdown_images, target_filename)
-    # 构建文件名到URL的映射哈希（带缓存）
-    # 查找对应的元素
-    result = markdown_images.find do |image|
-      image.include?(target_filename)
-    end
-
-    # 提取对应的 upload URL
-    upload_url = result.match(/(upload:\/\/[^\)]+)/)[1] if result
-
-    upload_url
-  end
+  # def find_upload_url(markdown_images, target_filename)
+  #   # 构建文件名到URL的映射哈希（带缓存）
+  #   # 查找对应的元素
+  #   result = markdown_images.find do |image|
+  #     image.include?(target_filename)
+  #   end
+  #
+  #   # 提取对应的 upload URL
+  #   upload_url = result.match(/(upload:\/\/[^\)]+)/)[1] if result
+  #
+  #   upload_url
+  # end
 end

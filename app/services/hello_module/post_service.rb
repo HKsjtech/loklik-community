@@ -69,47 +69,67 @@ module ::HelloModule
         }
       end
 
-      select_fields2 = [
-        'posts.topic_id as topic_id',
-        'posts.raw as raw',
-        'posts.post_number as post_number',
-        'uploads.id as upload_id',
-        'uploads.url as url',
-        'uploads.original_filename as original_filename',
-        'uploads.thumbnail_width as thumbnail_width',
-        'uploads.thumbnail_height as thumbnail_height'
-      ]
+      # select_fields2 = [
+      #   'posts.topic_id as topic_id',
+      #   'posts.raw as raw',
+      #   'posts.post_number as post_number',
+      #   'uploads.id as upload_id',
+      #   'uploads.url as url',
+      #   'uploads.original_filename as original_filename',
+      #   'uploads.thumbnail_width as thumbnail_width',
+      #   'uploads.thumbnail_height as thumbnail_height'
+      # ]
 
-      # 计算 images
-      post_uploads = Post
-                       .select(select_fields2)
-                       .joins('LEFT JOIN upload_references urs ON posts.id = urs.target_id AND urs.target_type = \'Post\'')
-                       .joins('LEFT JOIN uploads ON uploads.id = urs.upload_id')
-                       .where(id: post_id)
-                       .order('uploads.updated_at DESC')
-      post_uploads = post_uploads
-        .filter { |upload| upload["url"].present? } # 没有上传时也会查询出一条空记录，需要过滤掉
+      # # 计算 images
+      # post_uploads = Post
+      #                  .select(select_fields2)
+      #                  .joins('LEFT JOIN upload_references urs ON posts.id = urs.target_id AND urs.target_type = \'Post\'')
+      #                  .joins('LEFT JOIN uploads ON uploads.id = urs.upload_id')
+      #                  .where(id: post_id)
+      #                  .order('uploads.updated_at DESC')
+      # post_uploads = post_uploads
+      #   .filter { |upload| upload["url"].present? } # 没有上传时也会查询出一条空记录，需要过滤掉
 
       images = []
       web_uploads = []
       image_lines.each do |line|
-        real_filename = extract_identifier(line)
-        next if real_filename == ""
-        post_upload = post_uploads.find { |upload| remove_file_ext(upload["original_filename"]) == real_filename }
-        if post_upload.present?
-          if post_upload["thumbnail_width"].present? && post_upload["thumbnail_height"].present?
-            short_url = find_upload_url(image_lines, remove_file_ext(post_upload["original_filename"]))
-            images <<  {
-              id: post_upload["upload_id"],
-              url: format_url(post_upload["url"]),
-              originalName: post_upload["original_filename"],
-              thumbnailWidth: post_upload["thumbnail_width"],
-              thumbnailHeight: post_upload["thumbnail_height"],
-              shortUrl: short_url,
-            }
-          else
-            web_uploads << format_url(post_upload["url"])
-          end
+        # real_filename = extract_identifier(line)
+        # next if real_filename == ""
+        # post_upload = post_uploads.find { |upload| remove_file_ext(upload["original_filename"]) == real_filename }
+        # if post_upload.present?
+        #   if post_upload["thumbnail_width"].present? && post_upload["thumbnail_height"].present?
+        #     short_url = find_upload_url(image_lines, remove_file_ext(post_upload["original_filename"]))
+        #     images <<  {
+        #       id: post_upload["upload_id"],
+        #       url: format_url(post_upload["url"]),
+        #       originalName: post_upload["original_filename"],
+        #       thumbnailWidth: post_upload["thumbnail_width"],
+        #       thumbnailHeight: post_upload["thumbnail_height"],
+        #       shortUrl: short_url,
+        #     }
+        #   else
+        #     web_uploads << format_url(post_upload["url"])
+        #   end
+        # end
+        short_url = extract_image_short_link(line)
+        upload_sha1 = Upload.sha1_from_short_url(short_url)
+        uploads_by_sha1 = Upload.where(sha1: upload_sha1).first
+        next if uploads_by_sha1.nil?
+        upload_id = uploads_by_sha1.id
+        upload_url = upload_id ?  uploads_by_sha1.url : nil
+        cdn_url = upload_url ? Discourse.store.cdn_url(upload_url) : ""
+
+        if uploads_by_sha1.thumbnail_width.present? && uploads_by_sha1.thumbnail_height.present?
+          images <<  {
+            id: uploads_by_sha1.id,
+            url: cdn_url,
+            originalName: uploads_by_sha1.original_filename,
+            thumbnailWidth: uploads_by_sha1.thumbnail_width,
+            thumbnailHeight: uploads_by_sha1.thumbnail_height,
+            shortUrl: short_url,
+          }
+        else
+          web_uploads << format_url(uploads_by_sha1.url)
         end
       end
 
@@ -178,17 +198,28 @@ module ::HelloModule
       end
     end
 
-    def self.extract_identifier(markdown_str)
-      # 使用正则表达式匹配 Markdown 图片的 alt 部分
-      # ![image_picker_3A9A59BC-8B84-4060-9502-3B19E9173891-19280-000A7E1ACB12E080|334x500](upload://k9KOfedX2rFargvxXzlxfTprIip.jpeg)
-      alt_part = markdown_str.match(/!\[([^\|\]]+)(?:\|.*?)?\]/x)&.captures&.first
+    # def self.extract_identifier(markdown_str)
+    #   # 使用正则表达式匹配 Markdown 图片的 alt 部分
+    #   # ![image_picker_3A9A59BC-8B84-4060-9502-3B19E9173891-19280-000A7E1ACB12E080|334x500](upload://k9KOfedX2rFargvxXzlxfTprIip.jpeg)
+    #   alt_part = markdown_str.match(/!\[([^\|\]]+)(?:\|.*?)?\]/x)&.captures&.first
+    #
+    #   unless alt_part
+    #     LoggerHelper.error("markdown_str: #{markdown_str}")
+    #   end
+    #
+    #   # 返回匹配结果或抛出异常
+    #   alt_part
+    # end
 
-      unless alt_part
-        LoggerHelper.error("markdown_str: #{markdown_str}")
-      end
+    def self.extract_image_short_link(text)
+      # 正则表达式匹配 upload:// 开头的短链接
+      regex = /upload:\/\/[^\s)]+/
 
-      # 返回匹配结果或抛出异常
-      alt_part
+      # 使用正则表达式查找匹配的短链接
+      match = text.match(regex)
+
+      # 如果找到匹配，返回结果，否则返回 nil
+      match ? match[0] : nil
     end
 
     # 找到一个评论所有的子评论
