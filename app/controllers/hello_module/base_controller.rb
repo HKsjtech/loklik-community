@@ -188,6 +188,15 @@ module ::HelloModule
       render_response(data: settings)
     end
 
+    def s3_upload_url
+      # 生成 s3 上传链接（预签名）
+      upload_url, public_url = presigned_url
+      render_response(data: {
+        upload_url: upload_url,
+        public_url: format_url(public_url),
+      })
+    end
+
     private
 
     def serialize_theme_setting(theme_setting)
