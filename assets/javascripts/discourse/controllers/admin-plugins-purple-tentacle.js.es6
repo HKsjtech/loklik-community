@@ -9,6 +9,7 @@ export default class AdminPluginsPurpleTentacleController extends Controller {
     showingBanner: false,
     showingBanner2: false,
     showingScore: false,
+    showingScore2: false,
   };
 
   @tracked filteredItems = null;
@@ -33,15 +34,12 @@ export default class AdminPluginsPurpleTentacleController extends Controller {
     { name: "否", id: "0" },
   ];
 
-  @tracked bannerName;
-
   constructor() {
     super();
     this.filteredItems = [];
     this.categoryList = [];
     this.selectedCategoryList = [];
 
-    this.bannerName = "bannerName";
 
     this.loadPosts();
     this.loadCategoryList();
@@ -427,6 +425,12 @@ export default class AdminPluginsPurpleTentacleController extends Controller {
       this.scoreCurrent + 1,
       Math.ceil(this.scoreTotal / this.size)
     );
+    this.loadScoreEvents()
+  }
+
+  @action
+  searchScore() {
+    this.scoreCurrent = 1; // 重置页码
     this.loadScoreEvents()
   }
 

@@ -208,7 +208,7 @@
           <TextField @value={{this.scoreDateSearch}} @oninput={{action (mut this.scoreDateSearch) value="target.value" }} />
         </div>
         <div class="items">
-          <button class="btn btn-primary" {{action "loadScoreEvents" }}>搜索</button>
+          <button class="btn btn-primary" {{action "searchScore" }}>搜索</button>
           {{!-- <button class="btn btn-secondary" {{action "reset" }}>重置</button> --}}
           <button class="btn btn-secondary" {{action "changeMenu" "showingScore2"}}>发放积分</button>
         </div>
