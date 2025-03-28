@@ -21,9 +21,10 @@ module ::HelloModule
       LoggerHelper.info("准备连接到mq：#{amqp_connect_string}")
       @connection = Bunny.new(amqp_connect_string)
       @connection.start
-      @channel = @connection.create_channel
-      @queue_login = @channel.queue('loklik:ideastudio:community:login.sync.queue', durable: true)
-      @queue_update = @channel.queue('loklik:ideastudio:community:userinfo.sync.queue', durable: true)
+      @channel_login = @connection.create_channel
+      @channel_update = @connection.create_channel
+      @queue_login = @channel_login.queue('loklik:ideastudio:community:login.sync.queue', durable: true)
+      @queue_update = @channel_update.queue('loklik:ideastudio:community:userinfo.sync.queue', durable: true)
       LoggerHelper.info("连接到RabbitMQ成功")
     rescue => e
       LoggerHelper.warn("连接到RabbitMQ失败: #{e.message}")
@@ -48,7 +49,7 @@ module ::HelloModule
         ConsumerService.consumer_user_login(body)
 
         LoggerHelper.info("处理完成")
-        @channel.ack(delivery_info.delivery_tag)
+        @channel_login.ack(delivery_info.delivery_tag)
         LoggerHelper.info("ack完成")
       end
     rescue => e
@@ -69,7 +70,7 @@ module ::HelloModule
         ConsumerService.consumer_user_update(body)
 
         LoggerHelper.info("处理完成")
-        @channel.ack(delivery_info.delivery_tag)
+        @channel_update.ack(delivery_info.delivery_tag)
         LoggerHelper.info("ack完成")
       end
     rescue => e
