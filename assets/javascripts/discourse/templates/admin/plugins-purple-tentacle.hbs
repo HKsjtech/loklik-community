@@ -9,16 +9,11 @@
     <li class="nav-item">
       <a href="#" class="nav-link {{if this.menu.showingBanner "active"}}" onclick={{action "changeMenu" "showingBanner"}}>Banner配置</a>
     </li>
-
-    <li class="nav-item">
-      <a href="#" class="nav-link {{if this.menu.showingScore "active"}}" onclick={{action "changeMenu" "showingScore"}}>积分</a>
-    </li>
   </ul>
 
   <div class="content">
 
     <div id="curated-posts" class="content-section" style={{if this.menu.showingCuratedPosts "display: block" "display: none"}}>
-      {{!-- <h3>精选帖子管理</h3> --}}
       <div class="search-controls">
         <div class="items">
           <label>标题</label>
@@ -162,7 +157,6 @@
     </div>
 
     <div id="config" class="content-section" style={{if this.menu.showingBanner2 "display: block" "display: none" }}>
-{{!--       <h3>创建 Banner</h3> --}}
       <div class="create-banner-form">
         <div class="form-group">
           <label class="banner-label" for="bannerName">名称</label>
@@ -193,81 +187,6 @@
         <div class="form-actions">
           <button class="btn btn-primary" {{action "saveBanner"}}>保存</button>
           <button class="btn btn-secondary" {{action "changeMenu" "showingBanner"}}>取消</button>
-        </div>
-      </div>
-    </div>
-
-     <div id="curated-posts" class="content-section" style={{if this.menu.showingScore "display: block" "display: none"}}>
-      <div class="search-controls">
-        <div class="items">
-          <label>用户名</label>
-          <TextField @value={{this.scoreUserNameSearch}} @oninput={{action (mut this.scoreUserNameSearch) value="target.value" }} />
-        </div>
-        <div class="items">
-          <label>日期</label>
-          <TextField @value={{this.scoreDateSearch}} @oninput={{action (mut this.scoreDateSearch) value="target.value" }} />
-        </div>
-        <div class="items">
-          <button class="btn btn-primary" {{action "searchScore" }}>搜索</button>
-          {{!-- <button class="btn btn-secondary" {{action "reset" }}>重置</button> --}}
-          <button class="btn btn-secondary" {{action "changeMenu" "showingScore2"}}>发放积分</button>
-        </div>
-      </div>
-
-      <table class="table">
-        <thead>
-          <tr>
-            {{!-- <th>ID</th> --}}
-            <th>用户ID</th>
-            <th>用户名</th>
-            <th>积分</th>
-            <th>时间</th>
-            <th>备注</th>
-          </tr>
-        </thead>
-        <tbody>
-          {{#each this.scoreEvents as |item|}}
-            <tr>
-              {{!-- <td>{{item.id}}</td> --}}
-              <td>{{item.user_id}}</td>
-              <td>{{item.username}}</td>
-              <td>{{item.points}}</td>
-              <td>{{item.date}}</td>
-              <td>{{item.description}}</td>
-            </tr>
-          {{/each}}
-        </tbody>
-      </table>
-
-      <div class="pagination">
-        <button class="btn btn-secondary" {{action "scoreGoPerPage" this.scoreCurrent}}>上一页</button>
-        <span>第 {{this.scoreCurrent}} 页 / 共 {{this.scoreTotalPage}} 页</span>
-        <button class="btn btn-secondary" {{action "scoreGoNextPage" this.scoreCurrent}}>下一页</button>
-      </div>
-    </div>
-
-     <div id="config" class="content-section" style={{if this.menu.showingScore2 "display: block" "display: none" }}>
-      <div class="create-banner-form">
-        <div class="form-group">
-          <label class="banner-label" for="bannerName">用户ID</label>
-          <ComboBox class="fixed-width-select"
-            @content={{this.userList}}
-            @value={{this.scoreForm.userId}}
-            @onChange={{action (mut this.scoreForm.userId) id="target.id" }}
-          />
-        </div>
-        <div class="form-group">
-          <label class="banner-label" for="bannerName">积分</label>
-          <TextField @value={{this.scoreForm.points}} @oninput={{action (mut this.scoreForm.points) value="target.value"}} type="number" />
-        </div>
-        <div class="form-group">
-          <label class="banner-label" for="bannerName">备注</label>
-          <TextField @value={{this.scoreForm.description}} @oninput={{action (mut this.scoreForm.description) value="target.value"}} />
-        </div>
-
-        <div class="form-actions">
-          <button class="btn btn-primary" {{action "saveScoreForm"}}>发放</button>
-          <button class="btn btn-secondary" {{action "changeMenu" "showingScore"}}>取消</button>
         </div>
       </div>
     </div>

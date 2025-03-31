@@ -44,8 +44,6 @@ export default class AdminPluginsPurpleTentacleController extends Controller {
     this.loadPosts();
     this.loadCategoryList();
     this.loadBannerList();
-    this.loadScoreEvents();
-    this.loadUsers();
   }
 
   @action
@@ -347,91 +345,6 @@ export default class AdminPluginsPurpleTentacleController extends Controller {
     // 重新加载列表
     this.loadBannerList();
     alert("保存成功");
-  }
-
-  // ======================================  score
-  @tracked scoreEvents = "";
-  @tracked scoreUserNameSearch = "";
-  @tracked scoreDateSearch = "";
-  @tracked scoreForm = {
-    userId: "",
-    points: 0,
-    description: "",
-  };
-  @tracked userList = [];
-  @tracked scoreFormuserId = "";
-  @tracked scoreCurrent = 1;
-  @tracked scoreTotal = 1;
-  @tracked scoreTotalPage = 1;
-
-  async loadUsers() {
-    const params = {
-      page: 1,
-      size: 999999,
-    };
-    const paramsStr = new URLSearchParams(params).toString();
-    const res = await this.fetch("GET", `/loklik/admin/users.json?${paramsStr}`)
-    this.userList = res.data.records.map((item) => ({
-      id: item.id,
-      name: item.username + ": " + item.email,
-    }));
-  }
-
-
-  async loadScoreEvents() {
-    const params = {
-      username: this.scoreUserNameSearch,
-      date: this.scoreDateSearch,
-      page: this.scoreCurrent,
-    };
-    const paramsStr = new URLSearchParams(params).toString();
-    const res = await this.fetch("GET", `/loklik/admin/score/events.json?${paramsStr}`)
-    this.scoreEvents = res.data.records;
-    this.scoreTotal = res.data.total;
-    this.scoreCurrent = res.data.current;
-    this.size = res.data.size;
-    this.scoreTotalPage = Math.ceil(this.scoreTotal / this.size);
-  }
-
-  initScoreForm() {
-    this.scoreForm = {
-      userId: "",
-      points: 0,
-      description: "",
-    };
-  }
-
-  @action
-  async saveScoreForm() {
-    await this.fetch("POST", "/loklik/admin/score/events.json", {
-      user_id: this.scoreForm.userId,
-      points: this.scoreForm.points,
-      description: this.scoreForm.description,
-    })
-    this.loadScoreEvents()
-    this.initScoreForm()
-    alert("积分发放成功")
-  }
-
-  @action
-  scoreGoPerPage() {
-    this.scoreCurrent = Math.max(this.scoreCurrent - 1, 1);
-    this.loadScoreEvents()
-  }
-
-  @action
-  scoreGoNextPage() {
-    this.scoreCurrent = Math.min(
-      this.scoreCurrent + 1,
-      Math.ceil(this.scoreTotal / this.size)
-    );
-    this.loadScoreEvents()
-  }
-
-  @action
-  searchScore() {
-    this.scoreCurrent = 1; // 重置页码
-    this.loadScoreEvents()
   }
 
   async fetch(method, uri, data) {

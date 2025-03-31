@@ -71,11 +71,6 @@ HelloModule::Engine.routes.draw do
   post "/admin/banner/create" => "admin_banner#create"
   put "/admin/banner/update" => "admin_banner#update"
 
-  get "/admin/score/list" => "admin_score#list"
-  get "/admin/score/events" => "admin_score#event_list"
-  post "/admin/score/events" => "admin_score#event_create"
-  get "/admin/users" => "admin_score#user_list"
-
   get "/notifications/un-read-count" => "notifications#unread_count"
   get "/notifications/message-list" => "notifications#message_list"
   put "/notifications/mark-read" => "notifications#mark_read"
