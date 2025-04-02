@@ -96,26 +96,26 @@ module ::HelloModule
 
         UploadService.incr_upload_images_count(user_id)
         nil
-      when "2"
-        enable_s3_uploads = SiteSetting.enable_s3_uploads
-        unless enable_s3_uploads
-          render_response(data: nil, code: 400, msg: I18n.t("loklik.upload_video_s3_disabled"), success: false)
-          return
-        end
-        if file.size > SiteSetting.max_upload_image_size * 1024 * 1024
-          return render_response(data: nil, code: 400, success: false, msg: I18n.t("loklik.file_too_large", size: SiteSetting.max_upload_image_size))
-        end
-        unless UploadService.check_upload_image_limit(user_id)
-          return render_response(data: nil, success: false, msg: I18n.t("loklik.upload_image_limit", limit: SiteSetting.max_upload_image_user_per_day), code: 400)
-        end
-
-        url = upload_file(file)
-
-        UploadService.incr_upload_images_count(user_id)
-
-        render_response(data: {
-          url: url,
-        })
+      # when "2"
+      #   enable_s3_uploads = SiteSetting.enable_s3_uploads
+      #   unless enable_s3_uploads
+      #     render_response(data: nil, code: 400, msg: I18n.t("loklik.upload_video_s3_disabled"), success: false)
+      #     return
+      #   end
+      #   if file.size > SiteSetting.max_upload_image_size * 1024 * 1024
+      #     return render_response(data: nil, code: 400, success: false, msg: I18n.t("loklik.file_too_large", size: SiteSetting.max_upload_image_size))
+      #   end
+      #   unless UploadService.check_upload_image_limit(user_id)
+      #     return render_response(data: nil, success: false, msg: I18n.t("loklik.upload_image_limit", limit: SiteSetting.max_upload_image_user_per_day), code: 400)
+      #   end
+      #
+      #   url = upload_file(file)
+      #
+      #   UploadService.incr_upload_images_count(user_id)
+      #
+      #   render_response(data: {
+      #     url: url,
+      #   })
       when "1"
         # 处理上传的文件
         enable_s3_uploads = SiteSetting.enable_s3_uploads
@@ -189,7 +189,22 @@ module ::HelloModule
     end
 
     def s3_upload_url
+      type = params[:type] # 1-视频 2-封面图
       file_name = params[:fileName]
+
+      user_id = get_current_user_id
+
+      if type == "1"
+        unless UploadService.check_upload_video_limit(user_id)
+          return render_response(data: nil, success: false, msg: I18n.t("loklik.upload_image_limit", limit: SiteSetting.max_upload_image_user_per_day), code: 400)
+        end
+      elsif type == "2"
+        # 上传封面图片先不限制
+      else
+        return render_response(data: nil, code: 400, success: false, msg: I18n.t("loklik.params_error", params: "type"))
+      end
+
+
       if file_name.blank?
         render_response(data: nil, code: 400, success: false, msg: I18n.t("loklik.params_error", params: "fileName"))
         return
@@ -206,6 +221,11 @@ module ::HelloModule
         uploadUrl: upload_url,
         publicUrl: format_url(public_url),
       })
+
+      if type == "1"
+        UploadService.incr_upload_videos_count(user_id)
+      end
+
     end
 
     private
