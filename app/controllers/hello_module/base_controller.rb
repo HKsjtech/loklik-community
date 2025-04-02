@@ -203,8 +203,8 @@ module ::HelloModule
       # 生成 s3 上传链接（预签名）
       upload_url, public_url = presigned_url(file_ext)
       render_response(data: {
-        upload_url: upload_url,
-        public_url: format_url(public_url),
+        uploadUrl: upload_url,
+        publicUrl: format_url(public_url),
       })
     end
 
