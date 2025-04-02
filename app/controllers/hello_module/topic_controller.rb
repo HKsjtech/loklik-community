@@ -12,19 +12,7 @@ module ::HelloModule
     before_action :fetch_current_user
 
     def create_topic
-      # min_topic_title_length = SiteSetting.min_topic_title_length || 8
-      # min_post_length = SiteSetting.min_post_length || 8
-
-      # title = params[:title]
       raw = params[:raw]
-
-      # if title.length < min_topic_title_length
-      #   return render_response(code: 400, success: false, msg: "标题长度不能少于#{min_topic_title_length}个字符")
-      # end
-      #
-      # if raw.length < min_post_length
-      #   return render_response(code: 400, success: false, msg: "内容长度不能少于#{min_post_length}个字符")
-      # end
 
       raw += PostService.cal_new_post_raw(params[:image], params[:video]) if params[:image] || params[:video]
 

@@ -33,7 +33,7 @@ module MyS3Helper
     obj.public_url
   end
 
-  def presigned_url
+  def presigned_url(file_ext)
     # 处理上传的文件
     enable_s3_uploads = SiteSetting.enable_s3_uploads
     unless enable_s3_uploads
@@ -58,8 +58,9 @@ module MyS3Helper
     date_path = Time.now.strftime("%Y%m%d")
     # 生成随机文件名
     random_filename = "#{SecureRandom.hex(8)}"
+
     # 组合最终的 S3 文件路径
-    s3_file_path = "#{date_path}/#{random_filename}"
+    s3_file_path = "#{date_path}/#{random_filename}#{file_ext}"
 
     obj = s3.bucket(s3_bucket).object(s3_file_path)
     url = obj.presigned_url(:put, expires_in: 3600, acl: 'public-read')

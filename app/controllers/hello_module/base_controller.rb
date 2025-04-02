@@ -189,8 +189,19 @@ module ::HelloModule
     end
 
     def s3_upload_url
+      file_name = params[:fileName]
+      if file_name.blank?
+        render_response(data: nil, code: 400, success: false, msg: I18n.t("loklik.params_error", params: "fileName"))
+        return
+      end
+      file_ext = File.extname(file_name)
+      if file_ext.blank?
+        render_response(data: nil, code: 400, success: false, msg: I18n.t("loklik.params_error", params: "fileExt"))
+        return
+      end
+
       # 生成 s3 上传链接（预签名）
-      upload_url, public_url = presigned_url
+      upload_url, public_url = presigned_url(file_ext)
       render_response(data: {
         upload_url: upload_url,
         public_url: format_url(public_url),
