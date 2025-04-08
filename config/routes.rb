@@ -13,6 +13,7 @@ HelloModule::Engine.routes.draw do
   post "/base/upload" => "base#upload"
   get "/base/discourse-host" => "base#discourse_host"
   get  "/base/settings" => "base#settings"
+  get "/base/s3_upload_url" => "base#s3_upload_url"
 
   # auth routes
   get "/auth/is-sync" => "auth#is_sync"

@@ -5,6 +5,7 @@ module ::HelloModule
     requires_plugin PLUGIN_NAME
     include MyHelper
     rescue_from StandardError, with: :handle_error
+    before_action :set_current_user
 
     def handle_error(exception)
       case exception
@@ -20,6 +21,10 @@ module ::HelloModule
         LoggerHelper.error(exception.full_message)
         render_response(success: false, code: 400, msg: I18n.t('loklik.operation_failed'))
       end
+    end
+
+    def set_current_user
+      @current_user = current_user
     end
   end
 end

@@ -1,7 +1,7 @@
 <div class="loklik container">
   <ul class="nav-list">
     <li class="nav-item">
-      <a href="#" class="nav-link {{if this.menu.showingCuratedPosts "active"}}" onclick={{action "changeMenu" "showingCuratedPosts"}}>精选帖子管理</a>
+      <a href="#" class="nav-link {{if this.menu.showingCuratedPosts "active"}}" onclick={{action "changeMenu" "showingCuratedPosts"}}>精选帖子</a>
     </li>
     <li class="nav-item">
       <a href="#" class="nav-link {{if this.menu.showingConfig "active"}}" onclick={{action "changeMenu" "showingConfig"}}>金刚区配置</a>
@@ -14,7 +14,6 @@
   <div class="content">
 
     <div id="curated-posts" class="content-section" style={{if this.menu.showingCuratedPosts "display: block" "display: none"}}>
-      {{!-- <h3>精选帖子管理</h3> --}}
       <div class="search-controls">
         <div class="items">
           <label>标题</label>
@@ -45,7 +44,7 @@
           {{#each this.filteredItems as |item|}}
             <tr>
               <td>{{item.id}}</td>
-              <td><a href="/t/topic/{{item.id}}">{{item.show_title}}</a></td>
+              <td><a href="/t/topic/{{item.id}}" title="{{item.title}}">{{item.show_title}}</a></td>
               <td>{{item.author}}</td>
                <td>{{item.show_updated_at}}</td>
               <td>
@@ -73,7 +72,8 @@
       <form id="your-plugin-settings-form">
         <div class="form-group">
           <label for="label1">论坛1:</label>
-          <ComboBox class="fixed-width-select" @content={{this.categoryList}} @value={{this.selectedId0}} @onChange={{this.updateSelectedCategory0}} />
+          <ComboBox class="fixed-width-select" @content={{this.categoryList}} @value={{this.selectedId0}}
+            @onChange={{this.updateSelectedCategory0}} />
         </div>
 
         <div class="form-group">
@@ -157,7 +157,6 @@
     </div>
 
     <div id="config" class="content-section" style={{if this.menu.showingBanner2 "display: block" "display: none" }}>
-{{!--       <h3>创建 Banner</h3> --}}
       <div class="create-banner-form">
         <div class="form-group">
           <label class="banner-label" for="bannerName">名称</label>

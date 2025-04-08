@@ -88,9 +88,9 @@ class ConsumerService
       LoggerHelper.error("Failed to save app user")
     end
 
-    user
+    nil
   rescue => e
-    LoggerHelper.error("Failed to login user from Discourse: #{e.message}")
+    LoggerHelper.error("Failed to update user: #{e.message}")
     nil
   end
 

@@ -8,6 +8,8 @@ export default class AdminPluginsPurpleTentacleController extends Controller {
     showingConfig: false,
     showingBanner: false,
     showingBanner2: false,
+    showingScore: false,
+    showingScore2: false,
   };
 
   @tracked filteredItems = null;
@@ -32,15 +34,12 @@ export default class AdminPluginsPurpleTentacleController extends Controller {
     { name: "否", id: "0" },
   ];
 
-  @tracked bannerName;
-
   constructor() {
     super();
     this.filteredItems = [];
     this.categoryList = [];
     this.selectedCategoryList = [];
 
-    this.bannerName = "bannerName";
 
     this.loadPosts();
     this.loadCategoryList();
@@ -56,34 +55,23 @@ export default class AdminPluginsPurpleTentacleController extends Controller {
     this.initBannerForm();
   }
 
-  loadPosts() {
+  async loadPosts() {
     const params = {
       search: this.titleSearch,
       is_curated: this.isCurated,
       page: this.current,
     };
     const paramsStr = new URLSearchParams(params).toString();
-    fetch(`/loklik/admin/index.json?${paramsStr}`) // 调用后端 API
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-        return response.json();
-      })
-      .then((res) => {
-        this.filteredItems = res.data.records.map((item) => {
-          item.show_title = this.splitTitle(item.title);
-          item.show_updated_at = item.updated_at.substring(0, 10);
-          return item;
-        });
-        this.total = res.data.total;
-        this.current = res.data.current;
-        this.size = res.data.size;
-        this.totalPage = Math.ceil(this.total / this.size);
-      })
-      .catch((error) => {
-        console.error("Error loading items:", error);
-      });
+    const res = await this.fetch("GET", `/loklik/admin/index.json?${paramsStr}`);
+    this.filteredItems = res.data.records.map((item) => {
+      item.show_title = this.splitTitle(item.title);
+      item.show_updated_at = item.updated_at.substring(0, 10);
+      return item;
+    });
+    this.total = res.data.total;
+    this.current = res.data.current;
+    this.size = res.data.size;
+    this.totalPage = Math.ceil(this.total / this.size);
   }
 
   @action
@@ -99,30 +87,16 @@ export default class AdminPluginsPurpleTentacleController extends Controller {
   }
 
   @action
-  curated(item, new_is_curated) {
-    const csrfToken = document
-      .querySelector('meta[name="csrf-token"]')
-      .getAttribute("content");
-    fetch(`/loklik/admin/curated/${item.id}.json`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        "X-CSRF-Token": csrfToken, // 添加 CSRF Token
-      },
-      body: JSON.stringify({
+  async curated(item, new_is_curated) {
+    await this.fetch(
+      "PUT",
+      `/loklik/admin/curated/${item.id}.json`,
+      {
         is_curated: new_is_curated,
         topic_id: item.id,
-      }),
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-        this.loadPosts();
-      })
-      .catch((error) => {
-        console.error("Error curating item:", error);
-      });
+      }
+    );
+    this.loadPosts();
   }
 
   @action
@@ -140,43 +114,21 @@ export default class AdminPluginsPurpleTentacleController extends Controller {
     this.loadPosts();
   }
 
-  loadCategoryList() {
-    fetch(`/loklik/admin/categories.json`) // 调用后端 API
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-        return response.json();
-      })
-      .then((res) => {
-        this.categoryList = res.data;
-        this.loadSelectedCategoryList(); // 先加载分类列表，再加载已选分类列表
-      })
-      .catch((error) => {
-        console.error("Error loading items:", error);
-      });
+  async loadCategoryList() {
+    const res = await this.fetch("GET", `/loklik/admin/categories.json`);
+    this.categoryList = res.data;
+    this.loadSelectedCategoryList(); // 先加载分类列表，再加载已选分类列表
   }
 
-  loadSelectedCategoryList() {
-    fetch(`/loklik/admin/select_categories.json`) // 调用后端 API
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-        return response.json();
-      })
-      .then((res) => {
-        this.selectedCategoryList = res.data;
-        const selectedIdList = this.selectedCategoryList.map(
-          (item) => +item.categories_id
-        );
-        this.selectedId0 = selectedIdList[0];
-        this.selectedId1 = selectedIdList[1];
-        this.selectedId2 = selectedIdList[2];
-      })
-      .catch((error) => {
-        console.error("Error loading items:", error);
-      });
+  async loadSelectedCategoryList() {
+    const res = await this.fetch("GET", `/loklik/admin/select_categories.json`);
+    this.selectedCategoryList = res.data;
+    const selectedIdList = this.selectedCategoryList.map(
+      (item) => +item.categories_id
+    );
+    this.selectedId0 = selectedIdList[0];
+    this.selectedId1 = selectedIdList[1];
+    this.selectedId2 = selectedIdList[2];
   }
 
   @action
@@ -195,7 +147,7 @@ export default class AdminPluginsPurpleTentacleController extends Controller {
   }
 
   @action
-  setSelectedCategories() {
+  async setSelectedCategories() {
     let len = [
       ...new Set([this.selectedId0, this.selectedId1, this.selectedId2]),
     ].length;
@@ -208,27 +160,12 @@ export default class AdminPluginsPurpleTentacleController extends Controller {
     this.selectedCategoryList[1].categories_id = this.selectedId1;
     this.selectedCategoryList[2].categories_id = this.selectedId2;
 
-    const csrfToken = document
-      .querySelector('meta[name="csrf-token"]')
-      .getAttribute("content");
-    fetch(`/loklik/admin/set_select_categories.json`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-CSRF-Token": csrfToken, // 添加 CSRF Token
-      },
-      body: JSON.stringify(this.selectedCategoryList),
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-        alert("保存成功");
-        this.loadSelectedCategoryList();
-      })
-      .catch((error) => {
-        console.error("Error curating item:", error);
-      });
+    await this.fetch(
+      "POST",
+      `/loklik/admin/set_select_categories.json`,
+      this.selectedCategoryList
+    );
+    alert("保存成功");
   }
 
   splitTitle(title) {
@@ -250,7 +187,7 @@ export default class AdminPluginsPurpleTentacleController extends Controller {
   @tracked bannerSearch = {
     name: undefined,
     status: undefined,
-  }
+  };
 
   @tracked bannerForm = {
     id: 0,
@@ -261,29 +198,20 @@ export default class AdminPluginsPurpleTentacleController extends Controller {
     sort: "",
   };
 
-  loadBannerList() {
-    const params = {}
+  async loadBannerList() {
+    const params = {};
     if (this.bannerSearch.name) {
       params.name = this.bannerSearch.name;
     }
     if (this.bannerSearch.status) {
       params.status = this.bannerSearch.status;
     }
-    console.log(params)
     const paramsStr = new URLSearchParams(params).toString();
-    fetch(`/loklik/admin/banner/list.json?${paramsStr}`) // 调用后端 API
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-        return response.json();
-      })
-      .then((res) => {
-        this.bannerList = res.data;
-      })
-      .catch((error) => {
-        console.error("Error loading items:", error);
-      });
+    const res = await this.fetch(
+      "GET",
+      `/loklik/admin/banner/list.json?${paramsStr}`
+    );
+    this.bannerList = res.data;
   }
 
   @action
@@ -329,10 +257,7 @@ export default class AdminPluginsPurpleTentacleController extends Controller {
   }
 
   @action
-  saveBanner() {
-    // 获取CSRF令牌
-    const csrfToken = document.querySelector("meta[name='csrf-token']").content;
-
+  async saveBanner() {
     // 构建请求数据
     const formData = {
       name: this.bannerForm.name,
@@ -346,34 +271,18 @@ export default class AdminPluginsPurpleTentacleController extends Controller {
     if (this.bannerForm.id) {
       this.updateBanner(this.bannerForm.id, formData);
     } else {
-      // 发送保存请求
-      fetch("/loklik/admin/banner/create.json", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-CSRF-Token": csrfToken,
-        },
-        body: JSON.stringify(formData),
-      })
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error("保存失败");
-          }
-          return response.json();
-        })
-        .then((data) => {
-          alert("保存成功");
-          // 重置表单
-          this.initBannerForm();
-          // 返回列表页
-          this.changeMenu("showingBanner");
-          // 重新加载列表
-          this.loadBannerList();
-        })
-        .catch((error) => {
-          console.error("保存失败:", error);
-          alert("保存失败");
-        });
+      const res = await this.fetch(
+        "POST",
+        "/loklik/admin/banner/create.json",
+        formData
+      );
+      alert("保存成功");
+      // 重置表单
+      this.initBannerForm();
+      // 返回列表页
+      this.changeMenu("showingBanner");
+      // 重新加载列表
+      this.loadBannerList();
     }
   }
 
@@ -401,18 +310,18 @@ export default class AdminPluginsPurpleTentacleController extends Controller {
   }
 
   @action
-  offlineBanner(item){
-    this.updateBanner(item.id, {status: 0});
+  offlineBanner(item) {
+    this.updateBanner(item.id, { status: 0 });
   }
 
   @action
-  onlineBanner(item){
-    this.updateBanner(item.id, {status: 1});
+  onlineBanner(item) {
+    this.updateBanner(item.id, { status: 1 });
   }
 
   @action
   searchBanner() {
-    this.loadBannerList()
+    this.loadBannerList();
   }
 
   @action
@@ -421,44 +330,48 @@ export default class AdminPluginsPurpleTentacleController extends Controller {
     this.initBannerForm(item);
   }
 
-  updateBanner(id, update_obj) {
+  async updateBanner(id, update_obj) {
+    // 构建请求数据
+    const formData = {
+      id: id,
+      ...update_obj,
+    };
+
+    await this.fetch("PUT", "/loklik/admin/banner/update.json", formData)
+    // 重置表单
+    this.initBannerForm();
+    // 返回列表页
+    this.changeMenu("showingBanner");
+    // 重新加载列表
+    this.loadBannerList();
+    alert("保存成功");
+  }
+
+  async fetch(method, uri, data) {
     // 获取CSRF令牌
     const csrfToken = document.querySelector("meta[name='csrf-token']").content;
 
-    // 构建请求数据
-    const formData = {
-     id: id,
-     ...update_obj,
-    };
-
     // 发送保存请求
-    fetch("/loklik/admin/banner/update.json", {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        "X-CSRF-Token": csrfToken,
-      },
-      body: JSON.stringify(formData),
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("保存失败");
-        }
-        return response.json();
-      })
-      .then((data) => {
-        alert("保存成功");
-        // 重置表单
-        this.initBannerForm();
-        // 返回列表页
-        this.changeMenu("showingBanner");
-        // 重新加载列表
-        this.loadBannerList();
-      })
-      .catch((error) => {
-        console.error("保存失败:", error);
-        alert("保存失败");
+    try {
+      const res = await fetch(uri, {
+        method: method,
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRF-Token": csrfToken,
+        },
+        body: JSON.stringify(data),
       });
+      if (!res.ok) {
+        throw new Error("Network response was not ok");
+      }
+      if (res.status === 204){
+       return {}
+      }
+      return res.json();
+    } catch (error) {
+      console.error("请求发送失败:", error);
+    }
   }
+
 
 }

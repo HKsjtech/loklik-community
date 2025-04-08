@@ -37,8 +37,19 @@ module ::HelloModule
         end
       end
 
-      # 视频
-      res += "\n\n#{video}" if video
+      if video.present?
+        # 视频
+        # [{
+        #    "url": "http://s3.amazonaws.com/loklik-ide478d5a19.mp4",
+        #    "coverImg": "http://s3.amazonaws.com/loklik-ide478d5a19.jpg",
+        #    "thumbnailWidth": 667,
+        #    "thumbnailHeight": 500
+        #  }]
+        video.each do |v|
+            res += "\n\n"
+            res += video_to_tag(v["url"], v["coverImg"], v["thumbnailWidth"], v["thumbnailHeight"])
+        end
+      end
 
       res
     end
@@ -119,7 +130,7 @@ module ::HelloModule
       end
 
       # 处理上传视频和封面图组件的场景
-      new_raw, handle_videos = handle_video_cover(new_raw)
+      new_raw, handle_videos = tag_to_video(new_raw)
       videos.concat(handle_videos) # 视频合并在一起
 
       [new_raw, videos, images]
@@ -208,8 +219,6 @@ module ::HelloModule
       post = Post.with_deleted.find_by(id: post.id)
       # 删除 Topic 会有权限问题，先用系统用户删除
       system_user = User.find_by(id: -1)
-      # guardian = Guardian.new(system_user, request)
-      # guardian.ensure_can_delete!(post)
       PostDestroyer.new(
         system_user,
         post,
@@ -257,7 +266,7 @@ module ::HelloModule
     end
 
     # 处理 video 标签的视频
-    def self.handle_video_cover(text)
+    def self.tag_to_video(text)
       # 用于存储提取出的链接
       videos_info = []
 
@@ -269,12 +278,16 @@ module ::HelloModule
         # 提取 src 链接，如果存在的话
         src = match.match(/<source src="(.*?)"/)&.[](1)
 
+        # 提取 thumbnailWidth 和 thumbnailHeight
+        thumbnail_width = match.match(/thumbnailWidth="(\d+)"/)&.[](1)
+        thumbnail_height = match.match(/thumbnailHeight="(\d+)"/)&.[](1)
+
         # 将提取的信息存入数组
         videos_info << {
           "url": src,
           "coverImg": poster,
-          "thumbnailWidth": nil,
-          "thumbnailHeight": nil
+          "thumbnailWidth": thumbnail_width.to_i,
+          "thumbnailHeight": thumbnail_height.to_i,
         }
 
         # 返回空字符串以去掉整个 video 标签
@@ -283,5 +296,22 @@ module ::HelloModule
 
       [text.strip, videos_info]
     end
+
+    def self.video_to_tag(video_url, cover_img, width, height)
+      file_ext = File.extname(video_url)
+      ext = file_ext.gsub(".", "")
+      # 视频标签
+      video_tag_template = '<video controls  preload="metadata" poster="%{cover_img}">
+  <source src="%{video_url}" type="video/%{ext}" thumbnailWidth="%{width}"  thumbnailHeight="%{height}" />
+</video>'
+      return video_tag_template % {
+        video_url: video_url,
+        cover_img: cover_img,
+        ext: ext,
+        width: width,
+        height: height
+      }
+    end
+
   end
 end
