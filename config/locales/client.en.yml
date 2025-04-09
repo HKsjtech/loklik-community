@@ -20,3 +20,4 @@ en:
     max_upload_video_size: "max upload video size in MB"
     max_upload_image_size: "max upload image size in MB"
     max_upload_image_user_per_day: "max upload image user per day"
+    work_topic_category_id: "IS work sync topic category id"

@@ -20,3 +20,4 @@ zh_CN:
     max_upload_video_size: "最大上传视频大小，单位为MB"
     max_upload_image_size: "最大上传图片大小，单位为MB"
     max_upload_image_user_per_day: "每天最大上传图片数量"
+    work_topic_category_id: "IS 作品发布话题的分类"

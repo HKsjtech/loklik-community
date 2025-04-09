@@ -42,6 +42,27 @@ module ::HelloModule
       render_response(data: res[:post][:topic_id], success: true, msg: "success")
     end
 
+    def create_topic_async
+      LoggerHelper.info "get_current_user_id: #{get_current_user_id}"
+      args = {
+        user_id: get_current_user_id,
+        title: params[:title],
+        raw: params[:raw],
+        category_id: SiteSetting.work_topic_category_id,
+        images: params[:imageUrls],
+        ext: {
+          work_id: params[:workId],
+          material_id: params[:materialId]
+        }
+      }
+      # 触发异步任务
+      Jobs.enqueue(
+        :post_topic_worker,
+        args,
+        )
+      render_response(success: true, msg: "success")
+    end
+
     def edit_topic
       changes = {}
       changes[:title] = params[:title] if params[:title]

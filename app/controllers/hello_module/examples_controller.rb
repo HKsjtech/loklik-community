@@ -10,6 +10,23 @@ module ::HelloModule
       # 获取请求中的所有 headers
       headers = request.headers.env.select { |k, _| k.start_with?('HTTP_') }
 
+      args = {
+        user_id: 1,
+        title: "test title111",
+        raw: "xxxxxxxxxweqeq 1231312",
+        category_id: 4,
+        images: ["http://s3.amazonaws.com/loklik-idea-studio-public-dev/user-file/1792447439044952065/20250403/8fc933b0bb054028ad355c3d8f302c97.webp"],
+        ext: {
+          work_id: 1,
+          material_id: 1
+        }
+      }
+      # # 触发异步任务
+      Jobs.enqueue(
+        :post_topic_worker,
+        args,
+      )
+
       # 格式化 headers 为 JSON
       formatted_headers = headers.transform_keys { |k| k.sub('HTTP_', '').split('_').map(&:capitalize).join('-') }
 

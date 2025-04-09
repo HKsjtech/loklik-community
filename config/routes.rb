@@ -35,6 +35,7 @@ HelloModule::Engine.routes.draw do
   put "/post/:post_id/cancel-like" => "post#post_like_cancel"
 
   post "/topic" => "topic#create_topic"
+  post "/topic_async" => "topic#create_topic_async"
   put "/topic" => "topic#edit_topic"
   delete "/topic/:topic_id" => "topic#destroy_topic"
   get "/topic/:topic_id" => "topic#show"

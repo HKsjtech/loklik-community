@@ -21,6 +21,8 @@ end
 require_relative "lib/my_plugin_module/engine"
 
 after_initialize do
+  # require_dependency File.expand_path('../jobs/post_topic_worker.rb', __FILE__)
+  load File.expand_path('../jobs/post_topic_worker.rb', __FILE__)
 end
 
 #  增加管理页面
@@ -32,9 +34,7 @@ end
 
 register_asset "stylesheets/my-plugin.css"
 
-# ar_SA.js.erb  es_CL.js.erb  it_IT.js.erb  nl_NL.js.erb
-# de_CH.js.erb  es_MX.js.erb  ja_JP.js.erb  pt_PT.js.erb
-# en_US.js.erb  fr_BE.js.erb  ko_KR.js.erb  ru_RU.js.erb
+# 注册语言
 register_locale("ar_SA", name: "Arabic (Saudi Arabia)", nativeName: "العربية (المملكة العربية السعودية)", fallbackLocale: "ar")
 register_locale("es_CL", name: "Spanish (Chile)", nativeName: "Español (Chile)", fallbackLocale: "es")
 register_locale("it_IT", name: "Italian (Italy)", nativeName: "Italiano (Italia)", fallbackLocale: "it")

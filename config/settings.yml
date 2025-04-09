@@ -24,4 +24,9 @@ loklik_community:
     default: 50
     client: false
     max: 100
+  work_topic_category_id:
+    client: true
+    type: category
+    default: 4
+    validator: "DefaultComposerCategoryValidator"
 
