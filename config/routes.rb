@@ -35,7 +35,6 @@ HelloModule::Engine.routes.draw do
   put "/post/:post_id/cancel-like" => "post#post_like_cancel"
 
   post "/topic" => "topic#create_topic"
-  post "/topic_async" => "topic#create_topic_async"
   put "/topic" => "topic#edit_topic"
   delete "/topic/:topic_id" => "topic#destroy_topic"
   get "/topic/:topic_id" => "topic#show"
@@ -76,6 +75,7 @@ HelloModule::Engine.routes.draw do
   get "/notifications/message-list" => "notifications#message_list"
   put "/notifications/mark-read" => "notifications#mark_read"
 
+  post "/inner/topic_async" => "inner_topic#create_topic_async"
 end
 
 Discourse::Application.routes.draw { mount ::HelloModule::Engine, at: "loklik" }

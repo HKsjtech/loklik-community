@@ -29,4 +29,8 @@ loklik_community:
     type: category
     default: 4
     validator: "DefaultComposerCategoryValidator"
+  aes_decrypt_secret_key:
+    client: false
+    default: ""
+
 

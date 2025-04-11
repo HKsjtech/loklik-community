@@ -12,11 +12,11 @@ module Jobs
         raise Discourse::InvalidAccess.new("Invalid user id")
       end
 
-      args[:images].each do |image_url|
+      args[:images] && args[:images].each do |image_url|
         params[:image] << upload_image(current_user, image_url)
       end
 
-      raw = params[:raw]
+      raw = params[:raw] || ""
 
       raw += HelloModule::PostService.cal_new_post_raw(params[:image], params[:video]) if params[:image] || params[:video]
 
@@ -36,8 +36,8 @@ module Jobs
       end
 
       new_topic_id = manager.post.topic_id
-      if args[:ext][:material_id].present? && args[:ext][:work_id].present?
-        create_relate_record(current_user.id, new_topic_id, args[:ext][:material_id], args[:ext][:work_id])
+      if args[:ext][:work_id].present?
+        create_relate_record(current_user.id, new_topic_id, args[:ext][:work_id])
       end
 
       LoggerHelper.info("帖子发布成功. Topic ID: #{new_topic_id}")
@@ -48,16 +48,15 @@ module Jobs
     end
 
     private
-    def create_relate_record(user_id, new_topic_id, material_id, work_id)
+    def create_relate_record(user_id, new_topic_id, work_id)
       app_post_record = HelloModule::AppUserTopicMaterialMap.create(
         user_id: user_id,
         topic_id: new_topic_id,
-        external_material_id: material_id,
         external_work_id: work_id,
         )
 
       unless app_post_record.save
-        LoggerHelper.error "创建APP用户-帖子-素材关联记录失败！#{app_post_record.errors.full_messages}"
+        LoggerHelper.error "创建APP用户-帖子-作品关联记录失败！#{app_post_record.errors.full_messages}"
       end
 
     end
